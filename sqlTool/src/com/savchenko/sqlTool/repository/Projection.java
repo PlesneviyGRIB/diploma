@@ -1,6 +1,7 @@
 package com.savchenko.sqlTool.repository;
 
 import com.savchenko.sqlTool.model.Table;
+import com.savchenko.sqlTool.model.query.Query;
 import com.savchenko.sqlTool.supportive.Constants;
 
 import java.sql.Connection;
@@ -29,5 +30,10 @@ public class Projection {
             table.addRow(list);
         }
         tables.add(table);
+    }
+
+    public Table getByName(String tableName){
+        return tables.stream().filter(t -> t.getName().equals(tableName)).findFirst()
+                .orElseThrow(() -> new RuntimeException(format("Unable to find table with name '%s'", tableName)));
     }
 }
