@@ -1,6 +1,7 @@
 package com.savchenko.sqlTool.model.operation;
 
 import com.savchenko.sqlTool.model.Table;
+import com.savchenko.sqlTool.model.operation.supportive.OperationUtils;
 import com.savchenko.sqlTool.repository.Projection;
 import com.savchenko.sqlTool.supportive.Utils;
 import org.apache.commons.collections4.ListUtils;
@@ -20,7 +21,7 @@ public class From implements Operation {
     public Table run(Table table, Projection projection) {
         var tables = tableNames.stream().map(projection::getByName).toList();
         var all = table.isEmpty() ? tables : ListUtils.union(List.of(table), tables);
-        var tableName = all.stream().map(Table::getName).collect(Collectors.joining("_"));
+        var tableName = all.stream().map(Table::name).collect(Collectors.joining("_"));
         if (all.isEmpty()){
             return table;
         }

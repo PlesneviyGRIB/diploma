@@ -4,13 +4,10 @@ import com.savchenko.sqlTool.model.query.Query;
 import com.savchenko.sqlTool.model.query.QueryResolver;
 import com.savchenko.sqlTool.repository.DBReader;
 import com.savchenko.sqlTool.repository.PSQLConnection;
-import com.savchenko.sqlTool.repository.Projection;
 import com.savchenko.sqlTool.supportive.Constants;
 import com.savchenko.sqlTool.supportive.Printer;
 
-import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
-import java.util.List;
 
 public class Main {
     static {
@@ -25,8 +22,9 @@ public class Main {
 
         var table = resolver.resolve(
                 Query.create()
-                        .select(List.of())
-                        .from(List.of("lms", "sections", "login_password_auth_sources"))
+                        .from("actions")
+                        .orderBy("actions.id")
+                        .limit(10)
         );
 
         printer.print(table);

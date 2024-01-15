@@ -6,8 +6,6 @@ import java.util.ArrayList;
 
 public class Utils {
     public static Table renameTable(Table table, String tableName) {
-        var res = new Table(tableName);
-        table.getData().forEach(row -> res.addRow(new ArrayList<>(row)));
-        return res;
+        return new Table(tableName, table.columns(), table.data());
     }
 }
