@@ -5,8 +5,8 @@ import com.savchenko.sqlTool.model.Table;
 import com.savchenko.sqlTool.repository.Projection;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
-import java.util.stream.IntStream;
 
 public class Printer {
     private static final Integer COLUMN_WIDTH = 15;
@@ -20,7 +20,7 @@ public class Printer {
         var res = new StringBuilder();
         var data = table.data();
 
-        Function<String, String> formatCell = entry -> String.format("%" + COLUMN_WIDTH + "." + COLUMN_WIDTH + "s", entry);
+        Function<Object, String> formatCell = entry -> String.format("%" + COLUMN_WIDTH + "." + COLUMN_WIDTH + "s", entry);
         Runnable emptyRow = () -> {
             res.append("+");
             for (int i = 0; i < table.columns().size(); i++){
@@ -39,9 +39,9 @@ public class Printer {
         }
         res.append("\n");
         emptyRow.run();
-        for(List<String> row: data) {
+        for(List<Comparable<?>> row: data) {
             res.append("|");
-            for (String entry: row) {
+            for (Comparable<?> entry: row) {
                 res.append(formatCell.apply(entry)).append("|");
             }
             res.append("\n");

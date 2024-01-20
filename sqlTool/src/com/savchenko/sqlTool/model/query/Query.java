@@ -2,39 +2,44 @@ package com.savchenko.sqlTool.model.query;
 
 import com.savchenko.sqlTool.model.Builder;
 import com.savchenko.sqlTool.model.Column;
-import com.savchenko.sqlTool.model.operation.*;
-import com.savchenko.sqlTool.model.operation.supportive.Order;
+import com.savchenko.sqlTool.model.command.*;
+import com.savchenko.sqlTool.model.command.supportive.Order;
+import com.savchenko.sqlTool.repository.Projection;
 
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Query implements Builder<List<Operation>> {
+public class Query implements Builder<List<Command>> {
+    private final Projection projection;
+    private final List<Command> commands = new LinkedList<>();
 
-
-    private final List<Operation> operations = new LinkedList<>();
-
-    private Query() {
+    private Query(Projection projection) {
+        this.projection = projection;
     }
 
-    public static Query create() {
-        return new Query();
+    public static Query create(Projection projection) {
+        return new Query(projection);
     }
 
     public Query select(List<String> columns) {
-        operations.add(new Select(columns));
+        commands.add(new Select(columns));
         return this;
     }
 
     public Query from(String... tables) {
-        operations.add(new From(Arrays.stream(tables).toList()));
+        commands.add(new From(Arrays.stream(tables).toList()));
+        return this;
+    }
+
+    public Query where(String... predicates) {
         return this;
     }
 
     public Query orderBy(String... orders) {
         var orderList = Arrays.stream(orders).map(order -> {
             var tokens = order.split("\\.");
-            var column = new Column(tokens[1], tokens[0]);
+            var column = projection.getByName(tokens[0]).getColumnByName(tokens[1]);
             var asp = false;
             if(tokens.length > 2) {
                 var aspect = tokens[2];
@@ -45,17 +50,17 @@ public class Query implements Builder<List<Operation>> {
             }
             return new Order(column, asp);
         }).toList();
-        operations.add(new OrderBy(orderList));
+        commands.add(new OrderBy(orderList));
         return this;
     }
 
     public Query limit(Integer limit) {
-        operations.add(new Limit(limit));
+        commands.add(new Limit(limit));
         return this;
     }
 
     @Override
-    public List<Operation> build() {
-        return operations;
+    public List<Command> build() {
+        return commands;
     }
 }

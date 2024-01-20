@@ -1,11 +1,11 @@
-package com.savchenko.sqlTool.model.operation;
+package com.savchenko.sqlTool.model.command;
 
 import com.savchenko.sqlTool.model.Table;
 import com.savchenko.sqlTool.repository.Projection;
 
 import java.util.List;
 
-public class Select implements Operation {
+public class Select implements Command {
     private final List<String> columns;
 
     public Select(List<String> columns) {

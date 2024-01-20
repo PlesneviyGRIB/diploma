@@ -6,5 +6,5 @@ public class Constants {
     public static final String DB_USER = "admin";
     public static final String DB_PASSWORD = "1234";
     public static final String DB_SCHEMA = "public";
-    public static final Integer TABLE_MAX_SIZE = 1000;
+    public static final Integer TABLE_MAX_SIZE = 3000;
 }

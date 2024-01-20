@@ -1,9 +1,9 @@
-package com.savchenko.sqlTool.model.operation;
+package com.savchenko.sqlTool.model.command;
 
 import com.savchenko.sqlTool.model.Table;
 import com.savchenko.sqlTool.repository.Projection;
 
-public class Limit implements Operation {
+public class Limit implements Command {
     private final Integer limit;
 
     public Limit(Integer limit) {

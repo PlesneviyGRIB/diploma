@@ -1,4 +1,4 @@
-package com.savchenko.sqlTool.model.operation.supportive;
+package com.savchenko.sqlTool.model.command.supportive;
 
 import com.savchenko.sqlTool.model.Column;
 

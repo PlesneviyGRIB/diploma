@@ -16,15 +16,15 @@ public class Main {
 
     public static void main(String[] args) throws SQLException {
         var connection = PSQLConnection.get();
-        var projection = DBReader.read(connection.getMetaData());
+        var projection = new DBReader().read(connection.getMetaData());
         var resolver = new QueryResolver(projection);
         var printer = new Printer(projection);
 
         var table = resolver.resolve(
-                Query.create()
+                Query.create(projection)
                         .from("actions")
-                        .orderBy("actions.id")
-                        .limit(10)
+                        .orderBy("actions.action_id", "actions.solution_id.desc")
+                        .limit(60)
         );
 
         printer.print(table);

@@ -2,7 +2,7 @@ package com.savchenko.sqlTool.model;
 
 import java.util.Objects;
 
-public record Column(String name, String table) {
+public record Column(String name, String table, Class<? extends Comparable<?>> type) {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -1,7 +1,7 @@
-package com.savchenko.sqlTool.model.operation;
+package com.savchenko.sqlTool.model.command;
 
 import com.savchenko.sqlTool.model.Table;
-import com.savchenko.sqlTool.model.operation.supportive.Order;
+import com.savchenko.sqlTool.model.command.supportive.Order;
 import com.savchenko.sqlTool.repository.Projection;
 
 import java.util.Comparator;
@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class OrderBy implements Operation {
+public class OrderBy implements Command {
     private final List<Order> orders;
 
     public OrderBy(List<Order> orders) {
@@ -18,20 +18,19 @@ public class OrderBy implements Operation {
 
     @Override
     public Table run(Table table, Projection projection) {
-        //TODO implement multiple orders in right way
-
         var indexes = orders.stream().map(o -> {
             var cls = table.columns();
-            var cl = cls.stream().filter(column -> column.equals(o.column())).findFirst()
-                    .orElseThrow(() -> new RuntimeException(String.format("Unable to find %s in [%s]",
-                            o.column(), cls.stream().map(Objects::toString).collect(Collectors.joining(", ")))));
+            var cl = table.getColumnByName(o.column().name());
             return cls.indexOf(cl);
         }).toList();
 
-        Comparator<List<String>> rowsComparator = (row1, row2) -> {
+        Comparator<List<Comparable<?>>> rowsComparator = (row1, row2) -> {
             for (int i = 0; i < indexes.size(); i++) {
                 var idx = indexes.get(i);
-                var res = row1.get(idx).compareTo(row2.get(idx));
+                var elem1 = row1.get(idx);
+                var elem2 = row2.get(idx);
+                var targetClass = elem1.getClass();
+                var res = targetClass.cast(elem1).compareTo(targetClass.cast(elem2));
                 if(orders.get(i).reverse()) {
                     res *= -1;
                 }

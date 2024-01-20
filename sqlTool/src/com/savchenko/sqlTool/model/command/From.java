@@ -1,7 +1,7 @@
-package com.savchenko.sqlTool.model.operation;
+package com.savchenko.sqlTool.model.command;
 
 import com.savchenko.sqlTool.model.Table;
-import com.savchenko.sqlTool.model.operation.supportive.OperationUtils;
+import com.savchenko.sqlTool.model.command.supportive.OperationUtils;
 import com.savchenko.sqlTool.repository.Projection;
 import com.savchenko.sqlTool.supportive.Utils;
 import org.apache.commons.collections4.ListUtils;
@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 
-public class From implements Operation {
+public class From implements Command {
     private final List<String> tableNames;
 
     public From(List<String> tableNames) {

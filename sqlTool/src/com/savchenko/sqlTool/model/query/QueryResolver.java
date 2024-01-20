@@ -1,7 +1,7 @@
 package com.savchenko.sqlTool.model.query;
 
 import com.savchenko.sqlTool.model.Table;
-import com.savchenko.sqlTool.model.operation.Operation;
+import com.savchenko.sqlTool.model.command.Command;
 import com.savchenko.sqlTool.repository.Projection;
 import com.savchenko.sqlTool.supportive.Utils;
 
@@ -16,9 +16,9 @@ public class QueryResolver {
 
     public Table resolve(Query query) {
         var table = new Table("", List.of(), List.of());
-        var operations = query.build();
-        for (Operation op: operations){
-            table = op.run(table, projection);
+        var commands = query.build();
+        for (Command cmd: commands){
+            table = cmd.run(table, projection);
         }
         return Utils.renameTable(table, "result");
     }

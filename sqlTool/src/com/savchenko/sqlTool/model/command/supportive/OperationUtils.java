@@ -1,9 +1,7 @@
-package com.savchenko.sqlTool.model.operation.supportive;
+package com.savchenko.sqlTool.model.command.supportive;
 
 import com.savchenko.sqlTool.model.Table;
 import org.apache.commons.collections4.ListUtils;
-
-import java.util.List;
 
 public class OperationUtils {
     public static Table cartesianProduct(Table table1, Table table2) {
