@@ -9,6 +9,9 @@ import com.savchenko.sqlTool.repository.Projection;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static java.lang.String.format;
 
 public class Query implements Builder<List<Command>> {
     private final Projection projection;
@@ -22,8 +25,19 @@ public class Query implements Builder<List<Command>> {
         return new Query(projection);
     }
 
-    public Query select(List<String> columns) {
-        commands.add(new Select(columns));
+    public Query select(String... columns) {
+        if(columns.length == 1 && columns[0].equals("*")){
+            commands.add(new Select());
+            return this;
+        }
+        var clmns = Arrays.stream(columns).map(c -> {
+            var tokens = c.split("\\.");
+            if(tokens.length != 2) {
+                throw new RuntimeException(format("Wrong input '%s': can not determine target column! Expected input example 'tableName.columnName'", c));
+            }
+            return projection.getByName(tokens[0]).getColumn(tokens[0], tokens[1]);
+        }).toList();
+        commands.add(new Select(clmns));
         return this;
     }
 
@@ -39,12 +53,15 @@ public class Query implements Builder<List<Command>> {
     public Query orderBy(String... orders) {
         var orderList = Arrays.stream(orders).map(order -> {
             var tokens = order.split("\\.");
-            var column = projection.getByName(tokens[0]).getColumnByName(tokens[1]);
+            if(tokens.length < 2) {
+                throw new RuntimeException(format("Wrong input '%s': can not determine target column! Expected input example 'tableName.columnName'", order));
+            }
+            var column = projection.getByName(tokens[0]).getColumn(tokens[0], tokens[1]);
             var asp = false;
             if(tokens.length > 2) {
                 var aspect = tokens[2];
                 if(!aspect.equals("asc") && !aspect.equals("desc")) {
-                    throw new RuntimeException(String.format("Wrong order aspect! Value '%s' out of values [asc, desc]", aspect));
+                    throw new RuntimeException(format("Wrong order aspect! Value '%s' out of values [asc, desc]", aspect));
                 }
                 asp = aspect.equals("desc");
             }

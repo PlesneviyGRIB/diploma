@@ -15,4 +15,9 @@ public record Column(String name, String table, Class<? extends Comparable<?>> t
     public int hashCode() {
         return Objects.hash(name, table);
     }
+
+    @Override
+    public String toString() {
+        return table + "." + name;
+    }
 }

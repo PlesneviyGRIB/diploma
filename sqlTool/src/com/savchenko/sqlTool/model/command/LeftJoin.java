@@ -8,4 +8,8 @@ public class LeftJoin implements Command {
     public Table run(Table table, Projection projection) {
         return null;
     }
+
+    @Override
+    public void validate(Projection projection) {
+    }
 }

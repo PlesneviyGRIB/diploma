@@ -20,4 +20,9 @@ public class Where implements Command {
                 .toList();
         return new Table(table.name(), table.columns(), data);
     }
+
+    @Override
+    public void validate(Projection projection) {
+
+    }
 }

@@ -31,4 +31,9 @@ public class From implements Command {
         }
         return Utils.renameTable(res, tableName);
     }
+
+    @Override
+    public void validate(Projection projection) {
+         tableNames.forEach(projection::getByName);
+    }
 }

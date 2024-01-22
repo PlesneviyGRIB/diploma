@@ -6,8 +6,12 @@ import com.savchenko.sqlTool.repository.Projection;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static java.lang.String.format;
 
 public class OrderBy implements Command {
     private final List<Order> orders;
@@ -20,7 +24,7 @@ public class OrderBy implements Command {
     public Table run(Table table, Projection projection) {
         var indexes = orders.stream().map(o -> {
             var cls = table.columns();
-            var cl = table.getColumnByName(o.column().name());
+            var cl = table.getColumn(o.column());
             return cls.indexOf(cl);
         }).toList();
 
@@ -43,5 +47,18 @@ public class OrderBy implements Command {
 
         var data = table.data().stream().sorted(rowsComparator).toList();
         return new Table(table.name(), table.columns(), data);
+    }
+
+    @Override
+    public void validate(Projection projection) {
+        orders.forEach(o -> projection.getByName(o.column().table()).getColumn(o.column().table(), o.column().name()));
+        orders.stream()
+                .collect(Collectors.groupingBy(Order::column, Collectors.counting()))
+                .entrySet().stream()
+                .filter(entry -> entry.getValue() > 1)
+                .map(Map.Entry::getKey)
+                .findAny().ifPresent(column -> {
+                    throw new RuntimeException(format("ORDER_BY command can not contains the same column (%s) several times!", column));
+                });
     }
 }

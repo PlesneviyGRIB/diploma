@@ -2,6 +2,7 @@ package com.savchenko.sqlTool.model.query;
 
 import com.savchenko.sqlTool.model.Table;
 import com.savchenko.sqlTool.model.command.Command;
+import com.savchenko.sqlTool.model.command.supportive.CommandsValidator;
 import com.savchenko.sqlTool.repository.Projection;
 import com.savchenko.sqlTool.supportive.Utils;
 
@@ -16,7 +17,9 @@ public class QueryResolver {
 
     public Table resolve(Query query) {
         var table = new Table("", List.of(), List.of());
-        var commands = query.build();
+        var commands = new CommandsValidator(query.build())
+                .validate(projection)
+                .getNormalized();
         for (Command cmd: commands){
             table = cmd.run(table, projection);
         }
