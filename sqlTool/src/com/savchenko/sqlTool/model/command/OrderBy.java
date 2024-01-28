@@ -1,14 +1,11 @@
 package com.savchenko.sqlTool.model.command;
 
-import com.savchenko.sqlTool.model.Table;
-import com.savchenko.sqlTool.model.command.supportive.Order;
+import com.savchenko.sqlTool.model.structure.Table;
 import com.savchenko.sqlTool.repository.Projection;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;

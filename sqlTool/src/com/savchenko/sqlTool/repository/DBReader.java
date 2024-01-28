@@ -1,9 +1,9 @@
 package com.savchenko.sqlTool.repository;
 
-import com.savchenko.sqlTool.model.Column;
-import com.savchenko.sqlTool.model.Table;
-import com.savchenko.sqlTool.supportive.Constants;
-import com.savchenko.sqlTool.supportive.Utils;
+import com.savchenko.sqlTool.model.structure.Column;
+import com.savchenko.sqlTool.model.structure.Table;
+import com.savchenko.sqlTool.config.Constants;
+import com.savchenko.sqlTool.utils.ModelUtils;
 
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
@@ -27,8 +27,8 @@ public class DBReader {
     }
 
     private Table addTable(String name) throws SQLException {
-        var query = format("select * from %s limit %s", name, Constants.TABLE_MAX_SIZE);
-        try (var statement = PSQLConnection.get().createStatement()) {
+        var query = format("select * from %s limit %s", name, Constants.TABLE_PULL_ROWS_MAX_SIZE);
+        try (var statement = DBConnection.get().createStatement()) {
             var resultSet = statement.executeQuery(query);
             var meta = resultSet.getMetaData();
             var columnsCnt = meta.getColumnCount();
@@ -46,7 +46,7 @@ public class DBReader {
                 var list = new ArrayList<Comparable<?>>(columnsCnt);
                 for (int i = 1; i < columnsCnt + 1; i++) {
                     var type = columns[i - 1].type();
-                    var entry = Utils.readEntry(resultSet.getString(i), type);
+                    var entry = (Comparable<?>) ModelUtils.readEntry(resultSet.getString(i), type);
                     list.add(entry);
                 }
                 data.add(list);

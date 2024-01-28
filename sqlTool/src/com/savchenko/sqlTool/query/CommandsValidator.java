@@ -1,4 +1,4 @@
-package com.savchenko.sqlTool.model.command.supportive;
+package com.savchenko.sqlTool.query;
 
 import com.savchenko.sqlTool.model.command.Command;
 import com.savchenko.sqlTool.model.command.From;

@@ -1,6 +1,6 @@
 package com.savchenko.sqlTool.repository;
 
-import com.savchenko.sqlTool.model.Table;
+import com.savchenko.sqlTool.model.structure.Table;
 
 import java.util.List;
 

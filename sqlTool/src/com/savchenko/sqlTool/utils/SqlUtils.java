@@ -1,9 +1,9 @@
-package com.savchenko.sqlTool.model.command.supportive;
+package com.savchenko.sqlTool.utils;
 
-import com.savchenko.sqlTool.model.Table;
+import com.savchenko.sqlTool.model.structure.Table;
 import org.apache.commons.collections4.ListUtils;
 
-public class OperationUtils {
+public class SqlUtils {
     public static Table cartesianProduct(Table table1, Table table2) {
         var data1 = table1.data();
         var data2 = table2.data();

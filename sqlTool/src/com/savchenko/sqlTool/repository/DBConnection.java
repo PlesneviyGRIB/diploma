@@ -5,15 +5,15 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Optional;
 
-public class PSQLConnection {
+public class DBConnection {
     private static Connection connection;
 
-    private PSQLConnection() {
+    private DBConnection() {
     }
 
-    public static void init(Integer port, String dbName, String user, String password) {
+    public static void init(String driver, Integer port, String dbName, String user, String password) {
         try {
-            connection = DriverManager.getConnection(String.format("jdbc:postgresql://localhost:%s/%s", port, dbName), user, password);
+            connection = DriverManager.getConnection(String.format("jdbc:%s://localhost:%s/%s", driver, port, dbName), user, password);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

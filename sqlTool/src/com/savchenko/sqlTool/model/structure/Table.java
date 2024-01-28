@@ -1,4 +1,4 @@
-package com.savchenko.sqlTool.model;
+package com.savchenko.sqlTool.model.structure;
 
 import java.util.List;
 import java.util.stream.Collectors;

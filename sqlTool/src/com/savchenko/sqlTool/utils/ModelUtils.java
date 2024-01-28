@@ -1,12 +1,17 @@
-package com.savchenko.sqlTool.supportive;
+package com.savchenko.sqlTool.utils;
 
-import com.savchenko.sqlTool.model.Table;
+import com.savchenko.sqlTool.model.structure.Column;
+import com.savchenko.sqlTool.model.structure.Table;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
-public class Utils {
+import static java.lang.String.format;
+
+public class ModelUtils {
     public static Table renameTable(Table table, String tableName) {
         return new Table(tableName, table.columns(), table.data());
     }

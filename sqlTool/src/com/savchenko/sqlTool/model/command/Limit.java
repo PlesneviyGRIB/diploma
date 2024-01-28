@@ -1,6 +1,6 @@
 package com.savchenko.sqlTool.model.command;
 
-import com.savchenko.sqlTool.model.Table;
+import com.savchenko.sqlTool.model.structure.Table;
 import com.savchenko.sqlTool.repository.Projection;
 
 import static java.lang.String.format;

@@ -1,10 +1,9 @@
-package com.savchenko.sqlTool.model.query;
+package com.savchenko.sqlTool.query;
 
-import com.savchenko.sqlTool.model.Table;
+import com.savchenko.sqlTool.model.structure.Table;
 import com.savchenko.sqlTool.model.command.Command;
-import com.savchenko.sqlTool.model.command.supportive.CommandsValidator;
 import com.savchenko.sqlTool.repository.Projection;
-import com.savchenko.sqlTool.supportive.Utils;
+import com.savchenko.sqlTool.utils.ModelUtils;
 
 import java.util.List;
 
@@ -23,6 +22,6 @@ public class QueryResolver {
         for (Command cmd: commands){
             table = cmd.run(table, projection);
         }
-        return Utils.renameTable(table, "result");
+        return ModelUtils.renameTable(table, "result");
     }
 }

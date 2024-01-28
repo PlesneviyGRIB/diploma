@@ -1,7 +1,7 @@
-package com.savchenko.sqlTool.supportive;
+package com.savchenko.sqlTool.utils;
 
-import com.savchenko.sqlTool.model.Column;
-import com.savchenko.sqlTool.model.Table;
+import com.savchenko.sqlTool.model.structure.Column;
+import com.savchenko.sqlTool.model.structure.Table;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
@@ -12,8 +12,8 @@ import java.util.stream.IntStream;
 import static java.lang.String.format;
 
 public class TablePrinter {
-    private static final Integer COLUMN_WIDTH = 10;
-    private static final Integer PRINTED_ROWS_MAX_COUNT = 500;
+    private static final Integer COLUMN_WIDTH = 15;
+    private static final Integer PRINTED_ROWS_MAX_COUNT = 200;
     private final Table table;
     private final StringBuilder res;
 

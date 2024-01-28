@@ -1,9 +1,9 @@
 package com.savchenko.sqlTool.model.command;
 
-import com.savchenko.sqlTool.model.Table;
-import com.savchenko.sqlTool.model.command.supportive.OperationUtils;
+import com.savchenko.sqlTool.model.structure.Table;
+import com.savchenko.sqlTool.utils.SqlUtils;
 import com.savchenko.sqlTool.repository.Projection;
-import com.savchenko.sqlTool.supportive.Utils;
+import com.savchenko.sqlTool.utils.ModelUtils;
 import org.apache.commons.collections4.ListUtils;
 
 import java.util.List;
@@ -27,9 +27,9 @@ public class From implements Command {
         }
         Table res = all.get(0);
         for (Table t: all.subList(1, all.size())){
-            res = OperationUtils.cartesianProduct(res, t);
+            res = SqlUtils.cartesianProduct(res, t);
         }
-        return Utils.renameTable(res, tableName);
+        return ModelUtils.renameTable(res, tableName);
     }
 
     @Override

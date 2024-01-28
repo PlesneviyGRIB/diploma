@@ -1,7 +1,7 @@
 package com.savchenko.sqlTool.model.command;
 
-import com.savchenko.sqlTool.model.Column;
-import com.savchenko.sqlTool.model.Table;
+import com.savchenko.sqlTool.model.structure.Column;
+import com.savchenko.sqlTool.model.structure.Table;
 import com.savchenko.sqlTool.repository.Projection;
 
 import java.util.ArrayList;
@@ -47,7 +47,4 @@ public class Select implements Command {
         return new Table(table.name(), targetColumns, data);
     }
 
-    @Override
-    public void validate(Projection projection) {
-    }
 }
