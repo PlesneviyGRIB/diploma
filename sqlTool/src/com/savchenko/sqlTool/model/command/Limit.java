@@ -1,5 +1,6 @@
 package com.savchenko.sqlTool.model.command;
 
+import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.structure.Table;
 import com.savchenko.sqlTool.repository.Projection;
 
@@ -19,9 +20,9 @@ public class Limit implements Command {
     }
 
     @Override
-    public void validate(Projection projection) {
+    public void validate(Table table, Projection projection) {
         if(limit < 0) {
-            throw new RuntimeException(format("Limit can not be less than 0! Current value is '%s'", limit));
+            throw new ValidationException("Limit can not be less than 0! Current value is '%s'", limit);
         }
     }
 }

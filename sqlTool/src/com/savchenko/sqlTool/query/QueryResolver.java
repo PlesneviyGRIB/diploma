@@ -16,10 +16,8 @@ public class QueryResolver {
 
     public Table resolve(Query query) {
         var table = new Table("", List.of(), List.of());
-        var commands = new CommandsValidator(query.build())
-                .validate(projection)
-                .getNormalized();
-        for (Command cmd: commands){
+        for (Command cmd: query.build()) {
+            cmd.validate(table, projection);
             table = cmd.run(table, projection);
         }
         return ModelUtils.renameTable(table, "result");

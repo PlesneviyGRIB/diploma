@@ -1,16 +1,17 @@
 package com.savchenko.sqlTool.model.structure;
 
-import com.savchenko.sqlTool.model.operation.Expression;
+import com.savchenko.sqlTool.model.expression.Expression;
+import com.savchenko.sqlTool.model.expression.Value;
 
 import java.util.Objects;
 
-public record Column(String name, String table, Class<? extends Comparable<?>> type) implements Expression {
+public record Column(String name, String table, Class<? extends Value<?>> type) implements Expression<Column> {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Column column = (Column) o;
-        return Objects.equals(name, column.name) && Objects.equals(table, column.table);
+        return Objects.equals(name, column.name) && Objects.equals(table, column.table) && Objects.equals(type, column.type);
     }
 
     @Override
@@ -26,5 +27,10 @@ public record Column(String name, String table, Class<? extends Comparable<?>> t
     @Override
     public <T> T accept(Visitor<T> visitor) {
         return visitor.visit(this);
+    }
+
+    @Override
+    public int compareTo(Column column) {
+        return 0;
     }
 }

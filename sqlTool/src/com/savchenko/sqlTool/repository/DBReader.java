@@ -1,5 +1,6 @@
 package com.savchenko.sqlTool.repository;
 
+import com.savchenko.sqlTool.model.expression.Value;
 import com.savchenko.sqlTool.model.structure.Column;
 import com.savchenko.sqlTool.model.structure.Table;
 import com.savchenko.sqlTool.config.Constants;
@@ -32,21 +33,21 @@ public class DBReader {
             var resultSet = statement.executeQuery(query);
             var meta = resultSet.getMetaData();
             var columnsCnt = meta.getColumnCount();
-            var data = new LinkedList<List<Comparable<?>>>();
+            var data = new LinkedList<List<Value<?>>>();
 
             var columns = IntStream.range(1, columnsCnt + 1).mapToObj(i -> {
                 try {
-                    return new Column(meta.getColumnName(i), name, (Class<? extends Comparable<?>>) Class.forName(meta.getColumnClassName(i)));
+                    return new Column(meta.getColumnName(i), name, ModelUtils.getWrapper(Class.forName(meta.getColumnClassName(i))));
                 } catch (SQLException | ClassNotFoundException e) {
                     throw new RuntimeException(e);
                 }
             }).toArray(Column[]::new);
 
             while (resultSet.next()) {
-                var list = new ArrayList<Comparable<?>>(columnsCnt);
+                var list = new ArrayList<Value<?>>(columnsCnt);
                 for (int i = 1; i < columnsCnt + 1; i++) {
                     var type = columns[i - 1].type();
-                    var entry = (Comparable<?>) ModelUtils.readEntry(resultSet.getString(i), type);
+                    var entry = ModelUtils.readEntry(resultSet.getString(i), type);
                     list.add(entry);
                 }
                 data.add(list);

@@ -1,5 +1,6 @@
 package com.savchenko.sqlTool.utils;
 
+import com.savchenko.sqlTool.model.expression.Value;
 import com.savchenko.sqlTool.model.structure.Column;
 import com.savchenko.sqlTool.model.structure.Table;
 import org.apache.commons.lang3.tuple.Pair;
@@ -59,7 +60,7 @@ public class TablePrinter {
         for (int i = 0; i < Math.min(rowsCount(), PRINTED_ROWS_MAX_COUNT); i++) {
             var row = array.get(i);
             res.append("|");
-            for (Comparable<?> entry : row) {
+            for (Value entry : row) {
                 res.append(formatCell(entry)).append("|");
             }
             res.append("\n");
@@ -76,7 +77,7 @@ public class TablePrinter {
     }
 
     private String formatCell(Object entry) {
-        return format("%" + COLUMN_WIDTH + "." + COLUMN_WIDTH + "s", Optional.ofNullable(entry).orElse("null"));
+        return format("%" + COLUMN_WIDTH + "." + COLUMN_WIDTH + "s", entry);
     }
 
     private void emptyRow() {

@@ -33,7 +33,7 @@ public class From implements Command {
     }
 
     @Override
-    public void validate(Projection projection) {
+    public void validate(Table table, Projection projection) {
          tableNames.forEach(projection::getByName);
     }
 }

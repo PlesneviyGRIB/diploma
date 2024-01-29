@@ -5,5 +5,5 @@ import com.savchenko.sqlTool.repository.Projection;
 
 public interface Command {
     Table run(Table table, Projection projection);
-    default void validate(Projection projection) {};
+    default void validate(Table table, Projection projection) {};
 }
