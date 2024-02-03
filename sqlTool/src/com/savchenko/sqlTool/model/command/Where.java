@@ -1,12 +1,10 @@
 package com.savchenko.sqlTool.model.command;
 
 import com.savchenko.sqlTool.model.expression.Expression;
-import com.savchenko.sqlTool.model.expression.ExpressionToPredicateVisitor;
-import com.savchenko.sqlTool.model.expression.ExpressionValidationVisitor;
+import com.savchenko.sqlTool.model.expression.visitor.ExpressionCalculator;
+import com.savchenko.sqlTool.model.expression.visitor.ExpressionValidator;
 import com.savchenko.sqlTool.model.structure.Table;
 import com.savchenko.sqlTool.repository.Projection;
-
-import java.util.List;
 
 public class Where implements Command {
     private final Expression<?> expression;
@@ -17,7 +15,7 @@ public class Where implements Command {
 
     @Override
     public Table run(Table table, Projection projection) {
-        var predicate = expression.accept(new ExpressionToPredicateVisitor());
+        var predicate = expression.accept(new ExpressionCalculator());
         var data = table.data().stream()
                 .filter(row -> predicate.test(table.columns(), row))
                 .toList();
@@ -26,7 +24,7 @@ public class Where implements Command {
 
     @Override
     public void validate(Table table, Projection projection) {
-        this.expression.accept(new ExpressionValidationVisitor(table.columns()));
+        this.expression.accept(new ExpressionValidator(table.columns()));
     }
 
 }

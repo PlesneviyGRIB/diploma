@@ -1,9 +1,10 @@
-package com.savchenko.sqlTool.model.expression;
+package com.savchenko.sqlTool.model.expression.visitor;
 
+import com.savchenko.sqlTool.model.expression.*;
 import com.savchenko.sqlTool.model.predicate.Predicate;
 import com.savchenko.sqlTool.model.structure.Column;
 
-public class ExpressionToPredicateVisitor implements Expression.Visitor<Predicate> {
+public class ExpressionCalculator implements Expression.Visitor<Predicate> {
 
     @Override
     public Predicate visit(Column column) {

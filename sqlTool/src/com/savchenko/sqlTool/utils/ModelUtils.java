@@ -2,16 +2,21 @@ package com.savchenko.sqlTool.utils;
 
 import com.savchenko.sqlTool.exception.ColumnNotFoundException;
 import com.savchenko.sqlTool.exception.UnsupportedTypeException;
+import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.expression.*;
+import com.savchenko.sqlTool.model.operator.Operator;
 import com.savchenko.sqlTool.model.structure.Column;
 import com.savchenko.sqlTool.model.structure.Table;
-import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.IntStream;
+
+import static com.savchenko.sqlTool.model.operator.Operator.*;
 
 public class ModelUtils {
     public static Table renameTable(Table table, String tableName) {
@@ -67,7 +72,7 @@ public class ModelUtils {
         } else if (clazz.equals(Long.class)) {
             return LongNumber.class;
         } else if (clazz.equals(Float.class)) {
-            return DoubleNumber.class;
+            return FloatNumber.class;
         }else if (clazz.equals(Double.class)) {
             return DoubleNumber.class;
         } else if (clazz.equals(BigDecimal.class)) {
@@ -91,14 +96,51 @@ public class ModelUtils {
     }
 
     public static int compareValues(Value<?> value1, Value<?> value2, Class<? extends Value> targetType) {
-        // TODO
-        if(value1 instanceof NullValue nullValue) {
-            return nullValue.compareTo(value2);
+        if(value1 instanceof NullValue && !(value2 instanceof NullValue)) {
+            return 1;
         }
-        if(value2 instanceof NullValue nullValue) {
-            return nullValue.compareTo(value1);
+        if(!(value1 instanceof NullValue) && value2 instanceof NullValue) {
+            return -1;
+        }
+        if(value1 instanceof NullValue nv1 && value2 instanceof NullValue nv2) {
+            return nv1.compareTo(nv2);
         }
         return targetType.cast(value1).compareTo(targetType.cast(value2));
+    }
+
+    public static boolean supportsOperator(Class<? extends Value<?>> clazz, Operator operator) {
+        Function<List<Operator>, Boolean> check = list ->
+                CollectionUtils.union(List.of(EXISTS, IN, IS_NULL, EQ, NOT_EQ, GREATER_OR_EQ, LESS_OR_EQ, GREATER, LESS), list)
+                        .stream().anyMatch(o -> o.equals(operator));
+
+        if(clazz.equals(NullValue.class)) {
+            return check.apply(List.of(AND, BETWEEN, OR));
+        }
+        if(clazz.equals(StringValue.class)) {
+            return check.apply(List.of(BETWEEN, PLUS));
+        }
+        if(clazz.equals(BooleanValue.class)) {
+            return List.of(AND, OR, EXISTS, IN, IS_NULL, EQ, NOT_EQ).contains(operator);
+        }
+        if(clazz.equals(IntegerNumber.class)) {
+            return check.apply(List.of(BETWEEN, PLUS, MINUS, MULTIPLY, DIVISION, MOD));
+        }
+        if(clazz.equals(LongNumber.class)) {
+            return check.apply(List.of(BETWEEN, PLUS, MINUS, MULTIPLY, DIVISION));
+        }
+        if(clazz.equals(FloatNumber.class)) {
+            return check.apply(List.of(BETWEEN, PLUS, MINUS, MULTIPLY, DIVISION));
+        }
+        if(clazz.equals(DoubleNumber.class)) {
+            return check.apply(List.of(BETWEEN, PLUS, MINUS, MULTIPLY, DIVISION));
+        }
+        if(clazz.equals(BigDecimalNumber.class)) {
+            return check.apply(List.of(BETWEEN, PLUS, MINUS, MULTIPLY, DIVISION));
+        }
+        if(clazz.equals(TimestampValue.class)) {
+            return check.apply(List.of(BETWEEN, PLUS, MINUS));
+        }
+        throw new ValidationException("Unexpected type '%s'", clazz.getTypeName());
     }
 
 }

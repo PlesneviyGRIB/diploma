@@ -26,13 +26,14 @@ public class Main {
         var query = Query.create()
                 .from("actions")
                 .selectAll()
-                .select(Q.column("actions", "id"))
+                //.select(Q.column("actions", "id"))
 //                .where(Q.op(AND,
 //                        Q.op(EXISTS, Q.column("course_users", "id")),
 //                        Q.op(IS_NULL, Q.column("course_users", "user_id"))
 //                ))
-                .orderBy(Q.order(Q.column("actions", "id")))
-                .limit(8)
+                //.orderBy(Q.order(Q.column("actions", "id")))
+                .orderBy(Q.order(Q.column("actions", "action_label")))
+                .limit(10)
                 ;
 
 
