@@ -59,7 +59,7 @@ public class ExpressionValidator implements Expression.Visitor<Class<? extends V
         if(!ModelUtils.supportsOperator(first, operation.operator())){
             throw new ComputedTypeException();
         }
-        return first;
+        return BooleanValue.class;
     }
 
     @Override

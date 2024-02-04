@@ -1,5 +1,8 @@
 package com.savchenko.sqlTool.model.expression;
 
+import com.savchenko.sqlTool.exception.UnexpectedException;
+import com.savchenko.sqlTool.model.operator.Operator;
+
 import java.math.BigDecimal;
 
 public record BigDecimalNumber(BigDecimal value) implements Value<BigDecimalNumber> {
@@ -16,5 +19,28 @@ public record BigDecimalNumber(BigDecimal value) implements Value<BigDecimalNumb
     @Override
     public String toString() {
         return value().toString();
+    }
+
+    @Override
+    public Value<BigDecimalNumber> processArithmetic(Operator operator, Value<BigDecimalNumber> operand) {
+        var val = (BigDecimalNumber) operand;
+        switch (operator) {
+            case PLUS -> {
+                return new BigDecimalNumber(this.value.add(val.value));
+            }
+            case MINUS -> {
+                return new BigDecimalNumber(this.value.subtract(val.value));
+            }
+            case MULTIPLY -> {
+                return new BigDecimalNumber(this.value.multiply(val.value));
+            }
+            case DIVISION -> {
+                return new BigDecimalNumber(this.value.divide(val.value));
+            }
+            case MOD -> {
+                return new BigDecimalNumber(this.value.remainder(val.value));
+            }
+        }
+        throw new UnexpectedException();
     }
 }

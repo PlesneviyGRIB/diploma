@@ -44,7 +44,7 @@ public enum Operator {
     }
 
     public boolean isBinary() {
-        var operators = List.of(AND, EXISTS, IN, OR, EQ, NOT_EQ, GREATER_OR_EQ, LESS_OR_EQ, GREATER, LESS, PLUS, MINUS, MULTIPLY, DIVISION, MOD);
+        var operators = List.of(AND, IN, OR, EQ, NOT_EQ, GREATER_OR_EQ, LESS_OR_EQ, GREATER, LESS, PLUS, MINUS, MULTIPLY, DIVISION, MOD);
         return operators.stream().anyMatch(o -> o.equals(this));
     }
 

@@ -2,7 +2,10 @@ package com.savchenko.sqlTool.query;
 
 import com.savchenko.sqlTool.model.Builder;
 import com.savchenko.sqlTool.model.command.*;
+import com.savchenko.sqlTool.model.expression.BinaryOperation;
+import com.savchenko.sqlTool.model.expression.BooleanValue;
 import com.savchenko.sqlTool.model.expression.Expression;
+import com.savchenko.sqlTool.model.operator.Operator;
 import com.savchenko.sqlTool.model.structure.Column;
 
 import java.util.Arrays;
@@ -31,7 +34,8 @@ public class Query implements Builder<List<Command>> {
         return this;
     }
 
-    public Query where(Expression expression) {
+    public Query where(Expression<?>... expressions) {
+        var expression = Arrays.stream(expressions).reduce(new BooleanValue(true), (p, c) -> new BinaryOperation(Operator.AND, p, c));
         commands.add(new Where(expression));
         return this;
     }

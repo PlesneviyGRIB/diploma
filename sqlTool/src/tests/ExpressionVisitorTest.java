@@ -43,7 +43,7 @@ public class ExpressionVisitorTest extends TestBase {
         expectError(() -> Q.op(EQ, new BooleanValue(false), Q.column("t", "int")).accept(validator), ComputedTypeException.class);
         expectError(() -> Q.op(IN, new BooleanValue(false), Q.column("t", "int")).accept(validator), ComputedTypeException.class);
         expectError(() -> Q.op(EQ,
-                        Q.op(EXISTS, new BooleanValue(false), Q.op(EQ, new IntegerNumber(1), Q.column("t", "int"))),
+                        Q.op(AND, new BooleanValue(false), Q.op(EQ, new IntegerNumber(1), Q.column("t", "int"))),
                         new TimestampValue(new Timestamp(System.currentTimeMillis()))).accept(validator), ComputedTypeException.class);
     }
 

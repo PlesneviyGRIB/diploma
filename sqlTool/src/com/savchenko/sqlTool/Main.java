@@ -1,6 +1,9 @@
 package com.savchenko.sqlTool;
 
 import com.savchenko.sqlTool.config.Constants;
+import com.savchenko.sqlTool.model.expression.IntegerNumber;
+import com.savchenko.sqlTool.model.expression.LongNumber;
+import com.savchenko.sqlTool.model.expression.StringValue;
 import com.savchenko.sqlTool.query.Q;
 import com.savchenko.sqlTool.query.Query;
 import com.savchenko.sqlTool.query.QueryResolver;
@@ -22,21 +25,26 @@ public class Main {
 
 
 
-
         var query = Query.create()
                 .from("actions")
                 .selectAll()
-                //.select(Q.column("actions", "id"))
-//                .where(Q.op(AND,
-//                        Q.op(EXISTS, Q.column("course_users", "id")),
-//                        Q.op(IS_NULL, Q.column("course_users", "user_id"))
-//                ))
-                //.orderBy(Q.order(Q.column("actions", "id")))
-                .orderBy(Q.order(Q.column("actions", "action_label")))
-                .limit(10)
+                .where(
+                        //Q.op(EQ, new StringValue("{}"), Q.column("actions", "parameters")),
+                        //Q.op(EXISTS, Q.column("actions", "action_label")),
+                        Q.op(
+                                LESS_OR_EQ,
+                                Q.column("actions", "id"),
+                                Q.op(
+                                        MULTIPLY,
+                                        new LongNumber(1L),
+                                        new LongNumber(1042L)
+                                )
+                        ),
+                        Q.op(EQ, Q.column("actions", "action_id"), new StringValue("addRow"))
+                )
+                .orderBy(Q.order(Q.column("actions", "solution_id")), Q.order(Q.column("actions", "id"), true))
+                //.limit(20)
                 ;
-
-
 
 
 
