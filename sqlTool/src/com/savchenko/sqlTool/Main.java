@@ -27,7 +27,6 @@ public class Main {
 
         var query = Query.create()
                 .from("actions")
-                .selectAll()
                 .where(
                         //Q.op(EQ, new StringValue("{}"), Q.column("actions", "parameters")),
                         //Q.op(EXISTS, Q.column("actions", "action_label")),

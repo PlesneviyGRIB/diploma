@@ -1,11 +1,12 @@
 package com.savchenko.sqlTool.model.structure;
 
+import com.savchenko.sqlTool.model.command.OrderSpecifier;
 import com.savchenko.sqlTool.model.expression.Expression;
 import com.savchenko.sqlTool.model.expression.Value;
 
 import java.util.Objects;
 
-public record Column(String name, String table, Class<? extends Value<?>> type) implements Expression<Column> {
+public record Column(String name, String table, Class<? extends Value<?>> type) implements Expression<Column>, OrderSpecifier {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

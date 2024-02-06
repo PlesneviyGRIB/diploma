@@ -19,11 +19,6 @@ public class Query implements Builder<List<Command>> {
         return new Query();
     }
 
-    public Query selectAll() {
-        commands.add(new Select());
-        return this;
-    }
-
     public Query select(Column... columns) {
         commands.add(new Select(Arrays.asList(columns)));
         return this;
@@ -34,14 +29,25 @@ public class Query implements Builder<List<Command>> {
         return this;
     }
 
+    public Query innerJoin(String table, Expression<?> expression) {
+        commands.add(new InnerJoin(table, expression));
+        return this;
+    }
+
     public Query where(Expression<?>... expressions) {
         var expression = Arrays.stream(expressions).reduce(new BooleanValue(true), (p, c) -> new BinaryOperation(Operator.AND, p, c));
         commands.add(new Where(expression));
         return this;
     }
 
-    public Query orderBy(Order... orders) {
-        commands.add(new OrderBy(Arrays.asList(orders)));
+    public Query orderBy(OrderSpecifier... specifiers) {
+        var orders = Arrays.stream(specifiers).map(specifier -> {
+            if(specifier instanceof Column column) {
+                return new Order(column, false);
+            }
+            return (Order) specifier;
+        }).toList();
+        commands.add(new OrderBy(orders));
         return this;
     }
 
