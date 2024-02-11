@@ -16,13 +16,9 @@ import org.apache.commons.collections4.ListUtils;
 import java.util.List;
 import java.util.Objects;
 
-public class InnerJoin implements Command {
-    private final String table;
-    private final Expression<?> expression;
-
+public class InnerJoin extends Join {
     public InnerJoin(String table, Expression<?> expression) {
-        this.table = table;
-        this.expression = expression;
+        super(table, expression);
     }
 
     @Override
@@ -33,23 +29,17 @@ public class InnerJoin implements Command {
         var data = table.data().stream()
                 .flatMap(row1 -> joinedTable.data().stream().map(row2 -> {
                     var row = ListUtils.union(row1, row2);
-                    var o = new Object() { public boolean nullPresents; };
+
+                    if(expressionContainNull(columns, row)) {
+                        return null;
+                    }
+
                     var value = expression
-                            .accept(new ValueInjector(List.of(), List.of()) {
-                                @Override
-                                public Expression<?> visit(Column column) {
-                                    var index = ModelUtils.resolveColumnIndex(columns, column);
-                                    if(row.get(index) instanceof NullValue){
-                                        o.nullPresents = true;
-                                    }
-                                    return column;
-                                }
-                            })
                             .accept(new ValueInjector(columns, row))
                             .accept(new ExpressionCalculator());
 
                     if(value instanceof BooleanValue bv) {
-                        return bv.value() && !o.nullPresents ? row : null;
+                        return bv.value() ? row : null;
                     }
                     throw new UnsupportedTypeException();
                 }).filter(Objects::nonNull)).toList();
@@ -62,6 +52,5 @@ public class InnerJoin implements Command {
         var joinedTable = projection.getByName(this.table);
         expression.accept(new ExpressionValidator(ListUtils.union(table.columns(), joinedTable.columns())));
     }
-
 
 }

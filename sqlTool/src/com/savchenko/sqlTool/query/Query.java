@@ -34,6 +34,21 @@ public class Query implements Builder<List<Command>> {
         return this;
     }
 
+    public Query leftJoin(String table, Expression<?> expression) {
+        commands.add(new LeftJoin(table, expression));
+        return this;
+    }
+
+    public Query rightJoin(String table, Expression<?> expression) {
+        commands.add(new RightJoin(table, expression));
+        return this;
+    }
+
+    public Query fullJoin(String table, Expression<?> expression) {
+        commands.add(new FullJoin(table, expression));
+        return this;
+    }
+
     public Query where(Expression<?>... expressions) {
         var expression = Arrays.stream(expressions).reduce(new BooleanValue(true), (p, c) -> new BinaryOperation(Operator.AND, p, c));
         commands.add(new Where(expression));
@@ -53,6 +68,11 @@ public class Query implements Builder<List<Command>> {
 
     public Query limit(Integer limit) {
         commands.add(new Limit(limit));
+        return this;
+    }
+
+    public Query offset(Integer offset) {
+        commands.add(new Offset(offset));
         return this;
     }
 

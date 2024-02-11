@@ -11,11 +11,13 @@ import com.savchenko.sqlTool.repository.Projection;
 import com.savchenko.sqlTool.utils.ModelUtils;
 import org.apache.commons.collections4.ListUtils;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.stream.Stream;
 
-public class LeftJoin extends Join {
-    public LeftJoin(String table, Expression<?> expression) {
+public class FullJoin extends Join {
+    public FullJoin(String table, Expression<?> expression) {
         super(table, expression);
     }
 
@@ -24,12 +26,15 @@ public class LeftJoin extends Join {
         var joinedTable = projection.getByName(this.table);
         var columns = ListUtils.union(table.columns(), joinedTable.columns());
 
-        var joinedRowIndexes = new HashSet<Integer>();
-        var indexedData = ModelUtils.getIndexedData(table.data());
+        var leftJoinedRowIndexes = new HashSet<Integer>();
+        var leftIndexedData = ModelUtils.getIndexedData(table.data());
 
-        var joinedData = indexedData.stream()
-                .flatMap(pair -> joinedTable.data().stream().map(row2 -> {
-                    var row = ListUtils.union(pair.getRight(), row2);
+        var rightJoinedRowIndexes = new HashSet<Integer>();
+        var rightIndexedData = ModelUtils.getIndexedData(joinedTable.data());
+
+        var joinedData = leftIndexedData.stream()
+                .flatMap(pair1 -> rightIndexedData.stream().map(pair2 -> {
+                    var row = ListUtils.union(pair1.getRight(), pair2.getRight());
 
                     if(expressionContainNull(columns, row)) {
                         return null;
@@ -40,7 +45,8 @@ public class LeftJoin extends Join {
 
                     if(value instanceof BooleanValue bv) {
                         if(bv.value()) {
-                            joinedRowIndexes.add(pair.getLeft());
+                            leftJoinedRowIndexes.add(pair1.getLeft());
+                            rightJoinedRowIndexes.add(pair2.getLeft());
                             return row;
                         }
                         return null;
@@ -48,12 +54,19 @@ public class LeftJoin extends Join {
                     throw new UnsupportedTypeException();
                 }).filter(Objects::nonNull).toList().stream()).toList();
 
-        var remainder = indexedData.stream()
-                .filter(pair -> !joinedRowIndexes.contains(pair.getLeft()))
+        var leftRemainder = leftIndexedData.stream()
+                .filter(pair -> !leftJoinedRowIndexes.contains(pair.getLeft()))
                 .map(pair -> ListUtils.union(pair.getRight(), ModelUtils.emptyRow(joinedTable)))
                 .toList();
 
-        return new Table(table.name() + joinedTable.name(), columns, ListUtils.union(joinedData, remainder));
+        var rightRemainder = rightIndexedData.stream()
+                .filter(pair -> !rightJoinedRowIndexes.contains(pair.getLeft()))
+                .map(pair -> ListUtils.union(ModelUtils.emptyRow(table), pair.getRight()))
+                .toList();
+
+        var data = Stream.of(joinedData, leftRemainder, rightRemainder).flatMap(Collection::stream).toList();
+
+        return new Table(table.name() + joinedTable.name(), columns, data);
     }
 
     @Override

@@ -8,9 +8,12 @@ import com.savchenko.sqlTool.model.operator.Operator;
 import com.savchenko.sqlTool.model.structure.Column;
 import com.savchenko.sqlTool.model.structure.Table;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
@@ -21,6 +24,17 @@ import static com.savchenko.sqlTool.model.operator.Operator.*;
 public class ModelUtils {
     public static Table renameTable(Table table, String tableName) {
         return new Table(tableName, table.columns(), table.data());
+    }
+
+    public static List<Value<?>> emptyRow(Table table) {
+        var row = new ArrayList<Value<?>>(table.columns().size());
+        Collections.fill(row, null);
+        return row;
+    }
+
+    public static List<Pair<Integer, List<Value<?>>>> getIndexedData(List<List<Value<?>>> data) {
+        var o = new Object() {public int index; };
+        return data.stream().map(row -> Pair.of(o.index++, row)).toList();
     }
 
     public static Value<?> readEntry(String object, Class<? extends Value<?>> targetClass) {
