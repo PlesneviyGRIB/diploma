@@ -13,16 +13,17 @@ import org.apache.commons.collections4.ListUtils;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
 public class FullJoin extends Join {
-    public FullJoin(String table, Expression<?> expression) {
-        super(table, expression);
+    public FullJoin(String table, Expression<?> expression, JoinStrategy strategy, Projection projection) {
+        super(table, expression, strategy, projection);
     }
 
     @Override
-    public Table run(Table table, Projection projection) {
+    public Table run(Table table) {
         var joinedTable = projection.getByName(this.table);
         var columns = ListUtils.union(table.columns(), joinedTable.columns());
 
@@ -66,11 +67,11 @@ public class FullJoin extends Join {
 
         var data = Stream.of(joinedData, leftRemainder, rightRemainder).flatMap(Collection::stream).toList();
 
-        return new Table(table.name() + joinedTable.name(), columns, data);
+        return new Table(table.name() + joinedTable.name(), columns, data, List.of());
     }
 
     @Override
-    public void validate(Table table, Projection projection) {
+    public void validate(Table table) {
         var joinedTable = projection.getByName(this.table);
         expression.accept(new ExpressionValidator(ListUtils.union(table.columns(), joinedTable.columns())));
     }

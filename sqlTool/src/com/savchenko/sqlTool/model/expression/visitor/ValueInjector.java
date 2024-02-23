@@ -1,7 +1,9 @@
 package com.savchenko.sqlTool.model.expression.visitor;
 
+import com.savchenko.sqlTool.exception.UnsupportedTypeException;
 import com.savchenko.sqlTool.model.expression.*;
 import com.savchenko.sqlTool.model.structure.Column;
+import com.savchenko.sqlTool.model.structure.Table;
 import com.savchenko.sqlTool.utils.ModelUtils;
 
 import java.util.List;
@@ -13,6 +15,11 @@ public class ValueInjector implements Expression.Visitor<Expression<?>> {
     public ValueInjector(List<Column> columns, List<Value<?>> values) {
         this.columns = columns;
         this.values = values;
+    }
+
+    @Override
+    public Expression<?> visit(Table table) {
+        throw new UnsupportedTypeException();
     }
 
     @Override

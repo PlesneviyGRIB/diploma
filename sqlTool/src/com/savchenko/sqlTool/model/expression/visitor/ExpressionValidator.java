@@ -2,8 +2,10 @@ package com.savchenko.sqlTool.model.expression.visitor;
 
 import com.savchenko.sqlTool.exception.ComputedTypeException;
 import com.savchenko.sqlTool.exception.IncorrectOperatorUsageException;
+import com.savchenko.sqlTool.exception.UnsupportedTypeException;
 import com.savchenko.sqlTool.model.expression.*;
 import com.savchenko.sqlTool.model.structure.Column;
+import com.savchenko.sqlTool.model.structure.Table;
 import com.savchenko.sqlTool.utils.ModelUtils;
 
 import java.util.Arrays;
@@ -14,6 +16,11 @@ public class ExpressionValidator implements Expression.Visitor<Class<? extends V
 
     public ExpressionValidator(List<Column> columns) {
         this.columns = columns;
+    }
+
+    @Override
+    public Class<? extends Value<?>> visit(Table table) {
+        throw new UnsupportedTypeException();
     }
 
     @Override

@@ -11,18 +11,16 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public class Select implements Command {
+public class Select extends Command {
     private final List<Column> columns;
 
-    public Select(List<Column> columns) {
+    public Select(List<Column> columns, Projection projection) {
+        super(projection);
         this.columns = columns;
-    }
-    public Select() {
-        this.columns = null;
     }
 
     @Override
-    public Table run(Table table, Projection projection) {
+    public Table run(Table table) {
         if(Objects.isNull(columns)){
             return table;
         }
@@ -37,11 +35,11 @@ public class Select implements Command {
                     return list;
                 }).toList();
         var targetColumns = indexes.stream().map(contextColumns::get).toList();
-        return new Table(table.name(), targetColumns, data);
+        return new Table(table.name(), targetColumns, data, List.of());
     }
 
     @Override
-    public void validate(Table table, Projection projection) {
+    public void validate(Table table) {
         var contextColumns = table.columns();
         Optional.ofNullable(columns).orElse(List.of())
                 .forEach(column -> ModelUtils.resolveColumn(contextColumns, column));

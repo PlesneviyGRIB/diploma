@@ -3,12 +3,12 @@ package tests;
 import com.savchenko.sqlTool.exception.ColumnNotFoundException;
 import com.savchenko.sqlTool.exception.ComputedTypeException;
 import com.savchenko.sqlTool.exception.IncorrectOperatorUsageException;
-import com.savchenko.sqlTool.model.expression.BooleanValue;
-import com.savchenko.sqlTool.model.expression.IntegerNumber;
-import com.savchenko.sqlTool.model.expression.TimestampValue;
+import com.savchenko.sqlTool.model.expression.*;
+import com.savchenko.sqlTool.model.expression.visitor.ExpressionPrinter;
 import com.savchenko.sqlTool.model.expression.visitor.ExpressionValidator;
 import com.savchenko.sqlTool.model.structure.Column;
 import com.savchenko.sqlTool.query.Q;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.sql.Timestamp;
@@ -45,6 +45,21 @@ public class ExpressionVisitorTest extends TestBase {
         expectError(() -> Q.op(EQ,
                         Q.op(AND, new BooleanValue(false), Q.op(EQ, new IntegerNumber(1), Q.column("t", "int"))),
                         new TimestampValue(new Timestamp(System.currentTimeMillis()))).accept(validator), ComputedTypeException.class);
+    }
+
+    @Test
+    public void expressionPrinter() {
+        var expression = Q.op(
+                OR,
+                Q.op(
+                        LESS_OR_EQ,
+                        Q.column("actions", "id"),
+                        Q.op(MULTIPLY, new LongNumber(1L), new LongNumber(1042L))
+                ),
+                Q.op(EQ, Q.column("actions", "action_id"), new StringValue("addRow"))
+        );
+        var expected = "(COLUMN[actions.id] <= (1 * 1042)) or (COLUMN[actions.action_id] = addRow)";
+        Assert.assertEquals(expected, expression.accept(new ExpressionPrinter()));
     }
 
     @Test

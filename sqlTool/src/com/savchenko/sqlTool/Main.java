@@ -1,9 +1,9 @@
 package com.savchenko.sqlTool;
 
 import com.savchenko.sqlTool.config.Constants;
-import com.savchenko.sqlTool.model.expression.IntegerNumber;
 import com.savchenko.sqlTool.model.expression.LongNumber;
 import com.savchenko.sqlTool.model.expression.StringValue;
+import com.savchenko.sqlTool.model.index.BalancedTreeIndex;
 import com.savchenko.sqlTool.query.Q;
 import com.savchenko.sqlTool.query.Query;
 import com.savchenko.sqlTool.query.QueryResolver;
@@ -12,6 +12,7 @@ import com.savchenko.sqlTool.repository.DBReader;
 import com.savchenko.sqlTool.utils.TablePrinter;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import static com.savchenko.sqlTool.model.operator.Operator.*;
 
@@ -20,16 +21,14 @@ public class Main {
         DBConnection.init(Constants.DB_DRIVER, Constants.DB_PORT, Constants.DB_NAME, Constants.DB_USER, Constants.DB_PASSWORD);
     }
 
-    public static void main(String[] args) throws SQLException {
-        var projection = new DBReader().read(DBConnection.get().getMetaData());
+    public static void main(String[] args) {
+        var projection = new DBReader().read(DBConnection.get());
 
 
-
-        var query = Query.create()
+        var query = new Query(projection)
                 .from("actions")
+                //.constructIndex(new BalancedTreeIndex("", List.of(Q.column("actions", "id")), true))
                 .where(
-                        //Q.op(EQ, new StringValue("{}"), Q.column("actions", "parameters")),
-                        //Q.op(EXISTS, Q.column("actions", "action_label")),
                         Q.op(
                                 LESS_OR_EQ,
                                 Q.column("actions", "id"),
@@ -46,8 +45,8 @@ public class Main {
                 ;
 
 
+        var resTable = new QueryResolver().resolve(query);
 
-        var resTable = new QueryResolver(projection).resolve(query);
         var resStr = new TablePrinter(resTable).stringify();
         System.out.println(resStr);
     }

@@ -12,15 +12,16 @@ import com.savchenko.sqlTool.utils.ModelUtils;
 import org.apache.commons.collections4.ListUtils;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 
 public class LeftJoin extends Join {
-    public LeftJoin(String table, Expression<?> expression) {
-        super(table, expression);
+    public LeftJoin(String table, Expression<?> expression, JoinStrategy strategy, Projection projection) {
+        super(table, expression, strategy, projection);
     }
 
     @Override
-    public Table run(Table table, Projection projection) {
+    public Table run(Table table) {
         var joinedTable = projection.getByName(this.table);
         var columns = ListUtils.union(table.columns(), joinedTable.columns());
 
@@ -53,11 +54,11 @@ public class LeftJoin extends Join {
                 .map(pair -> ListUtils.union(pair.getRight(), ModelUtils.emptyRow(joinedTable)))
                 .toList();
 
-        return new Table(table.name() + joinedTable.name(), columns, ListUtils.union(joinedData, remainder));
+        return new Table(table.name() + joinedTable.name(), columns, ListUtils.union(joinedData, remainder), List.of());
     }
 
     @Override
-    public void validate(Table table, Projection projection) {
+    public void validate(Table table) {
         var joinedTable = projection.getByName(this.table);
         expression.accept(new ExpressionValidator(ListUtils.union(table.columns(), joinedTable.columns())));
     }

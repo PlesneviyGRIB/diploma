@@ -1,5 +1,6 @@
 package com.savchenko.sqlTool.model.structure;
 
+import com.savchenko.sqlTool.exception.UnexpectedException;
 import com.savchenko.sqlTool.model.command.OrderSpecifier;
 import com.savchenko.sqlTool.model.expression.Expression;
 import com.savchenko.sqlTool.model.expression.Value;
@@ -32,6 +33,6 @@ public record Column(String name, String table, Class<? extends Value<?>> type) 
 
     @Override
     public int compareTo(Column column) {
-        return 0;
+        throw new UnexpectedException("Unexpect usage of compareTo method with column");
     }
 }

@@ -9,15 +9,18 @@ import com.savchenko.sqlTool.model.expression.visitor.ValueInjector;
 import com.savchenko.sqlTool.model.structure.Table;
 import com.savchenko.sqlTool.repository.Projection;
 
-public class Where implements Command {
+import java.util.List;
+
+public class Where extends Command {
     private final Expression<?> expression;
 
-    public Where(Expression<?> expression) {
+    public Where(Expression<?> expression, Projection projection) {
+        super(projection);
         this.expression = expression;
     }
 
     @Override
-    public Table run(Table table, Projection projection) {
+    public Table run(Table table) {
         expression.accept(new ExpressionValidator(table.columns()));
         var data = table.data().stream()
                 .filter(row -> {
@@ -30,11 +33,11 @@ public class Where implements Command {
                     throw new UnsupportedTypeException();
                 })
                 .toList();
-        return new Table(table.name(), table.columns(), data);
+        return new Table(table.name(), table.columns(), data, List.of());
     }
 
     @Override
-    public void validate(Table table, Projection projection) {
+    public void validate(Table table) {
         this.expression.accept(new ExpressionValidator(table.columns()));
     }
 

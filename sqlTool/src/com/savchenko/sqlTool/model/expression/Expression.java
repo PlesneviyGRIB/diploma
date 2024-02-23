@@ -1,10 +1,12 @@
 package com.savchenko.sqlTool.model.expression;
 
 import com.savchenko.sqlTool.model.structure.Column;
+import com.savchenko.sqlTool.model.structure.Table;
 
 public interface Expression <O> extends Comparable<O> {
     <T> T accept(Visitor<T> visitor);
     interface Visitor<T> {
+        T visit(Table table);
         T visit(Column column);
         T visit(UnaryOperation operation);
         T visit(BinaryOperation operation);

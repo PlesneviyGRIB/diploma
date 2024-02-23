@@ -14,15 +14,16 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
-public class OrderBy implements Command {
+public class OrderBy extends Command {
     private final List<Order> orders;
 
-    public OrderBy(List<Order> orders) {
+    public OrderBy(List<Order> orders, Projection projection) {
+        super(projection);
         this.orders = orders;
     }
 
     @Override
-    public Table run(Table table, Projection projection) {
+    public Table run(Table table) {
         var indexes = orders.stream()
                 .map(o -> ModelUtils.resolveColumnIndex(table.columns(), o.column()))
                 .toList();
@@ -46,11 +47,11 @@ public class OrderBy implements Command {
         };
 
         var data = table.data().stream().sorted(rowsComparator).toList();
-        return new Table(table.name(), table.columns(), data);
+        return new Table(table.name(), table.columns(), data, List.of());
     }
 
     @Override
-    public void validate(Table table, Projection projection) {
+    public void validate(Table table) {
         orders.forEach(o -> {
             var t = projection.getByName(o.column().table());
             ModelUtils.resolveColumn(t.columns(), o.column());

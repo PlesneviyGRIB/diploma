@@ -4,21 +4,24 @@ import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.structure.Table;
 import com.savchenko.sqlTool.repository.Projection;
 
-public class Offset implements Command {
+import java.util.List;
+
+public class Offset extends Command {
     private final Integer offset;
 
-    public Offset(Integer offset) {
+    public Offset(Integer offset, Projection projection) {
+        super(projection);
         this.offset = offset;
     }
 
     @Override
-    public Table run(Table table, Projection projection) {
+    public Table run(Table table) {
         var data = table.data();
-        return new Table(table.name(), table.columns(), data.subList(Math.min(offset, data.size()), data.size()));
+        return new Table(table.name(), table.columns(), data.subList(Math.min(offset, data.size()), data.size()), List.of());
     }
 
     @Override
-    public void validate(Table table, Projection projection) {
+    public void validate(Table table) {
         if(offset < 0) {
             throw new ValidationException("Offset can not be less than 0! Current value is '%s'", offset);
         }

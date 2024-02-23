@@ -3,26 +3,23 @@ package com.savchenko.sqlTool.model.command;
 import com.savchenko.sqlTool.exception.UnsupportedTypeException;
 import com.savchenko.sqlTool.model.expression.BooleanValue;
 import com.savchenko.sqlTool.model.expression.Expression;
-import com.savchenko.sqlTool.model.expression.NullValue;
 import com.savchenko.sqlTool.model.expression.visitor.ExpressionCalculator;
 import com.savchenko.sqlTool.model.expression.visitor.ExpressionValidator;
 import com.savchenko.sqlTool.model.expression.visitor.ValueInjector;
-import com.savchenko.sqlTool.model.structure.Column;
 import com.savchenko.sqlTool.model.structure.Table;
 import com.savchenko.sqlTool.repository.Projection;
-import com.savchenko.sqlTool.utils.ModelUtils;
 import org.apache.commons.collections4.ListUtils;
 
 import java.util.List;
 import java.util.Objects;
 
 public class InnerJoin extends Join {
-    public InnerJoin(String table, Expression<?> expression) {
-        super(table, expression);
+    public InnerJoin(String table, Expression<?> expression, JoinStrategy strategy, Projection projection) {
+        super(table, expression, strategy, projection);
     }
 
     @Override
-    public Table run(Table table, Projection projection) {
+    public Table run(Table table) {
         var joinedTable = projection.getByName(this.table);
         var columns = ListUtils.union(table.columns(), joinedTable.columns());
 
@@ -44,11 +41,11 @@ public class InnerJoin extends Join {
                     throw new UnsupportedTypeException();
                 }).filter(Objects::nonNull)).toList();
 
-        return new Table(table.name() + joinedTable.name(), columns, data);
+        return new Table(table.name() + joinedTable.name(), columns, data, List.of());
     }
 
     @Override
-    public void validate(Table table, Projection projection) {
+    public void validate(Table table) {
         var joinedTable = projection.getByName(this.table);
         expression.accept(new ExpressionValidator(ListUtils.union(table.columns(), joinedTable.columns())));
     }

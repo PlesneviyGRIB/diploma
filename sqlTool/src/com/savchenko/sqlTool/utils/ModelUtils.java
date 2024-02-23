@@ -23,7 +23,7 @@ import static com.savchenko.sqlTool.model.operator.Operator.*;
 
 public class ModelUtils {
     public static Table renameTable(Table table, String tableName) {
-        return new Table(tableName, table.columns(), table.data());
+        return new Table(tableName, table.columns(), table.data(), table.indices());
     }
 
     public static List<Value<?>> emptyRow(Table table) {
@@ -94,7 +94,7 @@ public class ModelUtils {
         } else if (clazz.equals(Timestamp.class)) {
             return TimestampValue.class;
         }
-        throw new UnsupportedTypeException();
+        throw new UnsupportedTypeException("Unable to process value of type '%s'", clazz.getSimpleName());
     }
 
     public static int resolveColumnIndex(List<Column> columns, Column column) {

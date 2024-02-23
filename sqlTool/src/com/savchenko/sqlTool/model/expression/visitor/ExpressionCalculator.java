@@ -1,13 +1,20 @@
 package com.savchenko.sqlTool.model.expression.visitor;
 
 import com.savchenko.sqlTool.exception.UnexpectedException;
+import com.savchenko.sqlTool.exception.UnsupportedTypeException;
 import com.savchenko.sqlTool.model.expression.*;
 import com.savchenko.sqlTool.model.structure.Column;
+import com.savchenko.sqlTool.model.structure.Table;
 
 import static com.savchenko.sqlTool.model.operator.Operator.EXISTS;
 import static com.savchenko.sqlTool.model.operator.Operator.IS_NULL;
 
 public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
+
+    @Override
+    public Value<?> visit(Table table) {
+        throw new UnsupportedTypeException();
+    }
 
     @Override
     public Value<Column> visit(Column column) {
