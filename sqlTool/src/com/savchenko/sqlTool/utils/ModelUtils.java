@@ -8,22 +8,38 @@ import com.savchenko.sqlTool.model.operator.Operator;
 import com.savchenko.sqlTool.model.structure.Column;
 import com.savchenko.sqlTool.model.structure.Table;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.savchenko.sqlTool.model.operator.Operator.*;
+import static java.lang.String.format;
 
 public class ModelUtils {
     public static Table renameTable(Table table, String tableName) {
-        return new Table(tableName, table.columns(), table.data(), table.indices());
+        Function<Column, String> columnIdentifier = column -> {
+            var tokens = Arrays.asList(column.toString().split("\\."));
+            return String.join(".", tokens.subList(1, tokens.size()));
+        };
+
+        var identityMap = table.columns().stream()
+                .collect(Collectors.toMap(columnIdentifier, c -> 1, Integer::sum));
+
+        var targetColumns = table.columns().stream()
+                .map(column -> {
+                    var identifier = columnIdentifier.apply(column);
+                    if(identityMap.get(identifier) != 1) {
+                        identifier = format("%s.%s", column.table(), identifier);
+                    }
+                    return new Column(identifier, tableName, column.type());
+                }).toList();
+        return new Table(tableName, targetColumns, table.data(), table.indices());
     }
 
     public static List<Value<?>> emptyRow(Table table) {

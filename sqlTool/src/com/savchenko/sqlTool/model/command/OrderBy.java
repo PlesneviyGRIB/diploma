@@ -1,7 +1,6 @@
 package com.savchenko.sqlTool.model.command;
 
 import com.savchenko.sqlTool.exception.ValidationException;
-import com.savchenko.sqlTool.model.expression.NullValue;
 import com.savchenko.sqlTool.model.expression.Value;
 import com.savchenko.sqlTool.model.structure.Table;
 import com.savchenko.sqlTool.repository.Projection;
@@ -14,7 +13,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
-public class OrderBy extends Command {
+public class OrderBy extends SimpleCommand {
     private final List<Order> orders;
 
     public OrderBy(List<Order> orders, Projection projection) {

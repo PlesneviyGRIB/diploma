@@ -1,15 +1,15 @@
 package com.savchenko.sqlTool.model.command;
 
 import com.savchenko.sqlTool.model.structure.Table;
-import com.savchenko.sqlTool.repository.Projection;
 
-public abstract class Command {
+public interface Command {
 
-    protected final Projection projection;
+    <T> T accept(Visitor<T> visitor);
+    default void validate(Table table) {}
 
-    public Command(Projection projection) {
-        this.projection = projection;
+    interface Visitor<T> {
+        T visit(SimpleCommand command);
+
+        T visit(CalculatedCommand command);
     }
-    public abstract Table run(Table table);
-    public void validate(Table table) {};
 }

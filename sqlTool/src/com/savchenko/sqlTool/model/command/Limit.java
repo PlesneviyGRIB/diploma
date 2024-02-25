@@ -8,7 +8,7 @@ import java.util.List;
 
 import static java.lang.String.format;
 
-public class Limit extends Command {
+public class Limit extends SimpleCommand {
     private final Integer limit;
 
     public Limit(Integer limit, Projection projection) {

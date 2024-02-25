@@ -11,7 +11,7 @@ import com.savchenko.sqlTool.repository.Projection;
 
 import java.util.List;
 
-public class Where extends Command {
+public class Where extends SimpleCommand {
     private final Expression<?> expression;
 
     public Where(Expression<?> expression, Projection projection) {

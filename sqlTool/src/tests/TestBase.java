@@ -17,13 +17,11 @@ public class TestBase {
     static {
         DBConnection.init(Constants.DB_DRIVER, Constants.DB_PORT, Constants.DB_NAME, Constants.DB_USER, Constants.DB_PASSWORD);
         projection = new DBReader().read(DBConnection.get());
-        query = new Query(TestBase.projection);
     }
 
     protected static final Projection projection;
-    protected static final Query query;
-    protected static final QueryResolver resolver = new QueryResolver();
 
+    protected static final QueryResolver resolver = new QueryResolver();
 
     void expectError(Runnable runnable, Class<? extends RuntimeException> exception) {
         try {

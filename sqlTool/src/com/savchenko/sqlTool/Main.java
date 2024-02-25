@@ -1,6 +1,8 @@
 package com.savchenko.sqlTool;
 
 import com.savchenko.sqlTool.config.Constants;
+import com.savchenko.sqlTool.model.command.JoinStrategy;
+import com.savchenko.sqlTool.model.expression.BooleanValue;
 import com.savchenko.sqlTool.model.expression.LongNumber;
 import com.savchenko.sqlTool.model.expression.StringValue;
 import com.savchenko.sqlTool.model.index.BalancedTreeIndex;
@@ -27,20 +29,22 @@ public class Main {
 
         var query = new Query(projection)
                 .from("actions")
+                .as("r")
+                .fullJoin(new Query(projection).from("content"), new BooleanValue(true), JoinStrategy.LOOP)
                 //.constructIndex(new BalancedTreeIndex("", List.of(Q.column("actions", "id")), true))
                 .where(
                         Q.op(
                                 LESS_OR_EQ,
-                                Q.column("actions", "id"),
+                                Q.column("r", "id"),
                                 Q.op(
                                         MULTIPLY,
                                         new LongNumber(1L),
                                         new LongNumber(1042L)
                                 )
                         ),
-                        Q.op(EQ, Q.column("actions", "action_id"), new StringValue("addRow"))
+                        Q.op(EQ, Q.column("r", "action_id"), new StringValue("addRow"))
                 )
-                .orderBy(Q.order(Q.column("actions", "solution_id")), Q.order(Q.column("actions", "id"), true))
+                //.orderBy(Q.order(Q.column("r", "solution_id")), Q.order(Q.column("r", "id"), true))
                 //.limit(20)
                 ;
 

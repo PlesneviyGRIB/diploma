@@ -35,7 +35,7 @@ public class ExpressionValidator implements Expression.Visitor<Class<? extends V
         }
         var type = operation.expression().accept(this);
         if(!ModelUtils.supportsOperator(type, operation.operator())){
-            throw new ComputedTypeException();
+            throw new ComputedTypeException(operation);
         }
         return BooleanValue.class;
     }
@@ -47,9 +47,9 @@ public class ExpressionValidator implements Expression.Visitor<Class<? extends V
         }
         var left = operation.left().accept(this);
         var right = operation.right().accept(this);
-        assertSameClass(left, right);
+        assertSameClass(operation, left, right);
         if(!ModelUtils.supportsOperator(left, operation.operator())){
-            throw new ComputedTypeException();
+            throw new ComputedTypeException(operation);
         }
         return operation.operator().isLogic() ? BooleanValue.class : left;
     }
@@ -62,9 +62,9 @@ public class ExpressionValidator implements Expression.Visitor<Class<? extends V
         var first = operation.first().accept(this);
         var second = operation.second().accept(this);
         var third = operation.third().accept(this);
-        assertSameClass(first, second, third);
+        assertSameClass(operation, first, second, third);
         if(!ModelUtils.supportsOperator(first, operation.operator())){
-            throw new ComputedTypeException();
+            throw new ComputedTypeException(operation);
         }
         return BooleanValue.class;
     }
@@ -114,10 +114,10 @@ public class ExpressionValidator implements Expression.Visitor<Class<? extends V
         return TimestampValue.class;
     }
 
-    private void assertSameClass(Class<? extends Value<?>>... classes) {
+    private void assertSameClass(Expression<?> expression, Class<? extends Value<?>>... classes) {
         var type =  Arrays.stream(classes).toArray()[0];
         if(! Arrays.stream(classes).allMatch(c -> c.equals(type))) {
-            throw new ComputedTypeException();
+            throw new ComputedTypeException(expression);
         }
     }
 }

@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public class Select extends Command {
+public class Select extends SimpleCommand {
     private final List<Column> columns;
 
     public Select(List<Column> columns, Projection projection) {

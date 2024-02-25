@@ -1,5 +1,6 @@
 package com.savchenko.sqlTool.model.expression;
 
+import com.savchenko.sqlTool.model.expression.visitor.ExpressionPrinter;
 import com.savchenko.sqlTool.model.structure.Column;
 import com.savchenko.sqlTool.model.structure.Table;
 
@@ -20,5 +21,9 @@ public interface Expression <O> extends Comparable<O> {
         T visit(DoubleNumber value);
         T visit(BigDecimalNumber value);
         T visit(TimestampValue value);
+    }
+
+    default String stringify() {
+        return this.accept(new ExpressionPrinter());
     }
 }

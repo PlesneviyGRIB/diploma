@@ -5,7 +5,7 @@ import com.savchenko.sqlTool.model.structure.Table;
 import com.savchenko.sqlTool.repository.Projection;
 import com.savchenko.sqlTool.utils.ModelUtils;
 
-public class ConstructIndex extends Command {
+public class ConstructIndex extends SimpleCommand {
 
     private final Index index;
 

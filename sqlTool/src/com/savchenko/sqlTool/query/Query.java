@@ -34,23 +34,23 @@ public class Query implements Builder<List<Command>> {
         return this;
     }
 
-    public Query innerJoin(String table, Expression<?> expression, JoinStrategy strategy) {
-        commands.add(new InnerJoin(table, expression, strategy, projection));
+    public Query innerJoin(Query query, Expression<?> expression, JoinStrategy strategy) {
+        commands.add(new InnerJoin(query.build(), expression, strategy, projection));
         return this;
     }
 
-    public Query leftJoin(String table, Expression<?> expression, JoinStrategy strategy) {
-        commands.add(new LeftJoin(table, expression, strategy, projection));
+    public Query leftJoin(Query query, Expression<?> expression, JoinStrategy strategy) {
+        commands.add(new LeftJoin(query.build(), expression, strategy, projection));
         return this;
     }
 
-    public Query rightJoin(String table, Expression<?> expression, JoinStrategy strategy) {
-        commands.add(new RightJoin(table, expression, strategy, projection));
+    public Query rightJoin(Query query, Expression<?> expression, JoinStrategy strategy) {
+        commands.add(new RightJoin(query.build(), expression, strategy, projection));
         return this;
     }
 
-    public Query fullJoin(String table, Expression<?> expression, JoinStrategy strategy) {
-        commands.add(new FullJoin(table, expression, strategy, projection));
+    public Query fullJoin(Query query, Expression<?> expression, JoinStrategy strategy) {
+        commands.add(new FullJoin(query.build(), expression, strategy, projection));
         return this;
     }
 
@@ -83,6 +83,11 @@ public class Query implements Builder<List<Command>> {
 
     public Query constructIndex(Index index) {
         commands.add(new ConstructIndex(index, projection));
+        return this;
+    }
+
+    public Query as(String alias) {
+        commands.add(new Alias(alias, projection));
         return this;
     }
 

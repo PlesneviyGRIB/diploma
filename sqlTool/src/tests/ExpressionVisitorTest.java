@@ -59,7 +59,7 @@ public class ExpressionVisitorTest extends TestBase {
                 Q.op(EQ, Q.column("actions", "action_id"), new StringValue("addRow"))
         );
         var expected = "(COLUMN[actions.id] <= (1 * 1042)) or (COLUMN[actions.action_id] = addRow)";
-        Assert.assertEquals(expected, expression.accept(new ExpressionPrinter()));
+        Assert.assertEquals(expected, expression.stringify());
     }
 
     @Test

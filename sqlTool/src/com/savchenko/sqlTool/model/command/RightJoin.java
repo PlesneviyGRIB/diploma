@@ -7,6 +7,7 @@ import com.savchenko.sqlTool.model.expression.visitor.ExpressionCalculator;
 import com.savchenko.sqlTool.model.expression.visitor.ExpressionValidator;
 import com.savchenko.sqlTool.model.expression.visitor.ValueInjector;
 import com.savchenko.sqlTool.model.structure.Table;
+import com.savchenko.sqlTool.query.QueryResolver;
 import com.savchenko.sqlTool.repository.Projection;
 import com.savchenko.sqlTool.utils.ModelUtils;
 import org.apache.commons.collections4.ListUtils;
@@ -16,13 +17,12 @@ import java.util.List;
 import java.util.Objects;
 
 public class RightJoin extends Join {
-    public RightJoin(String table, Expression<?> expression, JoinStrategy strategy, Projection projection) {
-        super(table, expression, strategy, projection);
+    public RightJoin(List<Command> commands, Expression<?> expression, JoinStrategy strategy, Projection projection) {
+        super(commands, expression, strategy, projection);
     }
 
     @Override
-    public Table run(Table table) {
-        var joinedTable = projection.getByName(this.table);
+    public Table run(Table table, Table joinedTable) {
         var columns = ListUtils.union(table.columns(), joinedTable.columns());
 
         var joinedRowIndexes = new HashSet<Integer>();
@@ -55,12 +55,6 @@ public class RightJoin extends Join {
                 .map(pair -> ListUtils.union(ModelUtils.emptyRow(table), pair.getRight()))
                 .toList();
 
-        return new Table(table.name() + joinedTable.name(), columns, ListUtils.union(joinedData, remainder), List.of());
-    }
-
-    @Override
-    public void validate(Table table) {
-        var joinedTable = projection.getByName(this.table);
-        expression.accept(new ExpressionValidator(ListUtils.union(table.columns(), joinedTable.columns())));
+        return new Table(null, columns, ListUtils.union(joinedData, remainder), List.of());
     }
 }

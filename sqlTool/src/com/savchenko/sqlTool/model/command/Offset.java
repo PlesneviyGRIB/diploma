@@ -6,7 +6,7 @@ import com.savchenko.sqlTool.repository.Projection;
 
 import java.util.List;
 
-public class Offset extends Command {
+public class Offset extends SimpleCommand {
     private final Integer offset;
 
     public Offset(Integer offset, Projection projection) {
