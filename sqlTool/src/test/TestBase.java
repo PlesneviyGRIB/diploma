@@ -1,14 +1,11 @@
-package tests;
+package test;
 
 import com.savchenko.sqlTool.config.Constants;
-import com.savchenko.sqlTool.query.Query;
 import com.savchenko.sqlTool.query.QueryResolver;
 import com.savchenko.sqlTool.repository.DBConnection;
 import com.savchenko.sqlTool.repository.DBReader;
 import com.savchenko.sqlTool.repository.Projection;
 import org.junit.Assert;
-
-import java.sql.SQLException;
 
 import static java.lang.String.format;
 

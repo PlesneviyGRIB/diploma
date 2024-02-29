@@ -15,11 +15,6 @@ public record DoubleNumber(Double value) implements Value<DoubleNumber> {
     }
 
     @Override
-    public String toString() {
-        return value().toString();
-    }
-
-    @Override
     public Value<DoubleNumber> processArithmetic(Operator operator, Value<DoubleNumber> operand) {
         var val = (DoubleNumber) operand;
         switch (operator) {

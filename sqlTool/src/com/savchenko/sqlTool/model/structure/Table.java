@@ -6,24 +6,12 @@ import com.savchenko.sqlTool.model.index.Index;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
-import static java.lang.String.format;
-
-public record Table(String name, List<Column> columns, List<List<Value<?>>> data, List<Index> indices) implements Expression<Table> {
-    public boolean isEmpty() {
-        return this.data.isEmpty();
-    }
+public record Table(String name, List<Column> columns, List<List<Value<?>>> data, List<Index> indices) implements Expression {
 
     @Override
     public <T> T accept(Visitor<T> visitor) {
         return visitor.visit(this);
-    }
-
-    @Override
-    public int compareTo(Table table) {
-        return 0;
     }
 
     @Override

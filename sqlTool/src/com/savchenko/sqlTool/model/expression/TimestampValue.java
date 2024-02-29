@@ -18,11 +18,6 @@ public record TimestampValue(Timestamp value) implements Value<TimestampValue> {
     }
 
     @Override
-    public String toString() {
-        return value().toString();
-    }
-
-    @Override
     public Value<TimestampValue> processArithmetic(Operator operator, Value<TimestampValue> operand) {
         var val = (TimestampValue) operand;
         var calendar = Calendar.getInstance();

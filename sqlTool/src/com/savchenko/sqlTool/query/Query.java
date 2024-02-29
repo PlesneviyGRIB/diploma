@@ -34,27 +34,27 @@ public class Query implements Builder<List<Command>> {
         return this;
     }
 
-    public Query innerJoin(Query query, Expression<?> expression, JoinStrategy strategy) {
+    public Query innerJoin(Query query, Expression expression, JoinStrategy strategy) {
         commands.add(new InnerJoin(query.build(), expression, strategy, projection));
         return this;
     }
 
-    public Query leftJoin(Query query, Expression<?> expression, JoinStrategy strategy) {
+    public Query leftJoin(Query query, Expression expression, JoinStrategy strategy) {
         commands.add(new LeftJoin(query.build(), expression, strategy, projection));
         return this;
     }
 
-    public Query rightJoin(Query query, Expression<?> expression, JoinStrategy strategy) {
+    public Query rightJoin(Query query, Expression expression, JoinStrategy strategy) {
         commands.add(new RightJoin(query.build(), expression, strategy, projection));
         return this;
     }
 
-    public Query fullJoin(Query query, Expression<?> expression, JoinStrategy strategy) {
+    public Query fullJoin(Query query, Expression expression, JoinStrategy strategy) {
         commands.add(new FullJoin(query.build(), expression, strategy, projection));
         return this;
     }
 
-    public Query where(Expression<?>... expressions) {
+    public Query where(Expression... expressions) {
         var expression = Arrays.stream(expressions).reduce(new BooleanValue(true), (p, c) -> new BinaryOperation(Operator.AND, p, c));
         commands.add(new Where(expression, projection));
         return this;

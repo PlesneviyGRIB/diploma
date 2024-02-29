@@ -15,11 +15,6 @@ public record LongNumber(Long value) implements Value<LongNumber> {
     }
 
     @Override
-    public String toString() {
-        return value().toString();
-    }
-
-    @Override
     public Value<LongNumber> processArithmetic(Operator operator, Value<LongNumber> operand) {
         var val = (LongNumber) operand;
         switch (operator) {

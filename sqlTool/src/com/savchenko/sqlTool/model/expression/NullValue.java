@@ -14,8 +14,4 @@ public record NullValue() implements Value<Object> {
         return -1;
     }
 
-    @Override
-    public String toString() {
-        return "null";
-    }
 }

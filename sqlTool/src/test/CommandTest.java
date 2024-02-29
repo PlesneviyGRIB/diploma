@@ -1,4 +1,4 @@
-package tests;
+package test;
 
 import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.command.From;
@@ -13,7 +13,6 @@ import com.savchenko.sqlTool.utils.ModelUtils;
 import com.savchenko.sqlTool.utils.SqlUtils;
 import org.apache.commons.lang3.function.TriFunction;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -61,7 +60,7 @@ public class CommandTest extends TestBase {
 
     @Test
     public void innerJoinTest() {
-        TriFunction<String, String, Expression<?>, Query> join = (table1, table2, expression) -> new Query(projection)
+        TriFunction<String, String, Expression, Query> join = (table1, table2, expression) -> new Query(projection)
                 .from(table1)
                 .innerJoin(new Query(projection).from(table2), expression, JoinStrategy.LOOP);
 
@@ -81,7 +80,7 @@ public class CommandTest extends TestBase {
 
     @Test
     public void leftJoinTest() {
-        TriFunction<String, String, Expression<?>, Query> join = (table1, table2, expression) -> new Query(projection)
+        TriFunction<String, String, Expression, Query> join = (table1, table2, expression) -> new Query(projection)
                 .from(table1)
                 .leftJoin(new Query(projection).from(table2), expression, JoinStrategy.LOOP);
         expectRowsCount(
@@ -100,7 +99,7 @@ public class CommandTest extends TestBase {
 
     @Test
     public void rightJoinTest() {
-        TriFunction<String, String, Expression<?>, Query> join = (table1, table2, expression) -> new Query(projection)
+        TriFunction<String, String, Expression, Query> join = (table1, table2, expression) -> new Query(projection)
                 .from(table1)
                 .rightJoin(new Query(projection).from(table2), expression, JoinStrategy.LOOP);
         expectRowsCount(
@@ -119,7 +118,7 @@ public class CommandTest extends TestBase {
 
     @Test
     public void fullJoinTest() {
-        TriFunction<String, String, Expression<?>, Query> join = (table1, table2, expression) -> new Query(projection)
+        TriFunction<String, String, Expression, Query> join = (table1, table2, expression) -> new Query(projection)
                 .from(table1)
                 .fullJoin(new Query(projection).from(table2), expression, JoinStrategy.LOOP);
         expectRowsCount(

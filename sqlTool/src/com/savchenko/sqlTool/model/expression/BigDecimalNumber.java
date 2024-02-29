@@ -17,11 +17,6 @@ public record BigDecimalNumber(BigDecimal value) implements Value<BigDecimalNumb
     }
 
     @Override
-    public String toString() {
-        return value().toString();
-    }
-
-    @Override
     public Value<BigDecimalNumber> processArithmetic(Operator operator, Value<BigDecimalNumber> operand) {
         var val = (BigDecimalNumber) operand;
         switch (operator) {

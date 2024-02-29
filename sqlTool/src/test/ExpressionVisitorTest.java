@@ -1,11 +1,10 @@
-package tests;
+package test;
 
 import com.savchenko.sqlTool.exception.ColumnNotFoundException;
 import com.savchenko.sqlTool.exception.ComputedTypeException;
 import com.savchenko.sqlTool.exception.IncorrectOperatorUsageException;
 import com.savchenko.sqlTool.model.expression.*;
-import com.savchenko.sqlTool.model.expression.visitor.ExpressionPrinter;
-import com.savchenko.sqlTool.model.expression.visitor.ExpressionValidator;
+import com.savchenko.sqlTool.model.visitor.ExpressionValidator;
 import com.savchenko.sqlTool.model.structure.Column;
 import com.savchenko.sqlTool.query.Q;
 import org.junit.Assert;

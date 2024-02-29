@@ -1,6 +1,7 @@
 package com.savchenko.sqlTool.utils;
 
 import com.savchenko.sqlTool.exception.ColumnNotFoundException;
+import com.savchenko.sqlTool.exception.ComputedTypeException;
 import com.savchenko.sqlTool.exception.UnsupportedTypeException;
 import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.expression.*;
@@ -173,4 +174,8 @@ public class ModelUtils {
         throw new ValidationException("Unexpected type '%s'", clazz.getTypeName());
     }
 
+    public static boolean theSameClasses(Class... classes) {
+        var type = (Class) Arrays.stream(classes).toArray()[0];
+        return Arrays.stream(classes).allMatch(c -> c.equals(type));
+    }
 }

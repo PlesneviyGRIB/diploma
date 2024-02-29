@@ -1,6 +1,7 @@
 package com.savchenko.sqlTool;
 
 import com.savchenko.sqlTool.config.Constants;
+import com.savchenko.sqlTool.model.command.ExpressionList;
 import com.savchenko.sqlTool.model.command.JoinStrategy;
 import com.savchenko.sqlTool.model.expression.BooleanValue;
 import com.savchenko.sqlTool.model.expression.LongNumber;
@@ -29,13 +30,13 @@ public class Main {
 
         var query = new Query(projection)
                 .from("actions")
-                .as("r")
                 .fullJoin(new Query(projection).from("content"), new BooleanValue(true), JoinStrategy.LOOP)
+                .as("r")
                 //.constructIndex(new BalancedTreeIndex("", List.of(Q.column("actions", "id")), true))
                 .where(
                         Q.op(
                                 LESS_OR_EQ,
-                                Q.column("r", "id"),
+                                Q.column("r", "actions.id"),
                                 Q.op(
                                         MULTIPLY,
                                         new LongNumber(1L),

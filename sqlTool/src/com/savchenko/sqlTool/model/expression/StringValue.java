@@ -15,11 +15,6 @@ public record StringValue(String value) implements Value<StringValue> {
     }
 
     @Override
-    public String toString() {
-        return value();
-    }
-
-    @Override
     public Value<StringValue> processArithmetic(Operator operator, Value<StringValue> operand) {
         if(operator == Operator.PLUS) {
             return new StringValue(this.value + ((StringValue) operand).value);

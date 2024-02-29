@@ -1,15 +1,34 @@
-package com.savchenko.sqlTool.model.expression.visitor;
+package com.savchenko.sqlTool.model.visitor;
 
+import com.savchenko.sqlTool.model.command.ExpressionList;
 import com.savchenko.sqlTool.model.expression.*;
 import com.savchenko.sqlTool.model.structure.Column;
 import com.savchenko.sqlTool.model.structure.Table;
+import com.savchenko.sqlTool.query.QueryResolver;
+
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
 public class ExpressionPrinter implements Expression.Visitor<String> {
+
+    @Override
+    public String visit(ExpressionList list) {
+        var args = list.expressions().stream()
+                .map(e -> e.accept(this))
+                .collect(Collectors.joining(", "));
+        return format("List(%s)", args);
+    }
+
     @Override
     public String visit(Table table) {
         return format("TABLE[%s]", table.name());
+    }
+
+    @Override
+    public String visit(SubTable table) {
+        var subTable = new QueryResolver().resolve(table.commands());
+        return format("SUB_TABLE[%s]", subTable.name());
     }
 
     @Override
@@ -59,7 +78,7 @@ public class ExpressionPrinter implements Expression.Visitor<String> {
 
     @Override
     public String visit(LongNumber value) {
-        return value.value().toString();
+        return value.value().toString() + "L";
     }
 
     @Override
@@ -82,8 +101,8 @@ public class ExpressionPrinter implements Expression.Visitor<String> {
         return value.value().toString();
     }
 
-    private String wrapWithParentheses(Expression<?> expression) {
-        if(expression instanceof Value<?> || expression instanceof Table || expression instanceof Column) {
+    private String wrapWithParentheses(Expression expression) {
+        if(expression instanceof Value<?> || expression instanceof SubTable || expression instanceof Column) {
             return expression.accept(this);
         }
         return format("(%s)", expression.accept(this));

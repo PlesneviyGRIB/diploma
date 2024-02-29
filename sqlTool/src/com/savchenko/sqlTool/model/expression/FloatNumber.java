@@ -15,11 +15,6 @@ public record FloatNumber(Float value) implements Value<FloatNumber>{
     }
 
     @Override
-    public String toString() {
-        return value().toString();
-    }
-
-    @Override
     public Value<FloatNumber> processArithmetic(Operator operator, Value<FloatNumber> operand) {
         var val = (FloatNumber) operand;
         switch (operator) {

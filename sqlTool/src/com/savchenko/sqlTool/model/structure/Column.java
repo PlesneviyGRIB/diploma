@@ -1,13 +1,12 @@
 package com.savchenko.sqlTool.model.structure;
 
-import com.savchenko.sqlTool.exception.UnexpectedException;
 import com.savchenko.sqlTool.model.command.OrderSpecifier;
 import com.savchenko.sqlTool.model.expression.Expression;
 import com.savchenko.sqlTool.model.expression.Value;
 
 import java.util.Objects;
 
-public record Column(String name, String table, Class<? extends Value<?>> type) implements Expression<Column>, OrderSpecifier {
+public record Column(String name, String table, Class<? extends Value<?>> type) implements Expression, OrderSpecifier {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -31,8 +30,4 @@ public record Column(String name, String table, Class<? extends Value<?>> type) 
         return visitor.visit(this);
     }
 
-    @Override
-    public int compareTo(Column column) {
-        throw new UnexpectedException("Unexpect usage of compareTo method with column");
-    }
 }

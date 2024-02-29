@@ -1,13 +1,16 @@
 package com.savchenko.sqlTool.model.expression;
 
-import com.savchenko.sqlTool.model.expression.visitor.ExpressionPrinter;
+import com.savchenko.sqlTool.model.command.ExpressionList;
 import com.savchenko.sqlTool.model.structure.Column;
 import com.savchenko.sqlTool.model.structure.Table;
+import com.savchenko.sqlTool.model.visitor.ExpressionPrinter;
 
-public interface Expression <O> extends Comparable<O> {
+public interface Expression {
     <T> T accept(Visitor<T> visitor);
     interface Visitor<T> {
+        T visit(ExpressionList list);
         T visit(Table table);
+        T visit(SubTable table);
         T visit(Column column);
         T visit(UnaryOperation operation);
         T visit(BinaryOperation operation);

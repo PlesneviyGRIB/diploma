@@ -1,9 +1,11 @@
-package com.savchenko.sqlTool.model.expression.visitor;
+package com.savchenko.sqlTool.model.visitor;
 
 import com.savchenko.sqlTool.exception.ComputedTypeException;
 import com.savchenko.sqlTool.exception.IncorrectOperatorUsageException;
 import com.savchenko.sqlTool.exception.UnsupportedTypeException;
+import com.savchenko.sqlTool.model.command.ExpressionList;
 import com.savchenko.sqlTool.model.expression.*;
+import com.savchenko.sqlTool.model.operator.Operator;
 import com.savchenko.sqlTool.model.structure.Column;
 import com.savchenko.sqlTool.model.structure.Table;
 import com.savchenko.sqlTool.utils.ModelUtils;
@@ -19,8 +21,18 @@ public class ExpressionValidator implements Expression.Visitor<Class<? extends V
     }
 
     @Override
+    public Class<? extends Value<?>> visit(ExpressionList list) {
+        throw new UnsupportedTypeException("Can not process type of '%s' in such context", list.stringify());
+    }
+
+    @Override
     public Class<? extends Value<?>> visit(Table table) {
-        throw new UnsupportedTypeException();
+        throw new UnsupportedTypeException("Can not process type of '%s' in such context", table.stringify());
+    }
+
+    @Override
+    public Class<? extends Value<?>> visit(SubTable table) {
+        throw new UnsupportedTypeException("Can not process type of '%s' in such context", table.stringify());
     }
 
     @Override
@@ -45,12 +57,28 @@ public class ExpressionValidator implements Expression.Visitor<Class<? extends V
         if (!operation.operator().isBinary()) {
             throw new IncorrectOperatorUsageException(operation.operator());
         }
+
+        if(operation.operator() == Operator.IN && (operation.right() instanceof SubTable || operation.right() instanceof ExpressionList)) {
+            if(operation.right() instanceof ExpressionList list) {
+
+                var argsClasses = list.expressions().stream()
+                        .map(expression -> expression.getClass())
+                        .toList();
+
+                assertSameClass(list, argsClasses.toArray(new Class[]{}));
+            }
+            return BooleanValue.class;
+        }
+
         var left = operation.left().accept(this);
         var right = operation.right().accept(this);
+
         assertSameClass(operation, left, right);
+
         if(!ModelUtils.supportsOperator(left, operation.operator())){
             throw new ComputedTypeException(operation);
         }
+
         return operation.operator().isLogic() ? BooleanValue.class : left;
     }
 
@@ -114,9 +142,8 @@ public class ExpressionValidator implements Expression.Visitor<Class<? extends V
         return TimestampValue.class;
     }
 
-    private void assertSameClass(Expression<?> expression, Class<? extends Value<?>>... classes) {
-        var type =  Arrays.stream(classes).toArray()[0];
-        if(! Arrays.stream(classes).allMatch(c -> c.equals(type))) {
+    private void assertSameClass(Expression expression, Class<? extends Value<?>>... classes) {
+        if(!ModelUtils.theSameClasses(classes)) {
             throw new ComputedTypeException(expression);
         }
     }

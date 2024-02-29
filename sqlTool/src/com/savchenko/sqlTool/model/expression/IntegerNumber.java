@@ -15,11 +15,6 @@ public record IntegerNumber(Integer value) implements Value<IntegerNumber> {
     }
 
     @Override
-    public String toString() {
-        return value().toString();
-    }
-
-    @Override
     public Value<IntegerNumber> processArithmetic(Operator operator, Value<IntegerNumber> operand) {
         var val = (IntegerNumber) operand;
         switch (operator) {

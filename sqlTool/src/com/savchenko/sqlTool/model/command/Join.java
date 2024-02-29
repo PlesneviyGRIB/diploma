@@ -4,8 +4,9 @@ import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.expression.Expression;
 import com.savchenko.sqlTool.model.expression.NullValue;
 import com.savchenko.sqlTool.model.expression.Value;
-import com.savchenko.sqlTool.model.expression.visitor.ExpressionValidator;
-import com.savchenko.sqlTool.model.expression.visitor.ValueInjector;
+import com.savchenko.sqlTool.model.visitor.ExpressionTraversal;
+import com.savchenko.sqlTool.model.visitor.ExpressionValidator;
+import com.savchenko.sqlTool.model.visitor.ValueInjector;
 import com.savchenko.sqlTool.model.structure.Column;
 import com.savchenko.sqlTool.model.structure.Table;
 import com.savchenko.sqlTool.query.QueryResolver;
@@ -14,6 +15,7 @@ import com.savchenko.sqlTool.utils.ModelUtils;
 import org.apache.commons.collections4.ListUtils;
 
 import java.util.List;
+import java.util.Map;
 
 import static java.lang.String.format;
 
@@ -21,14 +23,11 @@ public abstract class Join extends CalculatedCommand {
 
     protected final List<Command> commands;
 
-    protected final Expression<?> expression;
-
     protected final JoinStrategy strategy;
 
-    public Join(List<Command> commands, Expression<?> expression, JoinStrategy strategy, Projection projection) {
-        super(projection);
+    public Join(List<Command> commands, Expression expression, JoinStrategy strategy, Projection projection) {
+        super(expression, projection);
         this.commands = commands;
-        this.expression = expression;
         this.strategy = strategy;
     }
 
@@ -55,14 +54,14 @@ public abstract class Join extends CalculatedCommand {
 
     protected boolean expressionContainNull(List<Column> columns, List<Value<?>> row) {
         var o = new Object() { public boolean nullPresents; };
-        expression.accept(new ValueInjector(List.of(), List.of()) {
+        expression.accept(new ExpressionTraversal() {
             @Override
-            public Expression<?> visit(Column column) {
+            public Void visit(Column column) {
                 var index = ModelUtils.resolveColumnIndex(columns, column);
                 if(row.get(index) instanceof NullValue){
                     o.nullPresents = true;
                 }
-                return column;
+                return null;
             }
         });
         return o.nullPresents;

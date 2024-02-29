@@ -11,8 +11,4 @@ public record BooleanValue(Boolean value) implements Value<BooleanValue> {
         return this.value().compareTo(booleanValue.value());
     }
 
-    @Override
-    public String toString() {
-        return value().toString();
-    }
 }

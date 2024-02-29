@@ -45,13 +45,9 @@ public class TablePrinter {
 
     private void appendColumnNames() {
         res.append("|");
-        var columNames = table.columns().stream().map(Column::name).toList();
         table.columns().stream()
-                .map(c -> Pair.of(c, Collections.frequency(columNames, c.name())))
-                .forEach(pair -> {
-                    var title = pair.getRight() > 1 ? pair.getLeft() : pair.getLeft().name();
-                    res.append(formatCell(title)).append("|");
-                });
+                .map(Column::name)
+                .forEach(name -> res.append(formatCell(name)).append("|"));
         res.append("\n");
     }
 
