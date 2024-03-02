@@ -1,10 +1,9 @@
-package com.savchenko.sqlTool.repository;
+package com.savchenko.sqlTool.model.domain;
 
 import com.savchenko.sqlTool.exception.TableNotFoundException;
-import com.savchenko.sqlTool.model.structure.Table;
+import com.savchenko.sqlTool.model.domain.Table;
 
 import java.util.List;
-import java.util.Map;
 
 import static java.lang.String.format;
 

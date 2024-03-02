@@ -2,9 +2,9 @@ package com.savchenko.sqlTool.model.visitor;
 
 import com.savchenko.sqlTool.model.command.ExpressionList;
 import com.savchenko.sqlTool.model.expression.*;
-import com.savchenko.sqlTool.model.structure.Column;
-import com.savchenko.sqlTool.model.structure.Table;
-import com.savchenko.sqlTool.query.QueryResolver;
+import com.savchenko.sqlTool.model.domain.Column;
+import com.savchenko.sqlTool.model.domain.Table;
+import com.savchenko.sqlTool.model.Resolver;
 
 import java.util.stream.Collectors;
 
@@ -27,7 +27,7 @@ public class ExpressionPrinter implements Expression.Visitor<String> {
 
     @Override
     public String visit(SubTable table) {
-        var subTable = new QueryResolver().resolve(table.commands());
+        var subTable = new Resolver().resolve(table.commands());
         return format("SUB_TABLE[%s]", subTable.name());
     }
 

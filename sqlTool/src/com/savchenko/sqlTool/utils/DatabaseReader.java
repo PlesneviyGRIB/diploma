@@ -1,48 +1,49 @@
-package com.savchenko.sqlTool.repository;
+package com.savchenko.sqlTool.utils;
 
+import com.savchenko.sqlTool.config.Constants;
+import com.savchenko.sqlTool.model.domain.Column;
+import com.savchenko.sqlTool.model.domain.Projection;
+import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.expression.Value;
 import com.savchenko.sqlTool.model.index.BalancedTreeIndex;
 import com.savchenko.sqlTool.model.index.HashIndex;
 import com.savchenko.sqlTool.model.index.Index;
-import com.savchenko.sqlTool.model.structure.Column;
-import com.savchenko.sqlTool.model.structure.Table;
-import com.savchenko.sqlTool.config.Constants;
-import com.savchenko.sqlTool.utils.ModelUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
-public class DBReader {
+public class DatabaseReader {
 
-    public Projection read(Connection connection) {
-        try {
-            var metaData = connection.getMetaData();
-            var jdbcTables = metaData.getTables(Constants.DB_NAME, Constants.DB_SCHEMA, "%", new String[]{"TABLE"});
+    private final Connection connection;
 
-            var tables = new LinkedList<Table>();
-            while (jdbcTables.next()) {
-                tables.add(addTable(jdbcTables.getString(3), metaData));
-            }
-            return new Projection(tables);
-        } catch (SQLException | ClassNotFoundException e) {
-            throw new RuntimeException("An error occurs during reading tables");
-        }
+    public DatabaseReader(Connection connection) {
+        this.connection = connection;
     }
 
-    private Table addTable(String tableName, DatabaseMetaData databaseMetaData) throws SQLException, ClassNotFoundException {
-        try (var statement = DBConnection.get().createStatement()) {
+    public Projection read() throws SQLException {
+        var metaData = connection.getMetaData();
+        var jdbcTables = metaData.getTables(Constants.DB_NAME, Constants.DB_SCHEMA, "%", new String[]{"TABLE"});
+
+        var tables = new LinkedList<Table>();
+
+        while (jdbcTables.next()) {
+            tables.add(addTable(jdbcTables.getString(3)));
+        }
+
+        return new Projection(tables);
+    }
+
+    private Table addTable(String tableName) throws SQLException {
+        try (var statement = connection.createStatement()) {
 
             var query = format("select * from %s limit %s", tableName, Constants.TABLE_PULL_ROWS_MAX_SIZE);
             var resultSet = statement.executeQuery(query);
@@ -51,7 +52,7 @@ public class DBReader {
             var columnsCount = metaData.getColumnCount();
 
             var columns = readColumns(tableName, metaData);
-            var indices = readIndices(tableName, columns, databaseMetaData);
+            var indices = readIndices(tableName, columns);
             var data = new LinkedList<List<Value<?>>>();
 
             while (resultSet.next()) {
@@ -70,21 +71,26 @@ public class DBReader {
         }
     }
 
-    private List<Column> readColumns(String tableName, ResultSetMetaData metaData) throws SQLException, ClassNotFoundException {
+    private List<Column> readColumns(String tableName, ResultSetMetaData metaData) throws SQLException {
         var columnsCount = metaData.getColumnCount();
         var columns = new ArrayList<Column>(columnsCount);
 
         for (int i = 1; i <= columnsCount; i++) {
             var columnName = metaData.getColumnName(i);
-            var columnClassType = ModelUtils.getWrapper(Class.forName(metaData.getColumnClassName(i)));
-            var ocolumn = new Column(columnName, tableName, columnClassType);
-            columns.add(ocolumn);
+            try {
+                var columnClassType = ModelUtils.getWrapper(Class.forName(metaData.getColumnClassName(i)));
+                var column = new Column(columnName, tableName, columnClassType);
+                columns.add(column);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException("Fatal while reading database");
+            }
         }
 
         return columns;
     }
 
-    private List<Index> readIndices(String tableName, List<Column> columns, DatabaseMetaData metaData) throws SQLException {
+    private List<Index> readIndices(String tableName, List<Column> columns) throws SQLException {
+        var metaData = connection.getMetaData();
         var resultSet = metaData.getIndexInfo(Constants.DB_NAME, Constants.DB_SCHEMA, tableName, false, false);
         var rawData = new LinkedList<List<String>>();
 
@@ -115,7 +121,7 @@ public class DBReader {
                             .map(columnName -> columns.stream().filter(c -> c.name().equals(columnName)).findFirst().get())
                             .toList();
 
-                    if(rawIndexData.get(3).equals("2")) {
+                    if (rawIndexData.get(3).equals("2")) {
                         return new HashIndex(indexName, targetColumns, forUniqueValues);
                     } else {
                         return new BalancedTreeIndex(indexName, targetColumns, forUniqueValues);

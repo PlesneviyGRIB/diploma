@@ -1,6 +1,6 @@
 package com.savchenko.sqlTool.model.index;
 
-import com.savchenko.sqlTool.model.structure.Column;
+import com.savchenko.sqlTool.model.domain.Column;
 
 import java.util.List;
 

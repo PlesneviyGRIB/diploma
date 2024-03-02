@@ -6,7 +6,7 @@ import com.savchenko.sqlTool.model.expression.Expression;
 import com.savchenko.sqlTool.model.expression.TernaryOperation;
 import com.savchenko.sqlTool.model.expression.UnaryOperation;
 import com.savchenko.sqlTool.model.operator.Operator;
-import com.savchenko.sqlTool.model.structure.Column;
+import com.savchenko.sqlTool.model.domain.Column;
 
 public class Q {
     public static UnaryOperation op(Operator operator, Expression expression) {

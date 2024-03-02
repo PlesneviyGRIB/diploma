@@ -3,23 +3,19 @@ package com.savchenko.sqlTool.model.visitor;
 import com.savchenko.sqlTool.exception.UnexpectedException;
 import com.savchenko.sqlTool.exception.UnexpectedExpressionException;
 import com.savchenko.sqlTool.model.command.ExpressionList;
+import com.savchenko.sqlTool.model.domain.Column;
+import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.expression.*;
-import com.savchenko.sqlTool.model.structure.Column;
-import com.savchenko.sqlTool.model.structure.Table;
-import com.savchenko.sqlTool.utils.ModelUtils;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 public class ValueInjector implements Expression.Visitor<Expression> {
-    private final List<Column> columns;
-    private final List<Value<?>> values;
+    private final Map<Column, Value<?>> columnValue;
     private final Map<SubTable, Table> calculatedSubTables;
 
-    public ValueInjector(List<Column> columns, List<Value<?>> values, Map<SubTable, Table> calculatedSubTables) {
-        this.columns = columns;
-        this.values = values;
+    public ValueInjector(Map<Column, Value<?>> values, Map<SubTable, Table> calculatedSubTables) {
+        this.columnValue = values;
         this.calculatedSubTables = calculatedSubTables;
     }
 
@@ -35,9 +31,9 @@ public class ValueInjector implements Expression.Visitor<Expression> {
 
     @Override
     public Expression visit(SubTable table) {
-        var targetTable =  calculatedSubTables.get(table);
+        var targetTable = calculatedSubTables.get(table);
 
-        if(Objects.isNull(targetTable)) {
+        if (Objects.isNull(targetTable)) {
             throw new UnexpectedException("SubTable '%s' not found in context", table.stringify());
         }
         return targetTable;
@@ -45,8 +41,7 @@ public class ValueInjector implements Expression.Visitor<Expression> {
 
     @Override
     public Expression visit(Column column) {
-        var index = ModelUtils.resolveColumnIndex(columns, column);
-        return values.get(index);
+        return columnValue.get(column);
     }
 
     @Override

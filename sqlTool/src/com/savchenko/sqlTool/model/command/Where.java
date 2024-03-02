@@ -6,12 +6,12 @@ import com.savchenko.sqlTool.model.expression.Expression;
 import com.savchenko.sqlTool.model.visitor.ExpressionCalculator;
 import com.savchenko.sqlTool.model.visitor.ExpressionValidator;
 import com.savchenko.sqlTool.model.visitor.ValueInjector;
-import com.savchenko.sqlTool.model.structure.Table;
-import com.savchenko.sqlTool.query.QueryResolver;
-import com.savchenko.sqlTool.repository.Projection;
+import com.savchenko.sqlTool.model.domain.Table;
+import com.savchenko.sqlTool.model.Resolver;
+import com.savchenko.sqlTool.model.domain.Projection;
+import com.savchenko.sqlTool.utils.ModelUtils;
 
 import java.util.List;
-import java.util.Map;
 
 public class Where extends CalculatedCommand {
 
@@ -20,15 +20,16 @@ public class Where extends CalculatedCommand {
     }
 
     @Override
-    public Table run(Table table, QueryResolver resolver) {
+    public Table run(Table table, Resolver resolver) {
         expression.accept(new ExpressionValidator(table.columns()));
         var data = table.data().stream()
                 .filter(row -> {
 
                     var subTables = calculateSubTables(resolver);
+                    var columnValue = ModelUtils.columnValueMap(table.columns(), row);
 
                     var value = expression
-                            .accept(new ValueInjector(table.columns(), row, subTables))
+                            .accept(new ValueInjector(columnValue, subTables))
                             .accept(new ExpressionCalculator());
 
                     if(value instanceof BooleanValue bv) {

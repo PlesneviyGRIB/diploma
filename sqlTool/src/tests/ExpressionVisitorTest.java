@@ -1,11 +1,11 @@
-package test;
+package tests;
 
 import com.savchenko.sqlTool.exception.ColumnNotFoundException;
 import com.savchenko.sqlTool.exception.ComputedTypeException;
 import com.savchenko.sqlTool.exception.IncorrectOperatorUsageException;
 import com.savchenko.sqlTool.model.expression.*;
 import com.savchenko.sqlTool.model.visitor.ExpressionValidator;
-import com.savchenko.sqlTool.model.structure.Column;
+import com.savchenko.sqlTool.model.domain.Column;
 import com.savchenko.sqlTool.query.Q;
 import org.junit.Assert;
 import org.junit.Test;
@@ -34,7 +34,7 @@ public class ExpressionVisitorTest extends TestBase {
     }
 
     @Test
-    public void invalidOparandType() {
+    public void invalidOparantType() {
         var validator = new ExpressionValidator(List.of(new Column("int", "t", IntegerNumber.class), new Column("bool", "t", BooleanValue.class)));
         Q.op(EQ, new IntegerNumber(1), Q.column("t", "int")).accept(validator);
         Q.op(NOT_EQ, new BooleanValue(false), Q.op(EQ, new IntegerNumber(1), Q.column("t", "int"))).accept(validator);
@@ -57,7 +57,7 @@ public class ExpressionVisitorTest extends TestBase {
                 ),
                 Q.op(EQ, Q.column("actions", "action_id"), new StringValue("addRow"))
         );
-        var expected = "(COLUMN[actions.id] <= (1 * 1042)) or (COLUMN[actions.action_id] = addRow)";
+        var expected = "(COLUMN[actions.id] <= (1L * 1042L)) or (COLUMN[actions.action_id] = addRow)";
         Assert.assertEquals(expected, expression.stringify());
     }
 

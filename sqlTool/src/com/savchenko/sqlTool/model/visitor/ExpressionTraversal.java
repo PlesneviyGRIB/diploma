@@ -2,8 +2,8 @@ package com.savchenko.sqlTool.model.visitor;
 
 import com.savchenko.sqlTool.model.command.ExpressionList;
 import com.savchenko.sqlTool.model.expression.*;
-import com.savchenko.sqlTool.model.structure.Column;
-import com.savchenko.sqlTool.model.structure.Table;
+import com.savchenko.sqlTool.model.domain.Column;
+import com.savchenko.sqlTool.model.domain.Table;
 
 public class ExpressionTraversal implements Expression.Visitor<Void> {
 

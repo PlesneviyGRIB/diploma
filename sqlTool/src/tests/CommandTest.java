@@ -1,12 +1,12 @@
-package test;
+package tests;
 
 import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.command.From;
-import com.savchenko.sqlTool.model.command.JoinStrategy;
+import com.savchenko.sqlTool.model.command.join.JoinStrategy;
 import com.savchenko.sqlTool.model.expression.BooleanValue;
 import com.savchenko.sqlTool.model.expression.Expression;
 import com.savchenko.sqlTool.model.index.BalancedTreeIndex;
-import com.savchenko.sqlTool.model.structure.Table;
+import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.query.Q;
 import com.savchenko.sqlTool.query.Query;
 import com.savchenko.sqlTool.utils.ModelUtils;

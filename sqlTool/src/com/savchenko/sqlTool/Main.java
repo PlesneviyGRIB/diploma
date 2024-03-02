@@ -1,38 +1,32 @@
 package com.savchenko.sqlTool;
 
-import com.savchenko.sqlTool.config.Constants;
-import com.savchenko.sqlTool.model.command.ExpressionList;
-import com.savchenko.sqlTool.model.command.JoinStrategy;
+import com.savchenko.sqlTool.model.Resolver;
+import com.savchenko.sqlTool.model.command.join.JoinStrategy;
 import com.savchenko.sqlTool.model.expression.BooleanValue;
 import com.savchenko.sqlTool.model.expression.LongNumber;
 import com.savchenko.sqlTool.model.expression.StringValue;
-import com.savchenko.sqlTool.model.index.BalancedTreeIndex;
 import com.savchenko.sqlTool.query.Q;
 import com.savchenko.sqlTool.query.Query;
-import com.savchenko.sqlTool.query.QueryResolver;
-import com.savchenko.sqlTool.repository.DBConnection;
-import com.savchenko.sqlTool.repository.DBReader;
+import com.savchenko.sqlTool.utils.DatabaseReader;
 import com.savchenko.sqlTool.utils.TablePrinter;
 
+import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.List;
 
+import static com.savchenko.sqlTool.config.Constants.*;
 import static com.savchenko.sqlTool.model.operator.Operator.*;
 
 public class Main {
-    static {
-        DBConnection.init(Constants.DB_DRIVER, Constants.DB_PORT, Constants.DB_NAME, Constants.DB_USER, Constants.DB_PASSWORD);
-    }
 
-    public static void main(String[] args) {
-        var projection = new DBReader().read(DBConnection.get());
+    public static void main(String[] args) throws SQLException {
+        var connection = DriverManager.getConnection(String.format("jdbc:%s://localhost:%s/%s", DB_DRIVER, DB_PORT, DB_NAME), DB_USER, DB_PASSWORD);
+        var projection = new DatabaseReader(connection).read();
 
 
         var query = new Query(projection)
                 .from("actions")
                 .fullJoin(new Query(projection).from("content"), new BooleanValue(true), JoinStrategy.LOOP)
                 .as("r")
-                //.constructIndex(new BalancedTreeIndex("", List.of(Q.column("actions", "id")), true))
                 .where(
                         Q.op(
                                 LESS_OR_EQ,
@@ -44,15 +38,12 @@ public class Main {
                                 )
                         ),
                         Q.op(EQ, Q.column("r", "action_id"), new StringValue("addRow"))
-                )
-                //.orderBy(Q.order(Q.column("r", "solution_id")), Q.order(Q.column("r", "id"), true))
-                //.limit(20)
-                ;
+                );
 
 
-        var resTable = new QueryResolver().resolve(query);
-
+        var resTable = new Resolver().resolve(query);
         var resStr = new TablePrinter(resTable).stringify();
+
         System.out.println(resStr);
     }
 }

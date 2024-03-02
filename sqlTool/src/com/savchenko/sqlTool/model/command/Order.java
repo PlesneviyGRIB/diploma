@@ -1,5 +1,5 @@
 package com.savchenko.sqlTool.model.command;
 
-import com.savchenko.sqlTool.model.structure.Column;
+import com.savchenko.sqlTool.model.domain.Column;
 
-public record Order(Column column, boolean reverse) implements OrderSpecifier {}
+public record Order(Column column, boolean reverse)  {}

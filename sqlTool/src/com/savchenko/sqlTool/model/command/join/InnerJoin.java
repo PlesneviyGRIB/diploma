@@ -1,12 +1,14 @@
-package com.savchenko.sqlTool.model.command;
+package com.savchenko.sqlTool.model.command.join;
 
 import com.savchenko.sqlTool.exception.UnsupportedTypeException;
+import com.savchenko.sqlTool.model.command.Command;
 import com.savchenko.sqlTool.model.expression.BooleanValue;
 import com.savchenko.sqlTool.model.expression.Expression;
 import com.savchenko.sqlTool.model.visitor.ExpressionCalculator;
 import com.savchenko.sqlTool.model.visitor.ValueInjector;
-import com.savchenko.sqlTool.model.structure.Table;
-import com.savchenko.sqlTool.repository.Projection;
+import com.savchenko.sqlTool.model.domain.Table;
+import com.savchenko.sqlTool.model.domain.Projection;
+import com.savchenko.sqlTool.utils.ModelUtils;
 import org.apache.commons.collections4.ListUtils;
 
 import java.util.List;
@@ -31,7 +33,7 @@ public class InnerJoin extends Join {
                     }
 
                     var value = expression
-                            .accept(new ValueInjector(columns, row, Map.of()))
+                            .accept(new ValueInjector(ModelUtils.columnValueMap(columns, row), Map.of()))
                             .accept(new ExpressionCalculator());
 
                     if(value instanceof BooleanValue bv) {

@@ -1,21 +1,21 @@
-package com.savchenko.sqlTool.model.command;
+package com.savchenko.sqlTool.model.command.join;
 
 import com.savchenko.sqlTool.exception.ValidationException;
+import com.savchenko.sqlTool.model.command.CalculatedCommand;
+import com.savchenko.sqlTool.model.command.Command;
 import com.savchenko.sqlTool.model.expression.Expression;
 import com.savchenko.sqlTool.model.expression.NullValue;
 import com.savchenko.sqlTool.model.expression.Value;
 import com.savchenko.sqlTool.model.visitor.ExpressionTraversal;
 import com.savchenko.sqlTool.model.visitor.ExpressionValidator;
-import com.savchenko.sqlTool.model.visitor.ValueInjector;
-import com.savchenko.sqlTool.model.structure.Column;
-import com.savchenko.sqlTool.model.structure.Table;
-import com.savchenko.sqlTool.query.QueryResolver;
-import com.savchenko.sqlTool.repository.Projection;
+import com.savchenko.sqlTool.model.domain.Column;
+import com.savchenko.sqlTool.model.domain.Table;
+import com.savchenko.sqlTool.model.Resolver;
+import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.utils.ModelUtils;
 import org.apache.commons.collections4.ListUtils;
 
 import java.util.List;
-import java.util.Map;
 
 import static java.lang.String.format;
 
@@ -31,10 +31,10 @@ public abstract class Join extends CalculatedCommand {
         this.strategy = strategy;
     }
 
-    protected abstract Table run(Table table, Table joinedTable);
+    abstract Table run(Table table, Table joinedTable);
 
     @Override
-    public Table run(Table table, QueryResolver resolver) {
+    public Table run(Table table, Resolver resolver) {
         var joinedTable = resolver.resolve(commands);
 
         if(table.name().equals(joinedTable.name())) {

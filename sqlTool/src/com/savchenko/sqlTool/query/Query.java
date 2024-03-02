@@ -1,19 +1,21 @@
 package com.savchenko.sqlTool.query;
 
-import com.savchenko.sqlTool.model.Builder;
 import com.savchenko.sqlTool.model.command.*;
+import com.savchenko.sqlTool.model.command.join.*;
 import com.savchenko.sqlTool.model.expression.BinaryOperation;
 import com.savchenko.sqlTool.model.expression.BooleanValue;
 import com.savchenko.sqlTool.model.expression.Expression;
 import com.savchenko.sqlTool.model.index.Index;
 import com.savchenko.sqlTool.model.operator.Operator;
-import com.savchenko.sqlTool.model.structure.Column;
-import com.savchenko.sqlTool.repository.Projection;
+import com.savchenko.sqlTool.model.domain.Column;
+import com.savchenko.sqlTool.model.domain.Projection;
 import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.builder.Builder;
 
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class Query implements Builder<List<Command>> {
     private final Projection projection;
@@ -60,13 +62,10 @@ public class Query implements Builder<List<Command>> {
         return this;
     }
 
-    public Query orderBy(OrderSpecifier... specifiers) {
-        var orders = Arrays.stream(specifiers).map(specifier -> {
-            if(specifier instanceof Column column) {
-                return new Order(column, false);
-            }
-            return (Order) specifier;
-        }).toList();
+    public Query orderBy(Map<Column, Boolean> map) {
+        var orders = map.entrySet().stream()
+                .map(entry -> new Order(entry.getKey(), entry.getValue()))
+                .toList();
         commands.add(new OrderBy(orders, projection));
         return this;
     }

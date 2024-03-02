@@ -1,15 +1,13 @@
-package test;
+package tests;
 
 import com.savchenko.sqlTool.exception.ComputedTypeException;
 import com.savchenko.sqlTool.model.command.ExpressionList;
-import com.savchenko.sqlTool.model.expression.BooleanValue;
 import com.savchenko.sqlTool.model.expression.IntegerNumber;
 import com.savchenko.sqlTool.model.expression.LongNumber;
 import com.savchenko.sqlTool.model.expression.SubTable;
 import com.savchenko.sqlTool.model.visitor.ExpressionValidator;
 import com.savchenko.sqlTool.query.Q;
 import com.savchenko.sqlTool.query.Query;
-import com.sun.jdi.LongValue;
 import org.junit.Assert;
 import org.junit.Test;
 

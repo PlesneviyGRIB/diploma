@@ -1,4 +1,4 @@
-package com.savchenko.sqlTool.model.structure;
+package com.savchenko.sqlTool.model.domain;
 
 import com.savchenko.sqlTool.model.expression.Expression;
 import com.savchenko.sqlTool.model.expression.Value;

@@ -1,6 +1,6 @@
 package com.savchenko.sqlTool.exception;
 
-import com.savchenko.sqlTool.model.structure.Column;
+import com.savchenko.sqlTool.model.domain.Column;
 
 import java.util.List;
 import java.util.Objects;

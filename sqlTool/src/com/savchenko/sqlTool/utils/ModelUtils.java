@@ -1,15 +1,13 @@
 package com.savchenko.sqlTool.utils;
 
 import com.savchenko.sqlTool.exception.ColumnNotFoundException;
-import com.savchenko.sqlTool.exception.ComputedTypeException;
 import com.savchenko.sqlTool.exception.UnsupportedTypeException;
 import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.expression.*;
 import com.savchenko.sqlTool.model.operator.Operator;
-import com.savchenko.sqlTool.model.structure.Column;
-import com.savchenko.sqlTool.model.structure.Table;
+import com.savchenko.sqlTool.model.domain.Column;
+import com.savchenko.sqlTool.model.domain.Table;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.math.BigDecimal;
@@ -177,5 +175,11 @@ public class ModelUtils {
     public static boolean theSameClasses(Class... classes) {
         var type = (Class) Arrays.stream(classes).toArray()[0];
         return Arrays.stream(classes).allMatch(c -> c.equals(type));
+    }
+
+    public static Map<Column, Value<?>> columnValueMap(List<Column> columns, List<Value<?>> values) {
+        var columnValue = new HashMap<Column, Value<?>>();
+        IntStream.range(0, columns.size()).forEach(i -> columnValue.put(columns.get(i), values.get(i)));
+        return columnValue;
     }
 }

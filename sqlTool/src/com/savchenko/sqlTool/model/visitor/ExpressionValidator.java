@@ -6,11 +6,10 @@ import com.savchenko.sqlTool.exception.UnsupportedTypeException;
 import com.savchenko.sqlTool.model.command.ExpressionList;
 import com.savchenko.sqlTool.model.expression.*;
 import com.savchenko.sqlTool.model.operator.Operator;
-import com.savchenko.sqlTool.model.structure.Column;
-import com.savchenko.sqlTool.model.structure.Table;
+import com.savchenko.sqlTool.model.domain.Column;
+import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.utils.ModelUtils;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class ExpressionValidator implements Expression.Visitor<Class<? extends Value<?>>> {
