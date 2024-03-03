@@ -1,12 +1,14 @@
 package tests;
 
+import com.savchenko.sqlTool.exception.UnexpectedException;
 import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.command.From;
 import com.savchenko.sqlTool.model.command.join.JoinStrategy;
-import com.savchenko.sqlTool.model.expression.BooleanValue;
-import com.savchenko.sqlTool.model.expression.Expression;
+import com.savchenko.sqlTool.model.domain.Column;
+import com.savchenko.sqlTool.model.expression.*;
 import com.savchenko.sqlTool.model.index.BalancedTreeIndex;
 import com.savchenko.sqlTool.model.domain.Table;
+import com.savchenko.sqlTool.model.operator.Operator;
 import com.savchenko.sqlTool.query.Q;
 import com.savchenko.sqlTool.query.Query;
 import com.savchenko.sqlTool.utils.ModelUtils;
@@ -18,10 +20,11 @@ import org.junit.Test;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
-import static com.savchenko.sqlTool.model.operator.Operator.EQ;
+import static com.savchenko.sqlTool.model.operator.Operator.*;
 import static org.junit.Assert.assertEquals;
 
 public class CommandTest extends TestBase {
@@ -156,6 +159,41 @@ public class CommandTest extends TestBase {
     }
 
     @Test
+    public void hashJoinStrategy() {
+        Function<Expression, Query> hashJoin = expression -> new Query(projection)
+                .from("content")
+                .fullJoin( new Query(projection).from("content_descriptor"), expression, JoinStrategy.HASH);
+
+        expectError(() -> resolver.resolve(hashJoin.apply(new BooleanValue(true))), UnexpectedException.class);
+        expectError(() -> resolver.resolve(hashJoin.apply(new BinaryOperation(NOT_EQ, new IntegerNumber(3), new IntegerNumber(9)))), UnexpectedException.class);
+
+        expectRowsCount(
+                hashJoin.apply(Q.op(EQ, Q.column("content", "id"), Q.column("content_descriptor", "actual_content_id"))),
+                339
+        );
+
+        expectRowsCount(
+                hashJoin.apply(Q.op(EQ,
+                        Q.op(
+                                MINUS,
+                                Q.op(
+                                        PLUS,
+                                        Q.op(MULTIPLY, new LongNumber(2L), Q.column("content", "id")),
+                                        Q.column("content", "id")
+                                ),
+                                Q.column("content", "id")
+                        ),
+                        Q.op(
+                                DIVISION,
+                                Q.column("content_descriptor", "actual_content_id"),
+                                new LongNumber(1L)
+                        ))
+                ),
+                584
+        );
+    }
+
+    @Test
     public void indicesPresentsInProjection() {
         var table = resolver.resolve(
                 new Query(projection).from("courses")
@@ -168,8 +206,6 @@ public class CommandTest extends TestBase {
     public void aliasTest() {
         BiConsumer<Table, List<String>> check = (table, columnNames) -> IntStream.range(0, columnNames.size())
                 .forEach(index -> Assert.assertEquals(columnNames.get(index), table.columns().get(index).toString()));
-
-        Consumer<Table> printer = table -> table.columns().forEach(System.out::println);
 
         var table1 = resolver.resolve(new Query(projection).from("wikis").as("w"));
         check.accept(table1, List.of("w.id", "w.text"));

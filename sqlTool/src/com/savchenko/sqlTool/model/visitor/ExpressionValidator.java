@@ -42,7 +42,7 @@ public class ExpressionValidator implements Expression.Visitor<Class<? extends V
     @Override
     public Class<? extends Value<?>> visit(UnaryOperation operation) {
         if (!operation.operator().isUnary()) {
-            throw new IncorrectOperatorUsageException(operation.operator());
+            throw new IncorrectOperatorUsageException(operation.operator(), operation);
         }
         var type = operation.expression().accept(this);
         if(!ModelUtils.supportsOperator(type, operation.operator())){
@@ -54,7 +54,7 @@ public class ExpressionValidator implements Expression.Visitor<Class<? extends V
     @Override
     public Class<? extends Value<?>> visit(BinaryOperation operation) {
         if (!operation.operator().isBinary()) {
-            throw new IncorrectOperatorUsageException(operation.operator());
+            throw new IncorrectOperatorUsageException(operation.operator(), operation);
         }
 
         if(operation.operator() == Operator.IN && (operation.right() instanceof SubTable || operation.right() instanceof ExpressionList)) {
@@ -84,7 +84,7 @@ public class ExpressionValidator implements Expression.Visitor<Class<? extends V
     @Override
     public Class<? extends Value<?>> visit(TernaryOperation operation) {
         if (!operation.operator().isTernary()) {
-            throw new IncorrectOperatorUsageException(operation.operator());
+            throw new IncorrectOperatorUsageException(operation.operator(), operation);
         }
         var first = operation.first().accept(this);
         var second = operation.second().accept(this);

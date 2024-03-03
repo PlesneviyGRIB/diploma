@@ -12,10 +12,8 @@ import com.savchenko.sqlTool.model.domain.Projection;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.builder.Builder;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Stream;
 
 public class Query implements Builder<List<Command>> {
     private final Projection projection;
@@ -56,9 +54,11 @@ public class Query implements Builder<List<Command>> {
         return this;
     }
 
-    public Query where(Expression... expressions) {
-        var expression = Arrays.stream(expressions).reduce(new BooleanValue(true), (p, c) -> new BinaryOperation(Operator.AND, p, c));
-        commands.add(new Where(expression, projection));
+    public Query where(Expression expression, Expression... expressions) {
+        var targetExpression = Stream.of(Stream.of(expression), Arrays.stream(expressions))
+                .flatMap(s -> s)
+                .reduce(new BooleanValue(true), (p, c) -> new BinaryOperation(Operator.AND, p, c));
+        commands.add(new Where(targetExpression, projection));
         return this;
     }
 

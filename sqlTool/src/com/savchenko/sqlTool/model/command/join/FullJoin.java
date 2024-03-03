@@ -1,17 +1,18 @@
 package com.savchenko.sqlTool.model.command.join;
 
-import com.savchenko.sqlTool.exception.UnsupportedTypeException;
 import com.savchenko.sqlTool.model.command.Command;
-import com.savchenko.sqlTool.model.expression.BooleanValue;
-import com.savchenko.sqlTool.model.expression.Expression;
-import com.savchenko.sqlTool.model.visitor.ExpressionCalculator;
-import com.savchenko.sqlTool.model.visitor.ValueInjector;
-import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.domain.Projection;
+import com.savchenko.sqlTool.model.domain.Table;
+import com.savchenko.sqlTool.model.expression.Expression;
+import com.savchenko.sqlTool.model.expression.Value;
 import com.savchenko.sqlTool.utils.ModelUtils;
 import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.tuple.Triple;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class FullJoin extends Join {
@@ -20,49 +21,24 @@ public class FullJoin extends Join {
     }
 
     @Override
-    public Table run(Table table, Table joinedTable) {
-        var columns = ListUtils.union(table.columns(), joinedTable.columns());
+    public Table run(Table table, Table joinedTable, Supplier<Triple<List<List<Value<?>>>, Set<Integer>, Set<Integer>>> strategyExecutionResultSupplier) {
 
-        var leftJoinedRowIndexes = new HashSet<Integer>();
-        var leftIndexedData = ModelUtils.getIndexedData(table.data());
+        var result = strategyExecutionResultSupplier.get();
 
-        var rightJoinedRowIndexes = new HashSet<Integer>();
-        var rightIndexedData = ModelUtils.getIndexedData(joinedTable.data());
-
-        var joinedData = leftIndexedData.stream()
-                .flatMap(pair1 -> rightIndexedData.stream().map(pair2 -> {
-                    var row = ListUtils.union(pair1.getRight(), pair2.getRight());
-
-                    if(expressionContainNull(columns, row)) {
-                        return null;
-                    }
-                    var value = expression
-                            .accept(new ValueInjector(ModelUtils.columnValueMap(columns, row), Map.of()))
-                            .accept(new ExpressionCalculator());
-
-                    if(value instanceof BooleanValue bv) {
-                        if(bv.value()) {
-                            leftJoinedRowIndexes.add(pair1.getLeft());
-                            rightJoinedRowIndexes.add(pair2.getLeft());
-                            return row;
-                        }
-                        return null;
-                    }
-                    throw new UnsupportedTypeException();
-                }).filter(Objects::nonNull).toList().stream()).toList();
-
-        var leftRemainder = leftIndexedData.stream()
-                .filter(pair -> !leftJoinedRowIndexes.contains(pair.getLeft()))
+        var leftRemainder = ModelUtils.getIndexedData(table.data()).stream()
+                .filter(pair -> !result.getMiddle().contains(pair.getLeft()))
                 .map(pair -> ListUtils.union(pair.getRight(), ModelUtils.emptyRow(joinedTable)))
                 .toList();
 
-        var rightRemainder = rightIndexedData.stream()
-                .filter(pair -> !rightJoinedRowIndexes.contains(pair.getLeft()))
+        var rightRemainder = ModelUtils.getIndexedData(joinedTable.data()).stream()
+                .filter(pair -> !result.getRight().contains(pair.getLeft()))
                 .map(pair -> ListUtils.union(ModelUtils.emptyRow(table), pair.getRight()))
                 .toList();
 
-        var data = Stream.of(joinedData, leftRemainder, rightRemainder).flatMap(Collection::stream).toList();
+        var data = Stream.of(result.getLeft(), leftRemainder, rightRemainder).flatMap(Collection::stream).toList();
 
-        return new Table(null, columns, data, List.of());
+        var mergedColumns = ListUtils.union(table.columns(), joinedTable.columns());
+
+        return new Table(null, mergedColumns, data, List.of());
     }
 }
