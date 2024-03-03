@@ -30,7 +30,7 @@ public class Resolver {
         Table table = null;
 
         for (Command cmd: commands) {
-            cmd.validate(table);
+
             var tableRef = table;
 
             table = cmd.accept(new Command.Visitor<>() {

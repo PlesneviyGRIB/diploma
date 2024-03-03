@@ -1,7 +1,7 @@
 package tests;
 
 import com.savchenko.sqlTool.exception.ComputedTypeException;
-import com.savchenko.sqlTool.model.command.ExpressionList;
+import com.savchenko.sqlTool.model.expression.ExpressionList;
 import com.savchenko.sqlTool.model.expression.IntegerNumber;
 import com.savchenko.sqlTool.model.expression.LongNumber;
 import com.savchenko.sqlTool.model.expression.SubTable;
@@ -22,10 +22,10 @@ public class ExpressionTest extends TestBase {
     public void expectSingleTypeInList() {
         Consumer<ExpressionList> test = list -> Q.op(IN, new IntegerNumber(1), list).accept(new ExpressionValidator(List.of()));
 
-        test.accept(new ExpressionList(List.of(new IntegerNumber(1), new IntegerNumber(2))));
+        test.accept(new ExpressionList(List.of(new IntegerNumber(1), new IntegerNumber(2)), IntegerNumber.class));
 
         expectError(
-                () -> test.accept(new ExpressionList(List.of(new IntegerNumber(1), new LongNumber(2L)))),
+                () -> test.accept(new ExpressionList(List.of(new IntegerNumber(1), new LongNumber(2L)), IntegerNumber.class)),
                 ComputedTypeException.class
         );
     }

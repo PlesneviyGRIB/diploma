@@ -3,23 +3,24 @@ package tests;
 import com.savchenko.sqlTool.exception.UnexpectedException;
 import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.command.From;
+import com.savchenko.sqlTool.model.command.function.Identity;
 import com.savchenko.sqlTool.model.command.join.JoinStrategy;
 import com.savchenko.sqlTool.model.domain.Column;
+import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.expression.*;
 import com.savchenko.sqlTool.model.index.BalancedTreeIndex;
-import com.savchenko.sqlTool.model.domain.Table;
-import com.savchenko.sqlTool.model.operator.Operator;
 import com.savchenko.sqlTool.query.Q;
 import com.savchenko.sqlTool.query.Query;
 import com.savchenko.sqlTool.utils.ModelUtils;
 import com.savchenko.sqlTool.utils.SqlUtils;
+import com.savchenko.sqlTool.utils.TablePrinter;
 import org.apache.commons.lang3.function.TriFunction;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
@@ -143,7 +144,7 @@ public class CommandTest extends TestBase {
         var resTable = resolver.resolve(
                 new Query(projection)
                         .from("content")
-                        .fullJoin( new Query(projection).from("content_descriptor"), new BooleanValue(true), JoinStrategy.LOOP)
+                        .fullJoin(new Query(projection).from("content_descriptor"), new BooleanValue(true), JoinStrategy.LOOP)
         );
 
         var emtyTable = new Table("", List.of(), List.of(), List.of());
@@ -162,7 +163,7 @@ public class CommandTest extends TestBase {
     public void hashJoinStrategy() {
         Function<Expression, Query> hashJoin = expression -> new Query(projection)
                 .from("content")
-                .fullJoin( new Query(projection).from("content_descriptor"), expression, JoinStrategy.HASH);
+                .fullJoin(new Query(projection).from("content_descriptor"), expression, JoinStrategy.HASH);
 
         expectError(() -> resolver.resolve(hashJoin.apply(new BooleanValue(true))), UnexpectedException.class);
         expectError(() -> resolver.resolve(hashJoin.apply(new BinaryOperation(NOT_EQ, new IntegerNumber(3), new IntegerNumber(9)))), UnexpectedException.class);
@@ -227,6 +228,27 @@ public class CommandTest extends TestBase {
 
         var table5 = resolver.resolve(new Query(projection).from("wikis").as("w1").innerJoin(new Query(projection).from("wikis").as("w2"), new BooleanValue(true), JoinStrategy.LOOP).as("res"));
         check.accept(table5, List.of("res.w1.id", "res.w1.text", "res.w2.id", "res.w2.text"));
+    }
+
+    @Test
+    public void distinctValues() {
+        Function<List<Column>, Query> table = columns -> new Query(projection).from("courses").select(columns.toArray(Column[]::new)).distinct();
+
+        expectRowsCount(table.apply(List.of(Q.column("courses", "version"))), 6);
+        expectRowsCount(table.apply(List.of(Q.column("courses", "lti_context_id"))), 3);
+        expectRowsCount(table.apply(List.of(Q.column("courses", "version"), Q.column("courses", "university_id"))), 8);
+        expectRowsCount(table.apply(List.of(Q.column("courses", "lti_context_id"), Q.column("courses", "name"))), 10);
+    }
+
+    @Test
+    public void groupBy() {
+        // TODO
+        var query = new Query(projection)
+                .from("courses")
+                .select(Q.column("courses", "lti_context_id"), Q.column("courses", "id"))
+                .groupBy(Map.of(Q.column("courses", "lti_context_id"), new Identity(), Q.column("courses", "id"), new Identity()));
+
+        expectRowsCount(query, 14);
     }
 
     private void expectRowsCount(Query query, int count) {

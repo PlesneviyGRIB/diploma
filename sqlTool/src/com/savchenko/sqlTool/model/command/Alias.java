@@ -14,14 +14,12 @@ public class Alias extends SimpleCommand {
 
     @Override
     public Table run(Table table) {
-        return ModelUtils.renameTable(table, alias);
-    }
-
-    @Override
-    public void validate(Table table) {
         projection.tables().stream()
                 .filter(t -> t.name().equals(alias))
                 .findFirst()
                 .ifPresent(t -> { throw new ValidationException("Wrong alias '%s'. There are table with such name in database.", alias); });
+
+        return ModelUtils.renameTable(table, alias);
     }
+
 }

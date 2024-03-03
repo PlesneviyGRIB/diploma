@@ -42,9 +42,4 @@ public class Where extends CalculatedCommand {
         return new Table(table.name(), table.columns(), data, List.of());
     }
 
-    @Override
-    public void validate(Table table) {
-        this.expression.accept(new ExpressionValidator(table.columns()));
-    }
-
 }

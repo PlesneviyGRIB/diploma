@@ -21,9 +21,6 @@ public class Select extends SimpleCommand {
 
     @Override
     public Table run(Table table) {
-        if(Objects.isNull(columns)){
-            return table;
-        }
         var contextColumns = table.columns();
         var indexes = columns.stream().map(c -> ModelUtils.resolveColumnIndex(contextColumns, c)).toList();
         var data = table.data().stream()
@@ -36,13 +33,6 @@ public class Select extends SimpleCommand {
                 }).toList();
         var targetColumns = indexes.stream().map(contextColumns::get).toList();
         return new Table(table.name(), targetColumns, data, List.of());
-    }
-
-    @Override
-    public void validate(Table table) {
-        var contextColumns = table.columns();
-        Optional.ofNullable(columns).orElse(List.of())
-                .forEach(column -> ModelUtils.resolveColumn(contextColumns, column));
     }
 
 }

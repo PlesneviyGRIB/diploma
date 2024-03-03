@@ -1,6 +1,7 @@
 package com.savchenko.sqlTool.query;
 
 import com.savchenko.sqlTool.model.command.*;
+import com.savchenko.sqlTool.model.command.function.AggregationFunction;
 import com.savchenko.sqlTool.model.command.join.*;
 import com.savchenko.sqlTool.model.expression.BinaryOperation;
 import com.savchenko.sqlTool.model.expression.BooleanValue;
@@ -23,9 +24,13 @@ public class Query implements Builder<List<Command>> {
         this.projection = projection;
     }
 
-    public Query select(Column column, Column... columns) {
-        var targetColumns = ListUtils.union(List.of(column), Arrays.asList(columns));
-        commands.add(new Select(targetColumns, projection));
+    public Query select(Column... columns) {
+        commands.add(new Select(Arrays.stream(columns).toList(), projection));
+        return this;
+    }
+
+    public Query distinct() {
+        commands.add(new Distinct(projection));
         return this;
     }
 
@@ -67,6 +72,11 @@ public class Query implements Builder<List<Command>> {
                 .map(entry -> new Order(entry.getKey(), entry.getValue()))
                 .toList();
         commands.add(new OrderBy(orders, projection));
+        return this;
+    }
+
+    public Query groupBy(Map<Column, AggregationFunction> map) {
+        commands.add(new GroupBy(map, projection));
         return this;
     }
 

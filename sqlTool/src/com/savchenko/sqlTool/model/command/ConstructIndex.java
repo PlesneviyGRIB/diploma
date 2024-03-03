@@ -16,11 +16,8 @@ public class ConstructIndex extends SimpleCommand {
 
     @Override
     public Table run(Table table) {
+        index.getColumns().forEach(column -> ModelUtils.resolveColumn(table.columns(), column));
         return null;
     }
 
-    @Override
-    public void validate(Table table) {
-        index.getColumns().forEach(column -> ModelUtils.resolveColumn(table.columns(), column));
-    }
 }

@@ -18,14 +18,11 @@ public class Limit extends SimpleCommand {
 
     @Override
     public Table run(Table table) {
+        if(limit < 0) {
+            throw new ValidationException("Limit can not be less than 0! Current value is '%s'", limit);
+        }
         var data = table.data();
         return new Table(table.name(), table.columns(), data.subList(0, Math.min(limit, data.size())), List.of());
     }
 
-    @Override
-    public void validate(Table table) {
-        if(limit < 0) {
-            throw new ValidationException("Limit can not be less than 0! Current value is '%s'", limit);
-        }
-    }
 }

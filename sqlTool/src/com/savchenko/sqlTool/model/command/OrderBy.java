@@ -23,6 +23,16 @@ public class OrderBy extends SimpleCommand {
 
     @Override
     public Table run(Table table) {
+
+        orders.stream()
+                .collect(Collectors.groupingBy(Order::column, Collectors.counting()))
+                .entrySet().stream()
+                .filter(entry -> entry.getValue() > 1)
+                .map(Map.Entry::getKey)
+                .findAny().ifPresent(column -> {
+                    throw new ValidationException("ORDER_BY command can not contains the same column (%s) several times!", column);
+                });
+
         var indexes = orders.stream()
                 .map(o -> ModelUtils.resolveColumnIndex(table.columns(), o.column()))
                 .toList();
@@ -49,19 +59,4 @@ public class OrderBy extends SimpleCommand {
         return new Table(table.name(), table.columns(), data, List.of());
     }
 
-    @Override
-    public void validate(Table table) {
-        orders.forEach(o -> {
-            var t = projection.getByName(o.column().table());
-            ModelUtils.resolveColumn(t.columns(), o.column());
-        });
-        orders.stream()
-                .collect(Collectors.groupingBy(Order::column, Collectors.counting()))
-                .entrySet().stream()
-                .filter(entry -> entry.getValue() > 1)
-                .map(Map.Entry::getKey)
-                .findAny().ifPresent(column -> {
-                    throw new ValidationException("ORDER_BY command can not contains the same column (%s) several times!", column);
-                });
-    }
 }

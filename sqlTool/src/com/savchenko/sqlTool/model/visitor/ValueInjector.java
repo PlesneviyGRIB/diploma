@@ -2,7 +2,7 @@ package com.savchenko.sqlTool.model.visitor;
 
 import com.savchenko.sqlTool.exception.UnexpectedException;
 import com.savchenko.sqlTool.exception.UnexpectedExpressionException;
-import com.savchenko.sqlTool.model.command.ExpressionList;
+import com.savchenko.sqlTool.model.expression.ExpressionList;
 import com.savchenko.sqlTool.model.domain.Column;
 import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.expression.*;

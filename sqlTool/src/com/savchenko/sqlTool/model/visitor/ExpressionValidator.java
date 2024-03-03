@@ -3,7 +3,7 @@ package com.savchenko.sqlTool.model.visitor;
 import com.savchenko.sqlTool.exception.ComputedTypeException;
 import com.savchenko.sqlTool.exception.IncorrectOperatorUsageException;
 import com.savchenko.sqlTool.exception.UnsupportedTypeException;
-import com.savchenko.sqlTool.model.command.ExpressionList;
+import com.savchenko.sqlTool.model.expression.ExpressionList;
 import com.savchenko.sqlTool.model.expression.*;
 import com.savchenko.sqlTool.model.operator.Operator;
 import com.savchenko.sqlTool.model.domain.Column;
@@ -21,7 +21,15 @@ public class ExpressionValidator implements Expression.Visitor<Class<? extends V
 
     @Override
     public Class<? extends Value<?>> visit(ExpressionList list) {
-        throw new UnsupportedTypeException("Can not process type of '%s' in such context", list.stringify());
+        var argsClasses = list.expressions().stream()
+                .map(expression -> expression.getClass())
+                .toList();
+        if(!argsClasses.isEmpty()) {
+            var argType = (Class<? extends Value<?>>) list.expressions().get(0).getClass();
+            assertSameClass(list, argType, list.type());
+            assertSameClass(list, argsClasses.toArray(Class[]::new));
+        }
+        return list.type();
     }
 
     @Override
@@ -59,12 +67,9 @@ public class ExpressionValidator implements Expression.Visitor<Class<? extends V
 
         if(operation.operator() == Operator.IN && (operation.right() instanceof SubTable || operation.right() instanceof ExpressionList)) {
             if(operation.right() instanceof ExpressionList list) {
-
-                var argsClasses = list.expressions().stream()
-                        .map(expression -> expression.getClass())
-                        .toList();
-
-                assertSameClass(list, argsClasses.toArray(new Class[]{}));
+                var left = operation.left().accept(this);
+                var right = operation.right().accept(this);
+                assertSameClass(list, left, right);
             }
             return BooleanValue.class;
         }
