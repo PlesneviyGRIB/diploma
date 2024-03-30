@@ -1,27 +1,28 @@
-package com.savchenko.sqlTool.model.command;
+package com.savchenko.sqlTool.model.command.domain;
 
+import com.savchenko.sqlTool.model.Resolver;
+import com.savchenko.sqlTool.model.complexity.Calculator;
+import com.savchenko.sqlTool.model.domain.Projection;
+import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.expression.Expression;
 import com.savchenko.sqlTool.model.expression.SubTable;
-import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.visitor.ExpressionTraversal;
-import com.savchenko.sqlTool.model.Resolver;
-import com.savchenko.sqlTool.model.domain.Projection;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class CalculatedCommand implements Command {
+public abstract class ComplicatedCalculedCommand implements Command {
 
     protected final Expression expression;
 
     protected final Projection projection;
 
-    public CalculatedCommand(Expression expression, Projection projection) {
+    public ComplicatedCalculedCommand(Expression expression, Projection projection) {
         this.expression = expression;
         this.projection = projection;
     }
 
-    public abstract Table run(Table table, Resolver resolver);
+    public abstract Table run(Table table, Resolver resolver, Calculator calculator);
 
     @Override
     public <T> T accept(Visitor<T> visitor) {

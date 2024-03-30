@@ -1,6 +1,6 @@
 package com.savchenko.sqlTool.model.expression;
 
-import com.savchenko.sqlTool.model.command.Command;
+import com.savchenko.sqlTool.model.command.domain.Command;
 
 import java.util.List;
 

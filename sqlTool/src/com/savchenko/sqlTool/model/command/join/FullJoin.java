@@ -1,6 +1,6 @@
 package com.savchenko.sqlTool.model.command.join;
 
-import com.savchenko.sqlTool.model.command.Command;
+import com.savchenko.sqlTool.model.command.domain.Command;
 import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.expression.Expression;

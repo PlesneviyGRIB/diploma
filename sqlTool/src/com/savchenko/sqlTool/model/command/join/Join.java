@@ -2,31 +2,25 @@ package com.savchenko.sqlTool.model.command.join;
 
 import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.Resolver;
-import com.savchenko.sqlTool.model.command.CalculatedCommand;
-import com.savchenko.sqlTool.model.command.Command;
-import com.savchenko.sqlTool.model.domain.Column;
+import com.savchenko.sqlTool.model.command.domain.Command;
+import com.savchenko.sqlTool.model.command.domain.ComplicatedCalculedCommand;
+import com.savchenko.sqlTool.model.complexity.Calculator;
 import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.expression.Expression;
-import com.savchenko.sqlTool.model.expression.NullValue;
 import com.savchenko.sqlTool.model.expression.Value;
-import com.savchenko.sqlTool.model.visitor.ExpressionCalculator;
-import com.savchenko.sqlTool.model.visitor.ExpressionTraversal;
 import com.savchenko.sqlTool.model.visitor.ExpressionValidator;
-import com.savchenko.sqlTool.model.visitor.ValueInjector;
 import com.savchenko.sqlTool.utils.ModelUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
 import static java.lang.String.format;
 
-public abstract class Join extends CalculatedCommand {
+public abstract class Join extends ComplicatedCalculedCommand {
 
     private final List<Command> commands;
 
@@ -41,7 +35,7 @@ public abstract class Join extends CalculatedCommand {
     abstract Table run(Table table, Table joinedTable, Supplier<Triple<List<List<Value<?>>>, Set<Integer>, Set<Integer>>> strategyExecutionResultSupplier);
 
     @Override
-    public Table run(Table table, Resolver resolver) {
+    public Table run(Table table, Resolver resolver, Calculator calculator) {
         var joinedTable = resolver.resolve(commands);
 
         if (table.name().equals(joinedTable.name())) {

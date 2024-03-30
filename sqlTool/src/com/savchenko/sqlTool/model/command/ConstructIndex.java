@@ -1,11 +1,13 @@
 package com.savchenko.sqlTool.model.command;
 
-import com.savchenko.sqlTool.model.index.Index;
-import com.savchenko.sqlTool.model.domain.Table;
+import com.savchenko.sqlTool.model.command.domain.SimpleCalculedCommand;
+import com.savchenko.sqlTool.model.complexity.Calculator;
 import com.savchenko.sqlTool.model.domain.Projection;
+import com.savchenko.sqlTool.model.domain.Table;
+import com.savchenko.sqlTool.model.index.Index;
 import com.savchenko.sqlTool.utils.ModelUtils;
 
-public class ConstructIndex extends SimpleCommand {
+public class ConstructIndex extends SimpleCalculedCommand {
 
     private final Index index;
 
@@ -15,7 +17,7 @@ public class ConstructIndex extends SimpleCommand {
     }
 
     @Override
-    public Table run(Table table) {
+    public Table run(Table table, Calculator calculator) {
         index.getColumns().forEach(column -> ModelUtils.resolveColumn(table.columns(), column));
         return null;
     }

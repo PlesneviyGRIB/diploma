@@ -1,19 +1,22 @@
 package com.savchenko.sqlTool.query;
 
 import com.savchenko.sqlTool.model.command.*;
+import com.savchenko.sqlTool.model.command.domain.Command;
 import com.savchenko.sqlTool.model.command.function.AggregationFunction;
 import com.savchenko.sqlTool.model.command.join.*;
+import com.savchenko.sqlTool.model.domain.Column;
+import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.expression.BinaryOperation;
 import com.savchenko.sqlTool.model.expression.BooleanValue;
 import com.savchenko.sqlTool.model.expression.Expression;
 import com.savchenko.sqlTool.model.index.Index;
 import com.savchenko.sqlTool.model.operator.Operator;
-import com.savchenko.sqlTool.model.domain.Column;
-import com.savchenko.sqlTool.model.domain.Projection;
-import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.builder.Builder;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 public class Query implements Builder<List<Command>> {

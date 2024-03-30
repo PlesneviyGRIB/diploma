@@ -1,12 +1,11 @@
 package com.savchenko.sqlTool.model.command;
 
 import com.savchenko.sqlTool.exception.ValidationException;
-import com.savchenko.sqlTool.model.domain.Table;
+import com.savchenko.sqlTool.model.command.domain.SimpleCommand;
 import com.savchenko.sqlTool.model.domain.Projection;
+import com.savchenko.sqlTool.model.domain.Table;
 
 import java.util.List;
-
-import static java.lang.String.format;
 
 public class Limit extends SimpleCommand {
     private final Integer limit;
@@ -18,7 +17,7 @@ public class Limit extends SimpleCommand {
 
     @Override
     public Table run(Table table) {
-        if(limit < 0) {
+        if (limit < 0) {
             throw new ValidationException("Limit can not be less than 0! Current value is '%s'", limit);
         }
         var data = table.data();

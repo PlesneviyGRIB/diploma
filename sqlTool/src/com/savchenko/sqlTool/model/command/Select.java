@@ -1,15 +1,14 @@
 package com.savchenko.sqlTool.model.command;
 
-import com.savchenko.sqlTool.model.expression.Value;
+import com.savchenko.sqlTool.model.command.domain.SimpleCommand;
 import com.savchenko.sqlTool.model.domain.Column;
-import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.domain.Projection;
+import com.savchenko.sqlTool.model.domain.Table;
+import com.savchenko.sqlTool.model.expression.Value;
 import com.savchenko.sqlTool.utils.ModelUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 public class Select extends SimpleCommand {
     private final List<Column> columns;
