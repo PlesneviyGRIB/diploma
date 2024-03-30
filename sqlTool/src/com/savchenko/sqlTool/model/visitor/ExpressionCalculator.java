@@ -2,10 +2,9 @@ package com.savchenko.sqlTool.model.visitor;
 
 import com.savchenko.sqlTool.exception.UnexpectedException;
 import com.savchenko.sqlTool.exception.UnexpectedExpressionException;
-import com.savchenko.sqlTool.model.expression.ExpressionList;
-import com.savchenko.sqlTool.model.expression.*;
 import com.savchenko.sqlTool.model.domain.Column;
 import com.savchenko.sqlTool.model.domain.Table;
+import com.savchenko.sqlTool.model.expression.*;
 import com.savchenko.sqlTool.utils.ModelUtils;
 
 import static com.savchenko.sqlTool.model.operator.Operator.*;
@@ -36,10 +35,10 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
     public Value<BooleanValue> visit(UnaryOperation operation) {
         var op = operation.operator();
         var value = operation.expression().accept(this);
-        if(op == EXISTS) {
+        if (op == EXISTS) {
             return new BooleanValue(!(value instanceof NullValue));
         }
-        if(op == IS_NULL) {
+        if (op == IS_NULL) {
             return new BooleanValue(value instanceof NullValue);
         }
         throw new UnexpectedExpressionException(operation);
@@ -47,7 +46,7 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
 
     @Override
     public Value<?> visit(BinaryOperation operation) {
-        if(operation.operator() == IN && (operation.right() instanceof ExpressionList || operation.right() instanceof Table)) {
+        if (operation.operator() == IN && (operation.right() instanceof ExpressionList || operation.right() instanceof Table)) {
 
             var value = operation.left().accept(this);
 
@@ -156,7 +155,7 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
     private BooleanValue processInTableOperation(Value<?> value, Table subTable) {
         var columnsCount = subTable.columns().size();
 
-        if(columnsCount != 1) {
+        if (columnsCount != 1) {
             throw new UnexpectedException("Expected one column in '%s'", subTable.stringify());
         }
 
@@ -170,7 +169,7 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
     }
 
     private BooleanValue processInListOperation(Value<?> value, ExpressionList list) {
-        if(list.expressions().isEmpty()) {
+        if (list.expressions().isEmpty()) {
             return new BooleanValue(false);
         }
 

@@ -10,16 +10,15 @@ import com.savchenko.sqlTool.utils.ModelUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Select extends SimpleCommand {
+public class Select implements SimpleCommand {
     private final List<Column> columns;
 
-    public Select(List<Column> columns, Projection projection) {
-        super(projection);
+    public Select(List<Column> columns) {
         this.columns = columns;
     }
 
     @Override
-    public Table run(Table table) {
+    public Table run(Table table, Projection projection) {
         var contextColumns = table.columns();
         var indexes = columns.stream().map(c -> ModelUtils.resolveColumnIndex(contextColumns, c)).toList();
         var data = table.data().stream()

@@ -7,17 +7,16 @@ import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.index.Index;
 import com.savchenko.sqlTool.utils.ModelUtils;
 
-public class ConstructIndex extends SimpleCalculedCommand {
+public class ConstructIndex implements SimpleCalculedCommand {
 
     private final Index index;
 
-    public ConstructIndex(Index index, Projection projection) {
-        super(projection);
+    public ConstructIndex(Index index) {
         this.index = index;
     }
 
     @Override
-    public Table run(Table table, Calculator calculator) {
+    public Table run(Table table, Projection projection, Calculator calculator) {
         index.getColumns().forEach(column -> ModelUtils.resolveColumn(table.columns(), column));
         return null;
     }

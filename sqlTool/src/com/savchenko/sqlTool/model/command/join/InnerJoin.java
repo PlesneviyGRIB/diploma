@@ -13,8 +13,8 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 public class InnerJoin extends Join {
-    public InnerJoin(List<Command> commands, Expression expression, JoinStrategy strategy, Projection projection) {
-        super(commands, expression, strategy, projection);
+    public InnerJoin(List<Command> commands, Expression expression, JoinStrategy strategy) {
+        super(commands, expression, strategy);
     }
 
     @Override

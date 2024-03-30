@@ -23,9 +23,9 @@ public class Main {
         var projection = new DatabaseReader(connection).read();
 
 
-        var query = new Query(projection)
+        var query = new Query()
                 .from("actions")
-                .fullJoin(new Query(projection).from("content"), new BooleanValue(true), JoinStrategy.LOOP)
+                .fullJoin(new Query().from("content"), new BooleanValue(true), JoinStrategy.LOOP)
                 .as("r")
                 .where(
                         Q.op(
@@ -41,7 +41,7 @@ public class Main {
                 );
 
 
-        var resTable = new Resolver().resolve(query);
+        var resTable = new Resolver(projection).resolve(query);
         var resStr = new TablePrinter(resTable).stringify();
 
         System.out.println(resStr);

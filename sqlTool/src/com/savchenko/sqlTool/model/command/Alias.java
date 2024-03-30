@@ -6,16 +6,16 @@ import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.utils.ModelUtils;
 
-public class Alias extends SimpleCommand {
+public class Alias implements SimpleCommand {
+
     private final String alias;
 
-    public Alias(String alias, Projection projection) {
-        super(projection);
+    public Alias(String alias) {
         this.alias = alias;
     }
 
     @Override
-    public Table run(Table table) {
+    public Table run(Table table, Projection projection) {
         projection.tables().stream()
                 .filter(t -> t.name().equals(alias))
                 .findFirst()

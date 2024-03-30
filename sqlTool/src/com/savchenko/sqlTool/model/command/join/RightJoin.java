@@ -1,7 +1,6 @@
 package com.savchenko.sqlTool.model.command.join;
 
 import com.savchenko.sqlTool.model.command.domain.Command;
-import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.expression.Expression;
 import com.savchenko.sqlTool.model.expression.Value;
@@ -14,8 +13,8 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 public class RightJoin extends Join {
-    public RightJoin(List<Command> commands, Expression expression, JoinStrategy strategy, Projection projection) {
-        super(commands, expression, strategy, projection);
+    public RightJoin(List<Command> commands, Expression expression, JoinStrategy strategy) {
+        super(commands, expression, strategy);
     }
 
     @Override

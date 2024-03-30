@@ -7,16 +7,15 @@ import com.savchenko.sqlTool.model.domain.Table;
 
 import java.util.List;
 
-public class Offset extends SimpleCommand {
+public class Offset implements SimpleCommand {
     private final Integer offset;
 
-    public Offset(Integer offset, Projection projection) {
-        super(projection);
+    public Offset(Integer offset) {
         this.offset = offset;
     }
 
     @Override
-    public Table run(Table table) {
+    public Table run(Table table, Projection projection) {
         if (offset < 0) {
             throw new ValidationException("Offset can not be less than 0! Current value is '%s'", offset);
         }

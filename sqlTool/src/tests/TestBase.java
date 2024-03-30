@@ -1,8 +1,8 @@
 package tests;
 
 import com.savchenko.sqlTool.model.Resolver;
-import com.savchenko.sqlTool.utils.DatabaseReader;
 import com.savchenko.sqlTool.model.domain.Projection;
+import com.savchenko.sqlTool.utils.DatabaseReader;
 import org.junit.Assert;
 
 import java.sql.DriverManager;
@@ -17,6 +17,7 @@ public class TestBase {
         try {
             var connection = DriverManager.getConnection(String.format("jdbc:%s://localhost:%s/%s", DB_DRIVER, DB_PORT, DB_NAME), DB_USER, DB_PASSWORD);
             projection = new DatabaseReader(connection).read();
+            resolver = new Resolver(TestBase.projection);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -24,14 +25,14 @@ public class TestBase {
 
     protected static final Projection projection;
 
-    protected static final Resolver resolver = new Resolver();
+    protected static final Resolver resolver;
 
     void expectError(Runnable runnable, Class<? extends RuntimeException> exception) {
         try {
             runnable.run();
             Assert.fail();
         } catch (Exception ex) {
-            if(!exception.equals(ex.getClass())) {
+            if (!exception.equals(ex.getClass())) {
                 Assert.fail(format("Expected [%s], but found [%s]", exception.getSimpleName(), ex.getClass().getSimpleName()));
             }
         }

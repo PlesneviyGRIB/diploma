@@ -15,14 +15,11 @@ public abstract class ComplicatedCalculedCommand implements Command {
 
     protected final Expression expression;
 
-    protected final Projection projection;
-
-    public ComplicatedCalculedCommand(Expression expression, Projection projection) {
+    public ComplicatedCalculedCommand(Expression expression) {
         this.expression = expression;
-        this.projection = projection;
     }
 
-    public abstract Table run(Table table, Resolver resolver, Calculator calculator);
+    public abstract Table run(Table table, Projection projection, Resolver resolver, Calculator calculator);
 
     @Override
     public <T> T accept(Visitor<T> visitor) {

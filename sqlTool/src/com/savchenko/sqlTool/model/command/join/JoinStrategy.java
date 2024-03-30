@@ -32,7 +32,7 @@ public enum JoinStrategy {
     }
 
     private Triple<List<List<Value<?>>>, Set<Integer>, Set<Integer>> hashImpl(Table table, Table joinedTable, Expression expression) {
-        if(expression instanceof BinaryOperation op && op.operator().equals(Operator.EQ)) {
+        if (expression instanceof BinaryOperation op && op.operator().equals(Operator.EQ)) {
             var leftExpression = op.left();
             var rightExpression = op.right();
 
@@ -74,7 +74,7 @@ public enum JoinStrategy {
                         var key = joinedTableKeyMapper.apply(pair2.getRight());
                         var pair1 = hashTable.get(key);
 
-                        if(Objects.nonNull(pair1)) {
+                        if (Objects.nonNull(pair1)) {
                             leftJoinedRowIndexes.add(pair1.getLeft());
                             rightJoinedRowIndexes.add(pair2.getLeft());
                             return ListUtils.union(pair1.getRight(), pair2.getRight());

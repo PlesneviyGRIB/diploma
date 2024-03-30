@@ -32,14 +32,14 @@ public class ExpressionTest extends TestBase {
 
     @Test
     public void inSubTable() {
-        var subTable = new SubTable(new Query(projection)
+        var subTable = new SubTable(new Query()
                 .from("course_users")
                 .select(Q.column("course_users", "course_id"))
                 .build()
         );
 
         var res = resolver.resolve(
-                new Query(projection)
+                new Query()
                         .from("courses")
                         .where(Q.op(IN,
                                 Q.column("courses", "id"),

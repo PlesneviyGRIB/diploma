@@ -5,7 +5,6 @@ import com.savchenko.sqlTool.model.command.domain.Command;
 import com.savchenko.sqlTool.model.command.function.AggregationFunction;
 import com.savchenko.sqlTool.model.command.join.*;
 import com.savchenko.sqlTool.model.domain.Column;
-import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.expression.BinaryOperation;
 import com.savchenko.sqlTool.model.expression.BooleanValue;
 import com.savchenko.sqlTool.model.expression.Expression;
@@ -20,45 +19,41 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 public class Query implements Builder<List<Command>> {
-    private final Projection projection;
+
     private final List<Command> commands = new LinkedList<>();
 
-    public Query(Projection projection) {
-        this.projection = projection;
-    }
-
     public Query select(Column... columns) {
-        commands.add(new Select(Arrays.stream(columns).toList(), projection));
+        commands.add(new Select(Arrays.stream(columns).toList()));
         return this;
     }
 
     public Query distinct() {
-        commands.add(new Distinct(projection));
+        commands.add(new Distinct());
         return this;
     }
 
     public Query from(String table) {
-        commands.add(new From(table, projection));
+        commands.add(new From(table));
         return this;
     }
 
     public Query innerJoin(Query query, Expression expression, JoinStrategy strategy) {
-        commands.add(new InnerJoin(query.build(), expression, strategy, projection));
+        commands.add(new InnerJoin(query.build(), expression, strategy));
         return this;
     }
 
     public Query leftJoin(Query query, Expression expression, JoinStrategy strategy) {
-        commands.add(new LeftJoin(query.build(), expression, strategy, projection));
+        commands.add(new LeftJoin(query.build(), expression, strategy));
         return this;
     }
 
     public Query rightJoin(Query query, Expression expression, JoinStrategy strategy) {
-        commands.add(new RightJoin(query.build(), expression, strategy, projection));
+        commands.add(new RightJoin(query.build(), expression, strategy));
         return this;
     }
 
     public Query fullJoin(Query query, Expression expression, JoinStrategy strategy) {
-        commands.add(new FullJoin(query.build(), expression, strategy, projection));
+        commands.add(new FullJoin(query.build(), expression, strategy));
         return this;
     }
 
@@ -66,7 +61,7 @@ public class Query implements Builder<List<Command>> {
         var targetExpression = Stream.of(Stream.of(expression), Arrays.stream(expressions))
                 .flatMap(s -> s)
                 .reduce(new BooleanValue(true), (p, c) -> new BinaryOperation(Operator.AND, p, c));
-        commands.add(new Where(targetExpression, projection));
+        commands.add(new Where(targetExpression));
         return this;
     }
 
@@ -74,32 +69,32 @@ public class Query implements Builder<List<Command>> {
         var orders = map.entrySet().stream()
                 .map(entry -> new Order(entry.getKey(), entry.getValue()))
                 .toList();
-        commands.add(new OrderBy(orders, projection));
+        commands.add(new OrderBy(orders));
         return this;
     }
 
     public Query groupBy(Map<Column, AggregationFunction> map) {
-        commands.add(new GroupBy(map, projection));
+        commands.add(new GroupBy(map));
         return this;
     }
 
     public Query limit(Integer limit) {
-        commands.add(new Limit(limit, projection));
+        commands.add(new Limit(limit));
         return this;
     }
 
     public Query offset(Integer offset) {
-        commands.add(new Offset(offset, projection));
+        commands.add(new Offset(offset));
         return this;
     }
 
     public Query constructIndex(Index index) {
-        commands.add(new ConstructIndex(index, projection));
+        commands.add(new ConstructIndex(index));
         return this;
     }
 
     public Query as(String alias) {
-        commands.add(new Alias(alias, projection));
+        commands.add(new Alias(alias));
         return this;
     }
 

@@ -7,16 +7,15 @@ import com.savchenko.sqlTool.model.domain.Table;
 
 import java.util.List;
 
-public class Limit extends SimpleCommand {
+public class Limit implements SimpleCommand {
     private final Integer limit;
 
-    public Limit(Integer limit, Projection projection) {
-        super(projection);
+    public Limit(Integer limit) {
         this.limit = limit;
     }
 
     @Override
-    public Table run(Table table) {
+    public Table run(Table table, Projection projection) {
         if (limit < 0) {
             throw new ValidationException("Limit can not be less than 0! Current value is '%s'", limit);
         }

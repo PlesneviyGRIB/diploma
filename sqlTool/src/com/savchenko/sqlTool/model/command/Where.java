@@ -17,12 +17,12 @@ import java.util.List;
 
 public class Where extends ComplicatedCalculedCommand {
 
-    public Where(Expression expression, Projection projection) {
-        super(expression, projection);
+    public Where(Expression expression) {
+        super(expression);
     }
 
     @Override
-    public Table run(Table table, Resolver resolver, Calculator calculator) {
+    public Table run(Table table, Projection projection, Resolver resolver, Calculator calculator) {
         expression.accept(new ExpressionValidator(table.columns()));
         var data = table.data().stream()
                 .filter(row -> {

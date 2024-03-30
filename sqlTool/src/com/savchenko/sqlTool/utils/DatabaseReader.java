@@ -114,7 +114,6 @@ public class DatabaseReader {
                     var indexName = pair.getLeft();
                     var data = pair.getRight();
                     var rawIndexData = data.get(0);
-                    var forUniqueValues = rawIndexData.get(2).equals("f");
 
                     var targetColumns = data.stream()
                             .map(r -> r.get(1))
@@ -122,9 +121,9 @@ public class DatabaseReader {
                             .toList();
 
                     if (rawIndexData.get(3).equals("2")) {
-                        return new HashIndex(indexName, targetColumns, forUniqueValues);
+                        return new HashIndex(indexName, targetColumns);
                     } else {
-                        return new BalancedTreeIndex(indexName, targetColumns, forUniqueValues);
+                        return new BalancedTreeIndex(indexName, targetColumns);
                     }
                 }).toList();
     }

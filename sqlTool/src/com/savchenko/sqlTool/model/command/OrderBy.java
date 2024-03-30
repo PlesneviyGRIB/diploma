@@ -13,16 +13,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class OrderBy extends SimpleCalculedCommand {
+public class OrderBy implements SimpleCalculedCommand {
     private final List<Order> orders;
 
-    public OrderBy(List<Order> orders, Projection projection) {
-        super(projection);
+    public OrderBy(List<Order> orders) {
         this.orders = orders;
     }
 
     @Override
-    public Table run(Table table, Calculator calculator) {
+    public Table run(Table table, Projection projection, Calculator calculator) {
 
         orders.stream()
                 .collect(Collectors.groupingBy(Order::column, Collectors.counting()))

@@ -26,8 +26,8 @@ public abstract class Join extends ComplicatedCalculedCommand {
 
     private final JoinStrategy strategy;
 
-    public Join(List<Command> commands, Expression expression, JoinStrategy strategy, Projection projection) {
-        super(expression, projection);
+    public Join(List<Command> commands, Expression expression, JoinStrategy strategy) {
+        super(expression);
         this.commands = commands;
         this.strategy = strategy;
     }
@@ -35,7 +35,7 @@ public abstract class Join extends ComplicatedCalculedCommand {
     abstract Table run(Table table, Table joinedTable, Supplier<Triple<List<List<Value<?>>>, Set<Integer>, Set<Integer>>> strategyExecutionResultSupplier);
 
     @Override
-    public Table run(Table table, Resolver resolver, Calculator calculator) {
+    public Table run(Table table, Projection projection, Resolver resolver, Calculator calculator) {
         var joinedTable = resolver.resolve(commands);
 
         if (table.name().equals(joinedTable.name())) {

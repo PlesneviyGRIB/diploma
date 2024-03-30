@@ -19,17 +19,16 @@ import java.util.function.Function;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.groupingBy;
 
-public class GroupBy extends SimpleCalculedCommand {
+public class GroupBy implements SimpleCalculedCommand {
 
     private final Map<Column, AggregationFunction> columnMapperMap;
 
-    public GroupBy(Map<Column, AggregationFunction> columnMapperMap, Projection projection) {
-        super(projection);
+    public GroupBy(Map<Column, AggregationFunction> columnMapperMap) {
         this.columnMapperMap = columnMapperMap;
     }
 
     @Override
-    public Table run(Table table, Calculator calculator) {
+    public Table run(Table table, Projection projection, Calculator calculator) {
 
         // TODO rewrite
 

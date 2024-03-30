@@ -7,6 +7,7 @@ import com.savchenko.sqlTool.model.command.domain.ComplicatedCalculedCommand;
 import com.savchenko.sqlTool.model.command.domain.SimpleCalculedCommand;
 import com.savchenko.sqlTool.model.command.domain.SimpleCommand;
 import com.savchenko.sqlTool.model.complexity.Calculator;
+import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.query.Query;
 
@@ -14,7 +15,10 @@ import java.util.List;
 
 public class Resolver {
 
-    public Resolver() {
+    private Projection projection;
+
+    public Resolver(Projection projection) {
+        this.projection = projection;
     }
 
     public Table resolve(Query query) {
@@ -40,18 +44,19 @@ public class Resolver {
 
                 @Override
                 public Table visit(SimpleCommand command) {
-                    return command.run(tableRef);
+                    return command.run(tableRef, projection);
                 }
 
                 @Override
                 public Table visit(SimpleCalculedCommand command) {
-                    return command.run(tableRef, calculator);
+                    return command.run(tableRef, projection, calculator);
                 }
 
                 @Override
                 public Table visit(ComplicatedCalculedCommand command) {
-                    return command.run(tableRef, Resolver.this, calculator);
+                    return command.run(tableRef, projection, Resolver.this, calculator);
                 }
+
             });
         }
         return table;
