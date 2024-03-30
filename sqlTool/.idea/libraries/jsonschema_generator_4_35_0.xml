@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="jsonschema-generator-4.35.0">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/jars/jsonschema-generator-4.35.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
