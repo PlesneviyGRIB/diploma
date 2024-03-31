@@ -45,7 +45,7 @@ public abstract class Join extends ComplicatedCalculedCommand {
         var mergedColumns = ListUtils.union(table.columns(), joinedTable.columns());
         expression.accept(new ExpressionValidator(mergedColumns));
 
-        Supplier<Triple<List<List<Value<?>>>, Set<Integer>, Set<Integer>>> strategyExecutionResultSupplier = () -> strategy.run(table, joinedTable, expression);
+        Supplier<Triple<List<List<Value<?>>>, Set<Integer>, Set<Integer>>> strategyExecutionResultSupplier = () -> strategy.run(table, joinedTable, expression, resolver);
 
         var targetTable = run(table, joinedTable, strategyExecutionResultSupplier);
         var tableName = format("%s_%s", table.name(), joinedTable.name());

@@ -149,7 +149,7 @@ public class ModelUtils {
             return check.apply(List.of(BETWEEN, PLUS));
         }
         if(clazz.equals(BooleanValue.class)) {
-            return List.of(AND, OR, EXISTS, IN, IS_NULL, EQ, NOT_EQ).contains(operator);
+            return List.of(AND, OR, EXISTS, IN, IS_NULL, EQ, NOT_EQ, NOT).contains(operator);
         }
         if(clazz.equals(IntegerNumber.class)) {
             return check.apply(List.of(BETWEEN, PLUS, MINUS, MULTIPLY, DIVISION, MOD));

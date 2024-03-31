@@ -6,6 +6,7 @@ public enum Operator {
     AND("and"),
     BETWEEN("between"),
     EXISTS("exists"),
+    NOT("not"),
     IN("in"),
     OR("or"),
     IS_NULL("is null"),
@@ -29,7 +30,7 @@ public enum Operator {
     }
 
     public boolean isLogic() {
-        var operators = List.of(AND, BETWEEN, EXISTS, IN, OR, IS_NULL, EQ, NOT_EQ, GREATER_OR_EQ, LESS_OR_EQ, GREATER, LESS);
+        var operators = List.of(AND, BETWEEN, EXISTS, IN, OR, IS_NULL, EQ, NOT_EQ, GREATER_OR_EQ, LESS_OR_EQ, GREATER, LESS, NOT);
         return operators.stream().anyMatch(o -> o.equals(this));
     }
 
@@ -39,7 +40,7 @@ public enum Operator {
     }
 
     public boolean isUnary() {
-        var operators = List.of(EXISTS, IS_NULL);
+        var operators = List.of(EXISTS, IS_NULL, NOT);
         return operators.stream().anyMatch(o -> o.equals(this));
     }
 

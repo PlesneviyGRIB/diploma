@@ -10,8 +10,6 @@ public interface Expression {
     interface Visitor<T> {
         T visit(ExpressionList list);
 
-        T visit(Table table);
-
         T visit(SubTable table);
 
         T visit(Column column);

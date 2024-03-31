@@ -33,11 +33,6 @@ public class ExpressionValidator implements Expression.Visitor<Class<? extends V
     }
 
     @Override
-    public Class<? extends Value<?>> visit(Table table) {
-        throw new UnsupportedTypeException("Can not process type of '%s' in such context", table.stringify());
-    }
-
-    @Override
     public Class<? extends Value<?>> visit(SubTable table) {
         throw new UnsupportedTypeException("Can not process type of '%s' in such context", table.stringify());
     }

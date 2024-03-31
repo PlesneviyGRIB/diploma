@@ -1,22 +1,15 @@
 package com.savchenko.sqlTool.model.visitor;
 
-import com.savchenko.sqlTool.exception.UnexpectedException;
-import com.savchenko.sqlTool.exception.UnexpectedExpressionException;
-import com.savchenko.sqlTool.model.expression.ExpressionList;
 import com.savchenko.sqlTool.model.domain.Column;
-import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.expression.*;
 
 import java.util.Map;
-import java.util.Objects;
 
 public class ValueInjector implements Expression.Visitor<Expression> {
     private final Map<Column, Value<?>> columnValue;
-    private final Map<SubTable, Table> calculatedSubTables;
 
-    public ValueInjector(Map<Column, Value<?>> values, Map<SubTable, Table> calculatedSubTables) {
+    public ValueInjector(Map<Column, Value<?>> values) {
         this.columnValue = values;
-        this.calculatedSubTables = calculatedSubTables;
     }
 
     @Override
@@ -25,18 +18,8 @@ public class ValueInjector implements Expression.Visitor<Expression> {
     }
 
     @Override
-    public Expression visit(Table table) {
-        throw new UnexpectedExpressionException(table);
-    }
-
-    @Override
     public Expression visit(SubTable table) {
-        var targetTable = calculatedSubTables.get(table);
-
-        if (Objects.isNull(targetTable)) {
-            throw new UnexpectedException("SubTable '%s' not found in context", table.stringify());
-        }
-        return targetTable;
+        return table;
     }
 
     @Override

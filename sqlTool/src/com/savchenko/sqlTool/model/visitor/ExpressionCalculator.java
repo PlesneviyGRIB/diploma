@@ -2,23 +2,28 @@ package com.savchenko.sqlTool.model.visitor;
 
 import com.savchenko.sqlTool.exception.UnexpectedException;
 import com.savchenko.sqlTool.exception.UnexpectedExpressionException;
+import com.savchenko.sqlTool.model.Resolver;
 import com.savchenko.sqlTool.model.domain.Column;
 import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.expression.*;
 import com.savchenko.sqlTool.utils.ModelUtils;
 
+import java.util.Objects;
+import java.util.Optional;
+
 import static com.savchenko.sqlTool.model.operator.Operator.*;
 
 public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
 
-    @Override
-    public Value<?> visit(ExpressionList list) {
-        throw new UnexpectedExpressionException(list);
+    private final Resolver resolver;
+
+    public ExpressionCalculator(Resolver resolver) {
+        this.resolver = resolver;
     }
 
     @Override
-    public Value<?> visit(Table table) {
-        throw new UnexpectedExpressionException(table);
+    public Value<?> visit(ExpressionList list) {
+        throw new UnexpectedExpressionException(list);
     }
 
     @Override
@@ -33,6 +38,12 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
 
     @Override
     public Value<BooleanValue> visit(UnaryOperation operation) {
+
+        var specialResult = handleSpecialUnaryCases(operation).orElse(null);
+        if (Objects.nonNull(specialResult)) {
+            return specialResult;
+        }
+
         var op = operation.operator();
         var value = operation.expression().accept(this);
         if (op == EXISTS) {
@@ -41,18 +52,19 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
         if (op == IS_NULL) {
             return new BooleanValue(value instanceof NullValue);
         }
+        if (op == NOT) {
+            var prevValue = ((BooleanValue) value).value();
+            return new BooleanValue(!prevValue);
+        }
         throw new UnexpectedExpressionException(operation);
     }
 
     @Override
     public Value<?> visit(BinaryOperation operation) {
-        if (operation.operator() == IN && (operation.right() instanceof ExpressionList || operation.right() instanceof Table)) {
 
-            var value = operation.left().accept(this);
-
-            return operation.right() instanceof ExpressionList ?
-                    processInListOperation(value, (ExpressionList) operation.right())
-                    : processInTableOperation(value, (Table) operation.right());
+        var specialResult = handleSpecialBinaryCases(operation).orElse(null);
+        if (Objects.nonNull(specialResult)) {
+            return specialResult;
         }
 
         var left = operation.left().accept(this);
@@ -152,18 +164,49 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
         return value;
     }
 
-    private BooleanValue processInTableOperation(Value<?> value, Table subTable) {
-        var columnsCount = subTable.columns().size();
+    private Optional<Value<BooleanValue>> handleSpecialUnaryCases(UnaryOperation operation) {
 
-        if (columnsCount != 1) {
-            throw new UnexpectedException("Expected one column in '%s'", subTable.stringify());
+        if (operation.operator() == EXISTS) {
+
+            if (operation.expression() instanceof SubTable subTable) {
+                var table = resolver.resolve(subTable.commands());
+                return Optional.of(new BooleanValue(!table.data().isEmpty()));
+            }
+
         }
 
-        var columnData = subTable.data().stream()
+        return Optional.empty();
+    }
+
+    private Optional<Value<?>> handleSpecialBinaryCases(BinaryOperation operation) {
+
+        if (operation.operator() == IN) {
+
+            if (operation.right() instanceof ExpressionList list) {
+                return Optional.of(processInListOperation(operation.left().accept(this), list));
+            }
+
+            if (operation.right() instanceof SubTable subTable) {
+                var table = resolver.resolve(subTable.commands());
+                return Optional.of(processInTableOperation(operation.left().accept(this), table));
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    private BooleanValue processInTableOperation(Value<?> value, Table table) {
+        var columnsCount = table.columns().size();
+
+        if (columnsCount != 1) {
+            throw new UnexpectedException("Expected exactly one column in table '%s'", table.name());
+        }
+
+        var columnData = table.data().stream()
                 .map(row -> (Value<?>) row.get(0))
                 .toList();
 
-        var type = subTable.columns().get(0).type();
+        var type = table.columns().get(0).type();
 
         return processInListOperation(value, new ExpressionList(columnData, type));
     }

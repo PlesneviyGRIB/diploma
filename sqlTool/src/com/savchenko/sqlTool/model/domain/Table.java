@@ -7,12 +7,7 @@ import com.savchenko.sqlTool.model.index.Index;
 import java.util.List;
 import java.util.Objects;
 
-public record Table(String name, List<Column> columns, List<List<Value<?>>> data, List<Index> indices) implements Expression {
-
-    @Override
-    public <T> T accept(Visitor<T> visitor) {
-        return visitor.visit(this);
-    }
+public record Table(String name, List<Column> columns, List<List<Value<?>>> data, List<Index> indices) {
 
     @Override
     public boolean equals(Object o) {

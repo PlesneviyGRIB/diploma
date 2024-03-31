@@ -27,12 +27,11 @@ public class Where extends ComplicatedCalculedCommand {
         var data = table.data().stream()
                 .filter(row -> {
 
-                    var subTables = calculateSubTables(resolver);
                     var columnValue = ModelUtils.columnValueMap(table.columns(), row);
 
                     var value = expression
-                            .accept(new ValueInjector(columnValue, subTables))
-                            .accept(new ExpressionCalculator());
+                            .accept(new ValueInjector(columnValue))
+                            .accept(new ExpressionCalculator(resolver));
 
                     if (value instanceof BooleanValue bv) {
                         return bv.value();

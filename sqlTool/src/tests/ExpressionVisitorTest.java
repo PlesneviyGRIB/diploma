@@ -57,7 +57,7 @@ public class ExpressionVisitorTest extends TestBase {
                 ),
                 Q.op(EQ, Q.column("actions", "action_id"), new StringValue("addRow"))
         );
-        var expected = "(COLUMN[actions.id] <= (1L * 1042L)) or (COLUMN[actions.action_id] = addRow)";
+        var expected = "(COLUMN[actions.id] <= (1L * 1042L)) OR (COLUMN[actions.action_id] = addRow)";
         Assert.assertEquals(expected, expression.stringify());
     }
 

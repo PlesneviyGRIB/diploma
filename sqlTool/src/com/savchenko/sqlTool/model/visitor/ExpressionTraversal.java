@@ -14,11 +14,6 @@ public class ExpressionTraversal implements Expression.Visitor<Void> {
     }
 
     @Override
-    public Void visit(Table table) {
-        return null;
-    }
-
-    @Override
     public Void visit(SubTable table) {
         return null;
     }

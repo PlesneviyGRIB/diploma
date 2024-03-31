@@ -19,11 +19,6 @@ public class ExpressionPrinter implements Expression.Visitor<String> {
     }
 
     @Override
-    public String visit(Table table) {
-        return format("TABLE[%s]", table.name());
-    }
-
-    @Override
     public String visit(SubTable table) {
         return "SUB_TABLE[?]";
     }
@@ -35,19 +30,19 @@ public class ExpressionPrinter implements Expression.Visitor<String> {
 
     @Override
     public String visit(UnaryOperation operation) {
-        return format("%s(%s)", operation.operator().designator, operation.expression().accept(this));
+        return format("%s(%s)", operation.operator().designator.toUpperCase(), operation.expression().accept(this));
     }
 
     @Override
     public String visit(BinaryOperation operation) {
-        return format("%s %s %s", wrapWithParentheses(operation.left()), operation.operator().designator, wrapWithParentheses(operation.right()));
+        return format("%s %s %s", wrapWithParentheses(operation.left()), operation.operator().designator.toUpperCase(), wrapWithParentheses(operation.right()));
     }
 
     @Override
     public String visit(TernaryOperation operation) {
         return format("%s %s(%s and %s)",
                 wrapWithParentheses(operation.first()),
-                operation.operator().designator,
+                operation.operator().designator.toUpperCase(),
                 wrapWithParentheses(operation.second()),
                 wrapWithParentheses(operation.third())
         );

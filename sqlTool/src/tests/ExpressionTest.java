@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import static com.savchenko.sqlTool.model.operator.Operator.IN;
+import static com.savchenko.sqlTool.model.operator.Operator.NOT;
 
 public class ExpressionTest extends TestBase {
 
@@ -60,5 +61,37 @@ public class ExpressionTest extends TestBase {
                 List.of(101L, 1L, 153L, 154L, 155L, 151L, 156L, 157L, 158L, 159L, 160L, 2L, 3L),
                 ids
         );
+    }
+
+    @Test
+    public void notInSubTable() {
+        var subTable = new SubTable(new Query()
+                .from("course_users")
+                .select(Q.column("course_users", "course_id"))
+                .build()
+        );
+
+        var res = resolver.resolve(
+                new Query()
+                        .from("courses")
+                        .where(Q.op(
+                                NOT,
+                                Q.op(IN,
+                                        Q.column("courses", "id"),
+                                        subTable
+                                )
+                        ))
+                        .select(Q.column("courses", "id"))
+        );
+
+        Assert.assertEquals(1, res.data().size());
+
+        var ids = res.data().stream()
+                .map(row -> row.get(0))
+                .filter(value -> value instanceof LongNumber)
+                .map(ln -> ((LongNumber) ln).value())
+                .toList();
+
+        Assert.assertEquals(List.of(152L), ids);
     }
 }

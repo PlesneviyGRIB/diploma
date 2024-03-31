@@ -2,6 +2,7 @@ package com.savchenko.sqlTool.model.command.join;
 
 import com.savchenko.sqlTool.exception.UnexpectedException;
 import com.savchenko.sqlTool.exception.UnexpectedExpressionException;
+import com.savchenko.sqlTool.model.Resolver;
 import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.expression.BinaryOperation;
 import com.savchenko.sqlTool.model.expression.BooleanValue;
@@ -23,15 +24,15 @@ import java.util.stream.Collectors;
 public enum JoinStrategy {
     HASH, MERGE, LOOP;
 
-    public Triple<List<List<Value<?>>>, Set<Integer>, Set<Integer>> run(Table table, Table joinedTable, Expression expression) {
+    public Triple<List<List<Value<?>>>, Set<Integer>, Set<Integer>> run(Table table, Table joinedTable, Expression expression, Resolver resolver) {
         return switch (this) {
-            case HASH -> hashImpl(table, joinedTable, expression);
-            case MERGE -> mergeImpl(table, joinedTable, expression);
-            case LOOP -> loopImpl(table, joinedTable, expression);
+            case HASH -> hashImpl(table, joinedTable, expression, resolver);
+            case MERGE -> mergeImpl(table, joinedTable, expression, resolver);
+            case LOOP -> loopImpl(table, joinedTable, expression, resolver);
         };
     }
 
-    private Triple<List<List<Value<?>>>, Set<Integer>, Set<Integer>> hashImpl(Table table, Table joinedTable, Expression expression) {
+    private Triple<List<List<Value<?>>>, Set<Integer>, Set<Integer>> hashImpl(Table table, Table joinedTable, Expression expression, Resolver resolver) {
         if (expression instanceof BinaryOperation op && op.operator().equals(Operator.EQ)) {
             var leftExpression = op.left();
             var rightExpression = op.right();
@@ -44,15 +45,15 @@ public enum JoinStrategy {
             Function<List<Value<?>>, Value<?>> tableKeyMapper = values -> {
                 var columnValue = ModelUtils.columnValueMap(table.columns(), values);
                 return tableExpression.get()
-                        .accept(new ValueInjector(columnValue, Map.of()))
-                        .accept(new ExpressionCalculator());
+                        .accept(new ValueInjector(columnValue))
+                        .accept(new ExpressionCalculator(resolver));
             };
 
             Function<List<Value<?>>, Value<?>> joinedTableKeyMapper = values -> {
                 var columnValue = ModelUtils.columnValueMap(joinedTable.columns(), values);
                 return joinedTableExpression.get()
-                        .accept(new ValueInjector(columnValue, Map.of()))
-                        .accept(new ExpressionCalculator());
+                        .accept(new ValueInjector(columnValue))
+                        .accept(new ExpressionCalculator(resolver));
             };
 
             var hashTable = ModelUtils.getIndexedData(table.data()).stream()
@@ -87,11 +88,11 @@ public enum JoinStrategy {
         throw new UnexpectedException("Hash join expects EQUALITY operation, but found '%s'", expression.stringify());
     }
 
-    private Triple<List<List<Value<?>>>, Set<Integer>, Set<Integer>> mergeImpl(Table table, Table joinedTable, Expression expression) {
+    private Triple<List<List<Value<?>>>, Set<Integer>, Set<Integer>> mergeImpl(Table table, Table joinedTable, Expression expression, Resolver resolver) {
         return null;
     }
 
-    private Triple<List<List<Value<?>>>, Set<Integer>, Set<Integer>> loopImpl(Table table, Table joinedTable, Expression expression) {
+    private Triple<List<List<Value<?>>>, Set<Integer>, Set<Integer>> loopImpl(Table table, Table joinedTable, Expression expression, Resolver resolver) {
         var columns = ListUtils.union(table.columns(), joinedTable.columns());
 
         var leftJoinedRowIndexes = new HashSet<Integer>();
@@ -115,8 +116,8 @@ public enum JoinStrategy {
                                 }
 
                                 var value = expression
-                                        .accept(new ValueInjector(columnValueMap, Map.of()))
-                                        .accept(new ExpressionCalculator());
+                                        .accept(new ValueInjector(columnValueMap))
+                                        .accept(new ExpressionCalculator(resolver));
 
                                 if (value instanceof BooleanValue bv) {
                                     if (bv.value()) {
