@@ -4,6 +4,7 @@ import com.savchenko.sqlTool.exception.UnexpectedException;
 import com.savchenko.sqlTool.exception.UnexpectedExpressionException;
 import com.savchenko.sqlTool.model.Resolver;
 import com.savchenko.sqlTool.model.domain.Column;
+import com.savchenko.sqlTool.model.domain.ExternalRow;
 import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.expression.*;
 import com.savchenko.sqlTool.utils.ModelUtils;
@@ -17,8 +18,11 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
 
     private final Resolver resolver;
 
-    public ExpressionCalculator(Resolver resolver) {
+    private final ExternalRow externalRow;
+
+    public ExpressionCalculator(Resolver resolver, ExternalRow externalRow) {
         this.resolver = resolver;
+        this.externalRow = externalRow;
     }
 
     @Override
@@ -169,7 +173,7 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
         if (operation.operator() == EXISTS) {
 
             if (operation.expression() instanceof SubTable subTable) {
-                var table = resolver.resolve(subTable.commands());
+                var table = resolver.resolve(subTable.commands(), externalRow);
                 return Optional.of(new BooleanValue(!table.data().isEmpty()));
             }
 
@@ -187,7 +191,7 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
             }
 
             if (operation.right() instanceof SubTable subTable) {
-                var table = resolver.resolve(subTable.commands());
+                var table = resolver.resolve(subTable.commands(), externalRow);
                 return Optional.of(processInTableOperation(operation.left().accept(this), table));
             }
         }

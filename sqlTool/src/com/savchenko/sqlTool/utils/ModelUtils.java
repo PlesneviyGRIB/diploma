@@ -1,13 +1,16 @@
 package com.savchenko.sqlTool.utils;
 
 import com.savchenko.sqlTool.exception.ColumnNotFoundException;
+import com.savchenko.sqlTool.exception.UnexpectedException;
 import com.savchenko.sqlTool.exception.UnsupportedTypeException;
 import com.savchenko.sqlTool.exception.ValidationException;
+import com.savchenko.sqlTool.model.domain.Column;
+import com.savchenko.sqlTool.model.domain.ExternalRow;
+import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.expression.*;
 import com.savchenko.sqlTool.model.operator.Operator;
-import com.savchenko.sqlTool.model.domain.Column;
-import com.savchenko.sqlTool.model.domain.Table;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.math.BigDecimal;
@@ -33,12 +36,12 @@ public class ModelUtils {
         var targetColumns = table.columns().stream()
                 .map(column -> {
                     var identifier = columnIdentifier.apply(column);
-                    if(identityMap.get(identifier) != 1) {
+                    if (identityMap.get(identifier) != 1) {
                         identifier = format("%s.%s", column.table(), identifier);
                     }
                     return new Column(identifier, tableName, column.type());
                 }).toList();
-        return new Table(tableName, targetColumns, table.data(), table.indices());
+        return new Table(tableName, targetColumns, table.data(), table.externalRow());
     }
 
     public static List<Value<?>> emptyRow(Table table) {
@@ -48,7 +51,9 @@ public class ModelUtils {
     }
 
     public static List<Pair<Integer, List<Value<?>>>> getIndexedData(List<List<Value<?>>> data) {
-        var o = new Object() {public int index; };
+        var o = new Object() {
+            public int index;
+        };
         return data.stream().map(row -> Pair.of(o.index++, row)).toList();
     }
 
@@ -102,7 +107,7 @@ public class ModelUtils {
             return LongNumber.class;
         } else if (clazz.equals(Float.class)) {
             return FloatNumber.class;
-        }else if (clazz.equals(Double.class)) {
+        } else if (clazz.equals(Double.class)) {
             return DoubleNumber.class;
         } else if (clazz.equals(BigDecimal.class)) {
             return BigDecimalNumber.class;
@@ -125,13 +130,13 @@ public class ModelUtils {
     }
 
     public static int compareValues(Value<?> value1, Value<?> value2, Class<? extends Value> targetType) {
-        if(value1 instanceof NullValue && !(value2 instanceof NullValue)) {
+        if (value1 instanceof NullValue && !(value2 instanceof NullValue)) {
             return 1;
         }
-        if(!(value1 instanceof NullValue) && value2 instanceof NullValue) {
+        if (!(value1 instanceof NullValue) && value2 instanceof NullValue) {
             return -1;
         }
-        if(value1 instanceof NullValue nv1 && value2 instanceof NullValue nv2) {
+        if (value1 instanceof NullValue nv1 && value2 instanceof NullValue nv2) {
             return nv1.compareTo(nv2);
         }
         return targetType.cast(value1).compareTo(targetType.cast(value2));
@@ -142,31 +147,31 @@ public class ModelUtils {
                 CollectionUtils.union(List.of(EXISTS, IN, IS_NULL, EQ, NOT_EQ, GREATER_OR_EQ, LESS_OR_EQ, GREATER, LESS), list)
                         .stream().anyMatch(o -> o.equals(operator));
 
-        if(clazz.equals(NullValue.class)) {
+        if (clazz.equals(NullValue.class)) {
             return check.apply(List.of(AND, BETWEEN, OR));
         }
-        if(clazz.equals(StringValue.class)) {
+        if (clazz.equals(StringValue.class)) {
             return check.apply(List.of(BETWEEN, PLUS));
         }
-        if(clazz.equals(BooleanValue.class)) {
+        if (clazz.equals(BooleanValue.class)) {
             return List.of(AND, OR, EXISTS, IN, IS_NULL, EQ, NOT_EQ, NOT).contains(operator);
         }
-        if(clazz.equals(IntegerNumber.class)) {
+        if (clazz.equals(IntegerNumber.class)) {
             return check.apply(List.of(BETWEEN, PLUS, MINUS, MULTIPLY, DIVISION, MOD));
         }
-        if(clazz.equals(LongNumber.class)) {
+        if (clazz.equals(LongNumber.class)) {
             return check.apply(List.of(BETWEEN, PLUS, MINUS, MULTIPLY, DIVISION));
         }
-        if(clazz.equals(FloatNumber.class)) {
+        if (clazz.equals(FloatNumber.class)) {
             return check.apply(List.of(BETWEEN, PLUS, MINUS, MULTIPLY, DIVISION));
         }
-        if(clazz.equals(DoubleNumber.class)) {
+        if (clazz.equals(DoubleNumber.class)) {
             return check.apply(List.of(BETWEEN, PLUS, MINUS, MULTIPLY, DIVISION));
         }
-        if(clazz.equals(BigDecimalNumber.class)) {
+        if (clazz.equals(BigDecimalNumber.class)) {
             return check.apply(List.of(BETWEEN, PLUS, MINUS, MULTIPLY, DIVISION));
         }
-        if(clazz.equals(TimestampValue.class)) {
+        if (clazz.equals(TimestampValue.class)) {
             return check.apply(List.of(BETWEEN, PLUS, MINUS));
         }
         throw new ValidationException("Unexpected type '%s'", clazz.getTypeName());
@@ -177,9 +182,22 @@ public class ModelUtils {
         return Arrays.stream(classes).allMatch(c -> c.equals(type));
     }
 
-    public static Map<Column, Value<?>> columnValueMap(List<Column> columns, List<Value<?>> values) {
+    public static Map<Column, Value<?>> columnValueMap(List<Column> columns, List<Value<?>> values, ExternalRow externalRow) {
         var columnValue = new HashMap<Column, Value<?>>();
-        IntStream.range(0, columns.size()).forEach(i -> columnValue.put(columns.get(i), values.get(i)));
+        var allColumns = ListUtils.union(columns, externalRow.columns());
+        var allValues = ListUtils.union(values, externalRow.values());
+        IntStream.range(0, allColumns.size()).forEach(i -> columnValue.put(allColumns.get(i), allValues.get(i)));
         return columnValue;
+    }
+
+    public static void assertDifferentColumns(List<Column> columns1, List<Column> columns2) {
+        columns1.stream()
+                .filter(columns2::contains)
+                .findAny()
+                .ifPresent(c -> {
+                    throw new UnexpectedException(
+                            "Ambiguity found: Column name for sub table and parent table is the same '%s'. Try to rename sub or parent table",
+                            c.stringify());
+                });
     }
 }

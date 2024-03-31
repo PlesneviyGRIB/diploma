@@ -3,6 +3,7 @@ package com.savchenko.sqlTool.model.command.join;
 import com.savchenko.sqlTool.exception.UnexpectedException;
 import com.savchenko.sqlTool.exception.UnexpectedExpressionException;
 import com.savchenko.sqlTool.model.Resolver;
+import com.savchenko.sqlTool.model.domain.ExternalRow;
 import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.expression.BinaryOperation;
 import com.savchenko.sqlTool.model.expression.BooleanValue;
@@ -16,7 +17,10 @@ import com.savchenko.sqlTool.utils.ModelUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.tuple.Triple;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -37,28 +41,30 @@ public enum JoinStrategy {
             var leftExpression = op.left();
             var rightExpression = op.right();
 
-            var forwardOrder = ExpressionUtils.relatedToTable(table.columns(), leftExpression);
+            var forwardOrder = ExpressionUtils.relatedToTable(table.columns(), leftExpression, table.externalRow());
 
             Supplier<Expression> tableExpression = () -> forwardOrder ? leftExpression : rightExpression;
             Supplier<Expression> joinedTableExpression = () -> forwardOrder ? rightExpression : leftExpression;
 
             Function<List<Value<?>>, Value<?>> tableKeyMapper = values -> {
-                var columnValue = ModelUtils.columnValueMap(table.columns(), values);
+                var columnValue = ModelUtils.columnValueMap(table.columns(), values, table.externalRow());
+                var externalRow = new ExternalRow(table.columns(), values);
                 return tableExpression.get()
                         .accept(new ValueInjector(columnValue))
-                        .accept(new ExpressionCalculator(resolver));
+                        .accept(new ExpressionCalculator(resolver, externalRow));
             };
 
             Function<List<Value<?>>, Value<?>> joinedTableKeyMapper = values -> {
-                var columnValue = ModelUtils.columnValueMap(joinedTable.columns(), values);
+                var columnValue = ModelUtils.columnValueMap(joinedTable.columns(), values, joinedTable.externalRow());
+                var externalRow = new ExternalRow(joinedTable.columns(), values);
                 return joinedTableExpression.get()
                         .accept(new ValueInjector(columnValue))
-                        .accept(new ExpressionCalculator(resolver));
+                        .accept(new ExpressionCalculator(resolver, externalRow));
             };
 
             var hashTable = ModelUtils.getIndexedData(table.data()).stream()
                     .filter(pair -> {
-                        var columnValue = ModelUtils.columnValueMap(table.columns(), pair.getRight());
+                        var columnValue = ModelUtils.columnValueMap(table.columns(), pair.getRight(), table.externalRow());
                         return !ExpressionUtils.columnsContainsNulls(columnValue, tableExpression.get());
                     })
                     .collect(Collectors.toMap(pair -> tableKeyMapper.apply(pair.getRight()), Function.identity()));
@@ -68,7 +74,7 @@ public enum JoinStrategy {
 
             var data = ModelUtils.getIndexedData(joinedTable.data()).stream()
                     .filter(pair -> {
-                        var columnValue = ModelUtils.columnValueMap(joinedTable.columns(), pair.getRight());
+                        var columnValue = ModelUtils.columnValueMap(joinedTable.columns(), pair.getRight(), joinedTable.externalRow());
                         return !ExpressionUtils.columnsContainsNulls(columnValue, joinedTableExpression.get());
                     })
                     .map(pair2 -> {
@@ -108,8 +114,9 @@ public enum JoinStrategy {
                             .map(pair2 -> {
                                 var row2 = pair2.getRight();
                                 var row = ListUtils.union(row1, row2);
+                                var externalRow = new ExternalRow(columns, row);
 
-                                var columnValueMap = ModelUtils.columnValueMap(columns, row);
+                                var columnValueMap = ModelUtils.columnValueMap(columns, row, externalRow);
 
                                 if (ExpressionUtils.columnsContainsNulls(columnValueMap, expression)) {
                                     return null;
@@ -117,7 +124,7 @@ public enum JoinStrategy {
 
                                 var value = expression
                                         .accept(new ValueInjector(columnValueMap))
-                                        .accept(new ExpressionCalculator(resolver));
+                                        .accept(new ExpressionCalculator(resolver, externalRow));
 
                                 if (value instanceof BooleanValue bv) {
                                     if (bv.value()) {

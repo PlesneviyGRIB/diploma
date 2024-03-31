@@ -55,7 +55,7 @@ public class OrderBy implements SimpleCalculedCommand {
         };
 
         var data = table.data().stream().sorted(rowsComparator).toList();
-        return new Table(table.name(), table.columns(), data, List.of());
+        return new Table(table.name(), table.columns(), data, table.externalRow());
     }
 
 }

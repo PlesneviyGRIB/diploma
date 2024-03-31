@@ -31,7 +31,7 @@ public class LeftJoin extends Join {
 
         var data = ListUtils.union(result.getLeft(), remainder);
 
-        return new Table(null, columns, data, List.of());
+        return new Table(null, columns, data, table.externalRow());
     }
 
 }

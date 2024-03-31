@@ -30,7 +30,7 @@ public class Select implements SimpleCommand {
                     return list;
                 }).toList();
         var targetColumns = indexes.stream().map(contextColumns::get).toList();
-        return new Table(table.name(), targetColumns, data, List.of());
+        return new Table(table.name(), targetColumns, data, table.externalRow());
     }
 
 }

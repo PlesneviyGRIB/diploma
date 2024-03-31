@@ -65,7 +65,7 @@ public class GroupBy implements SimpleCalculedCommand {
                 values.add(function.apply(getColumnValues.apply(i)));
             }
 
-            return new Table(table.name(), targetColumns, List.of(values), List.of());
+            return new Table(table.name(), targetColumns, List.of(values), table.externalRow());
         }
 
 
@@ -165,7 +165,7 @@ public class GroupBy implements SimpleCalculedCommand {
                     return row;
                 }).toList();
 
-        return new Table(table.name(), table.columns(), data, List.of());
+        return new Table(table.name(), table.columns(), data, table.externalRow());
     }
 
 }

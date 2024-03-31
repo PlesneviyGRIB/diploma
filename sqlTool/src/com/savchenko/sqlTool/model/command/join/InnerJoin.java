@@ -1,7 +1,6 @@
 package com.savchenko.sqlTool.model.command.join;
 
 import com.savchenko.sqlTool.model.command.domain.Command;
-import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.expression.Expression;
 import com.savchenko.sqlTool.model.expression.Value;
@@ -24,7 +23,7 @@ public class InnerJoin extends Join {
 
         var columns = ListUtils.union(table.columns(), joinedTable.columns());
 
-        return new Table(null, columns, result.getLeft(), List.of());
+        return new Table(null, columns, result.getLeft(), table.externalRow());
     }
 
 }

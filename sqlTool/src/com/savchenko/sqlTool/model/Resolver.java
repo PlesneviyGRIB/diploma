@@ -7,6 +7,7 @@ import com.savchenko.sqlTool.model.command.domain.ComplicatedCalculedCommand;
 import com.savchenko.sqlTool.model.command.domain.SimpleCalculedCommand;
 import com.savchenko.sqlTool.model.command.domain.SimpleCommand;
 import com.savchenko.sqlTool.model.complexity.Calculator;
+import com.savchenko.sqlTool.model.domain.ExternalRow;
 import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.query.Query;
@@ -26,6 +27,14 @@ public class Resolver {
     }
 
     public Table resolve(List<Command> commands) {
+        return resolve(commands, ExternalRow.empty());
+    }
+
+    public Resolver() {
+        super();
+    }
+
+    public Table resolve(List<Command> commands, ExternalRow externalRow) {
 
         if (!commands.isEmpty()) {
             if (!(commands.get(0) instanceof From)) {
@@ -33,7 +42,7 @@ public class Resolver {
             }
         }
 
-        Table table = null;
+        Table table = new Table(null, null, null, externalRow);
         Calculator calculator = new Calculator();
 
         for (Command cmd : commands) {
@@ -58,6 +67,7 @@ public class Resolver {
                 }
 
             });
+
         }
         return table;
     }

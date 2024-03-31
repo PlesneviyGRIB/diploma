@@ -38,6 +38,6 @@ public class FullJoin extends Join {
 
         var mergedColumns = ListUtils.union(table.columns(), joinedTable.columns());
 
-        return new Table(null, mergedColumns, data, List.of());
+        return new Table(null, mergedColumns, data, table.externalRow());
     }
 }

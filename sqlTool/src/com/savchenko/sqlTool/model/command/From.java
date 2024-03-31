@@ -13,6 +13,9 @@ public class From implements SimpleCommand {
 
     @Override
     public Table run(Table table, Projection projection) {
-        return projection.getByName(tableName);
+
+        var resolvedTable = projection.getByName(tableName);
+
+        return new Table(resolvedTable.name(), resolvedTable.columns(), resolvedTable.data(), table.externalRow());
     }
 }

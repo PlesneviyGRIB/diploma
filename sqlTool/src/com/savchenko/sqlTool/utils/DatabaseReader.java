@@ -2,6 +2,7 @@ package com.savchenko.sqlTool.utils;
 
 import com.savchenko.sqlTool.config.Constants;
 import com.savchenko.sqlTool.model.domain.Column;
+import com.savchenko.sqlTool.model.domain.ExternalRow;
 import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.expression.Value;
@@ -67,7 +68,7 @@ public class DatabaseReader {
                 data.add(list);
             }
 
-            return new Table(tableName, columns, data, indices);
+            return new Table(tableName, columns, data, ExternalRow.empty());
         }
     }
 
