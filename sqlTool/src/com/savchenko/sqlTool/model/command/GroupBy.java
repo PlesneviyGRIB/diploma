@@ -30,7 +30,7 @@ public class GroupBy implements SimpleCalculedCommand {
     @Override
     public Table run(Table table, Projection projection, Calculator calculator) {
 
-        // TODO rewrite
+        calculator.log(this, 0);
 
         table.columns().stream()
                 .filter(c -> !columnMapperMap.containsKey(c))

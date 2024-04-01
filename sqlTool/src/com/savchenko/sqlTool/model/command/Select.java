@@ -1,6 +1,7 @@
 package com.savchenko.sqlTool.model.command;
 
 import com.savchenko.sqlTool.model.command.domain.SimpleCommand;
+import com.savchenko.sqlTool.model.complexity.Calculator;
 import com.savchenko.sqlTool.model.domain.Column;
 import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.Table;
@@ -18,7 +19,9 @@ public class Select implements SimpleCommand {
     }
 
     @Override
-    public Table run(Table table, Projection projection) {
+    public Table run(Table table, Projection projection, Calculator calculator) {
+
+        calculator.log(this);
         var contextColumns = table.columns();
         var indexes = columns.stream().map(c -> ModelUtils.resolveColumnIndex(contextColumns, c)).toList();
         var data = table.data().stream()

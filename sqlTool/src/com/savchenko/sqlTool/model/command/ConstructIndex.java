@@ -17,6 +17,8 @@ public class ConstructIndex implements SimpleCalculedCommand {
 
     @Override
     public Table run(Table table, Projection projection, Calculator calculator) {
+
+        calculator.log(this, 0);
         index.getColumns().forEach(column -> ModelUtils.resolveColumn(table.columns(), column));
         return null;
     }

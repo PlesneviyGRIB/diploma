@@ -1,6 +1,6 @@
 package tests;
 
-import com.savchenko.sqlTool.model.Resolver;
+import com.savchenko.sqlTool.model.resolver.Resolver;
 import com.savchenko.sqlTool.model.domain.ExternalRow;
 import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.Table;

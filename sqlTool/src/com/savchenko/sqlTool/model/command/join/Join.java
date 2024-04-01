@@ -1,14 +1,14 @@
 package com.savchenko.sqlTool.model.command.join;
 
 import com.savchenko.sqlTool.exception.ValidationException;
-import com.savchenko.sqlTool.model.Resolver;
 import com.savchenko.sqlTool.model.command.domain.Command;
-import com.savchenko.sqlTool.model.command.domain.ComplicatedCalculedCommand;
+import com.savchenko.sqlTool.model.command.domain.ComplexCalculedCommand;
 import com.savchenko.sqlTool.model.complexity.Calculator;
 import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.expression.Expression;
 import com.savchenko.sqlTool.model.expression.Value;
+import com.savchenko.sqlTool.model.resolver.Resolver;
 import com.savchenko.sqlTool.model.visitor.ExpressionValidator;
 import com.savchenko.sqlTool.utils.ModelUtils;
 import org.apache.commons.collections4.ListUtils;
@@ -20,7 +20,7 @@ import java.util.function.Supplier;
 
 import static java.lang.String.format;
 
-public abstract class Join extends ComplicatedCalculedCommand {
+public abstract class Join extends ComplexCalculedCommand {
 
     private final List<Command> commands;
 
@@ -36,7 +36,10 @@ public abstract class Join extends ComplicatedCalculedCommand {
 
     @Override
     public Table run(Table table, Projection projection, Resolver resolver, Calculator calculator) {
-        var joinedTable = resolver.resolve(commands);
+
+        calculator.log(this, 0);
+        var resolverResult = resolver.resolve(commands);
+        var joinedTable = resolverResult.table();
 
         if (table.name().equals(joinedTable.name())) {
             throw new ValidationException("There are two tables with the same name '%s' in context. Use alias to resolve the conflict.", table.name());

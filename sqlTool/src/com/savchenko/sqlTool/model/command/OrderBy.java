@@ -23,6 +23,8 @@ public class OrderBy implements SimpleCalculedCommand {
     @Override
     public Table run(Table table, Projection projection, Calculator calculator) {
 
+        calculator.log(this, 0);
+
         orders.stream()
                 .collect(Collectors.groupingBy(Order::column, Collectors.counting()))
                 .entrySet().stream()

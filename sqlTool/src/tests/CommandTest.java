@@ -5,6 +5,7 @@ import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.command.From;
 import com.savchenko.sqlTool.model.command.function.Identity;
 import com.savchenko.sqlTool.model.command.join.JoinStrategy;
+import com.savchenko.sqlTool.model.complexity.Calculator;
 import com.savchenko.sqlTool.model.domain.Column;
 import com.savchenko.sqlTool.model.domain.ExternalRow;
 import com.savchenko.sqlTool.model.domain.Table;
@@ -52,13 +53,13 @@ public class CommandTest extends TestBase {
 
     @Test
     public void columnsCountTest() {
-        assertEquals(resolver.resolve(new Query().from("actions")).columns().size(), 9);
-        assertEquals(resolver.resolve(new Query().from("actions").innerJoin(new Query().from("actions").as("a"), new BooleanValue(true), JoinStrategy.LOOP)).columns().size(), 18);
+        assertEquals(resolver.resolve(new Query().from("actions")).table().columns().size(), 9);
+        assertEquals(resolver.resolve(new Query().from("actions").innerJoin(new Query().from("actions").as("a"), new BooleanValue(true), JoinStrategy.LOOP)).table().columns().size(), 18);
         assertEquals(resolver.resolve(new Query().from("actions")
                 .innerJoin(new Query().from("activities"), new BooleanValue(true), JoinStrategy.LOOP)
                 .innerJoin(new Query().from("auth_sources"), new BooleanValue(true), JoinStrategy.LOOP)
-        ).columns().size(), 24);
-        assertEquals(resolver.resolve(new Query().from("actions").select(Q.column("actions", "id"))).columns().size(), 1);
+        ).table().columns().size(), 24);
+        assertEquals(resolver.resolve(new Query().from("actions").select(Q.column("actions", "id"))).table().columns().size(), 1);
     }
 
     @Test
@@ -144,12 +145,12 @@ public class CommandTest extends TestBase {
                 new Query()
                         .from("content")
                         .fullJoin(new Query().from("content_descriptor"), new BooleanValue(true), JoinStrategy.LOOP)
-        );
+        ).table();
 
         var emtyTable = new Table("", List.of(), List.of(), ExternalRow.empty());
 
-        var mathElementsTable = new From("content").run(emtyTable, projection);
-        var finalAnswersTable = new From("content_descriptor").run(emtyTable, projection);
+        var mathElementsTable = new From("content").run(emtyTable, projection, new Calculator());
+        var finalAnswersTable = new From("content_descriptor").run(emtyTable, projection, new Calculator());
 
         var cartesianProduct = cartesianProduct(mathElementsTable, finalAnswersTable);
         Assert.assertEquals(
@@ -207,14 +208,14 @@ public class CommandTest extends TestBase {
         BiConsumer<Table, List<String>> check = (table, columnNames) -> IntStream.range(0, columnNames.size())
                 .forEach(index -> Assert.assertEquals(columnNames.get(index), table.columns().get(index).toString()));
 
-        var table1 = resolver.resolve(new Query().from("wikis").as("w"));
+        var table1 = resolver.resolve(new Query().from("wikis").as("w")).table();
         check.accept(table1, List.of("w.id", "w.text"));
 
-        var table2 = resolver.resolve(new Query().from("wikis").innerJoin(new Query().from("tag"), new BooleanValue(true), JoinStrategy.LOOP));
+        var table2 = resolver.resolve(new Query().from("wikis").innerJoin(new Query().from("tag"), new BooleanValue(true), JoinStrategy.LOOP)).table();
         check.accept(table2, List.of("wikis_tag.wikis.id", "wikis_tag.text", "wikis_tag.tag.id", "wikis_tag.label",
                 "wikis_tag.discriminator", "wikis_tag.math_id", "wikis_tag.relevancy", "wikis_tag.type"));
 
-        var table3 = resolver.resolve(new Query().from("wikis").innerJoin(new Query().from("tag"), new BooleanValue(true), JoinStrategy.LOOP).as("w"));
+        var table3 = resolver.resolve(new Query().from("wikis").innerJoin(new Query().from("tag"), new BooleanValue(true), JoinStrategy.LOOP).as("w")).table();
         check.accept(table3, List.of("w.wikis.id", "w.text", "w.tag.id", "w.label", "w.discriminator", "w.math_id", "w.relevancy", "w.type"));
 
         expectError(
@@ -222,10 +223,10 @@ public class CommandTest extends TestBase {
                 ValidationException.class
         );
 
-        var table4 = resolver.resolve(new Query().from("wikis").as("w1").innerJoin(new Query().from("wikis").as("w2"), new BooleanValue(true), JoinStrategy.LOOP));
+        var table4 = resolver.resolve(new Query().from("wikis").as("w1").innerJoin(new Query().from("wikis").as("w2"), new BooleanValue(true), JoinStrategy.LOOP)).table();
         check.accept(table4, List.of("w1_w2.w1.id", "w1_w2.w1.text", "w1_w2.w2.id", "w1_w2.w2.text"));
 
-        var table5 = resolver.resolve(new Query().from("wikis").as("w1").innerJoin(new Query().from("wikis").as("w2"), new BooleanValue(true), JoinStrategy.LOOP).as("res"));
+        var table5 = resolver.resolve(new Query().from("wikis").as("w1").innerJoin(new Query().from("wikis").as("w2"), new BooleanValue(true), JoinStrategy.LOOP).as("res")).table();
         check.accept(table5, List.of("res.w1.id", "res.w1.text", "res.w2.id", "res.w2.text"));
     }
 
@@ -251,6 +252,6 @@ public class CommandTest extends TestBase {
     }
 
     private void expectRowsCount(Query query, int count) {
-        assertEquals(count, resolver.resolve(query).data().size());
+        assertEquals(count, resolver.resolve(query).table().data().size());
     }
 }

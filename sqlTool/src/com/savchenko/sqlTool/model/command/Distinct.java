@@ -9,7 +9,12 @@ public class Distinct implements SimpleCalculedCommand {
 
     @Override
     public Table run(Table table, Projection projection, Calculator calculator) {
-        var data = table.data().stream().distinct().toList();
-        return new Table(table.name(), table.columns(), data, table.externalRow());
+
+        var data = table.data();
+        var targetData = data.stream().distinct().toList();
+
+        calculator.log(this, data.size());
+
+        return new Table(table.name(), table.columns(), targetData, table.externalRow());
     }
 }

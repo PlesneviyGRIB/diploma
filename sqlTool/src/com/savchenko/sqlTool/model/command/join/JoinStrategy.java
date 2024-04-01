@@ -2,7 +2,7 @@ package com.savchenko.sqlTool.model.command.join;
 
 import com.savchenko.sqlTool.exception.UnexpectedException;
 import com.savchenko.sqlTool.exception.UnexpectedExpressionException;
-import com.savchenko.sqlTool.model.Resolver;
+import com.savchenko.sqlTool.model.resolver.Resolver;
 import com.savchenko.sqlTool.model.domain.ExternalRow;
 import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.expression.BinaryOperation;

@@ -1,14 +1,15 @@
 package com.savchenko.sqlTool;
 
-import com.savchenko.sqlTool.model.Resolver;
 import com.savchenko.sqlTool.model.command.join.JoinStrategy;
 import com.savchenko.sqlTool.model.expression.BooleanValue;
 import com.savchenko.sqlTool.model.expression.LongNumber;
 import com.savchenko.sqlTool.model.expression.StringValue;
+import com.savchenko.sqlTool.model.resolver.Resolver;
 import com.savchenko.sqlTool.query.Q;
 import com.savchenko.sqlTool.query.Query;
 import com.savchenko.sqlTool.utils.DatabaseReader;
-import com.savchenko.sqlTool.utils.TablePrinter;
+import com.savchenko.sqlTool.utils.printer.CalculatorPrinter;
+import com.savchenko.sqlTool.utils.printer.TablePrinter;
 
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -38,12 +39,16 @@ public class Main {
                                 )
                         ),
                         Q.op(EQ, Q.column("r", "action_id"), new StringValue("addRow"))
-                );
+                )
+                .limit(2);
 
 
-        var resTable = new Resolver(projection).resolve(query);
-        var resStr = new TablePrinter(resTable).stringify();
+        var resolverResult = new Resolver(projection).resolve(query);
+        var tableStr = new TablePrinter(resolverResult.table()).stringify();
+        var calculatorStr = new CalculatorPrinter(resolverResult.calculator()).stringify();
 
-        System.out.println(resStr);
+        System.out.println(tableStr);
+        System.out.println();
+        System.out.println(calculatorStr);
     }
 }

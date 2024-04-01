@@ -1,9 +1,9 @@
-package com.savchenko.sqlTool.model;
+package com.savchenko.sqlTool.model.resolver;
 
 import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.command.From;
 import com.savchenko.sqlTool.model.command.domain.Command;
-import com.savchenko.sqlTool.model.command.domain.ComplicatedCalculedCommand;
+import com.savchenko.sqlTool.model.command.domain.ComplexCalculedCommand;
 import com.savchenko.sqlTool.model.command.domain.SimpleCalculedCommand;
 import com.savchenko.sqlTool.model.command.domain.SimpleCommand;
 import com.savchenko.sqlTool.model.complexity.Calculator;
@@ -16,25 +16,21 @@ import java.util.List;
 
 public class Resolver {
 
-    private Projection projection;
+    private final Projection projection;
 
     public Resolver(Projection projection) {
         this.projection = projection;
     }
 
-    public Table resolve(Query query) {
+    public ResolverResult resolve(Query query) {
         return resolve(query.build());
     }
 
-    public Table resolve(List<Command> commands) {
+    public ResolverResult resolve(List<Command> commands) {
         return resolve(commands, ExternalRow.empty());
     }
 
-    public Resolver() {
-        super();
-    }
-
-    public Table resolve(List<Command> commands, ExternalRow externalRow) {
+    public ResolverResult resolve(List<Command> commands, ExternalRow externalRow) {
 
         if (!commands.isEmpty()) {
             if (!(commands.get(0) instanceof From)) {
@@ -53,7 +49,7 @@ public class Resolver {
 
                 @Override
                 public Table visit(SimpleCommand command) {
-                    return command.run(tableRef, projection);
+                    return command.run(tableRef, projection, calculator);
                 }
 
                 @Override
@@ -62,13 +58,13 @@ public class Resolver {
                 }
 
                 @Override
-                public Table visit(ComplicatedCalculedCommand command) {
+                public Table visit(ComplexCalculedCommand command) {
                     return command.run(tableRef, projection, Resolver.this, calculator);
                 }
 
             });
 
         }
-        return table;
+        return new ResolverResult(table, calculator);
     }
 }

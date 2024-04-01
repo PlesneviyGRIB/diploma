@@ -47,7 +47,7 @@ public class ExpressionTest extends TestBase {
                                 subTable
                         ))
                         .select(Q.column("courses", "id"))
-        );
+        ).table();
 
         Assert.assertEquals(13, res.data().size());
 
@@ -76,7 +76,7 @@ public class ExpressionTest extends TestBase {
                                 )
                         ))
                         .select(Q.column("courses", "id"))
-        );
+        ).table();
 
         Assert.assertEquals(1, res.data().size());
 
@@ -103,7 +103,7 @@ public class ExpressionTest extends TestBase {
                                 )
                         ))
                         .select(Q.column("ex", "id"))
-        );
+        ).table();
 
         Assert.assertEquals(550, res.data().size());
 

@@ -9,6 +9,6 @@ public interface Command {
 
         T visit(SimpleCalculedCommand command);
 
-        T visit(ComplicatedCalculedCommand command);
+        T visit(ComplexCalculedCommand command);
     }
 }
