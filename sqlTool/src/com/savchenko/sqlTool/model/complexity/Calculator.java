@@ -19,8 +19,8 @@ public class Calculator {
         entries.add(new SimpleCalculedEntry(entry, complexity));
     }
 
-    public void log(ComplexCalculedCommand entry, Integer complexity) {
-        entries.add(new ComplexCalculedEntry(entry, complexity));
+    public void log(ComplexCalculedCommand entry, Integer complexity, Integer count) {
+        entries.add(new ComplexCalculedEntry(entry, complexity, count));
     }
 
     public List<CalculatorEntry> getEntries() {

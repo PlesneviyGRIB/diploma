@@ -23,7 +23,7 @@ public class Where extends ComplexCalculedCommand {
     @Override
     public Table run(Table table, Projection projection, Resolver resolver, Calculator calculator) {
 
-        calculator.log(this, 0);
+        calculator.log(this, 0, 1);
         expression.accept(new ExpressionValidator(table.columns(), table.externalRow()));
         var data = table.data().stream()
                 .filter(row -> {

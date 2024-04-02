@@ -28,8 +28,8 @@ public class Main {
                 .from("actions")
                 .fullJoin(new Query().from("content"), new BooleanValue(true), JoinStrategy.LOOP)
                 .as("r")
-                .where(
-                        Q.op(
+                .where(Q.op(AND
+                        , Q.op(
                                 LESS_OR_EQ,
                                 Q.column("r", "actions.id"),
                                 Q.op(
@@ -38,7 +38,7 @@ public class Main {
                                         new LongNumber(1042L)
                                 )
                         ),
-                        Q.op(EQ, Q.column("r", "action_id"), new StringValue("addRow"))
+                        Q.op(EQ, Q.column("r", "action_id"), new StringValue("addRow")))
                 )
                 .limit(2);
 

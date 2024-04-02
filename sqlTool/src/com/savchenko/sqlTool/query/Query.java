@@ -5,18 +5,14 @@ import com.savchenko.sqlTool.model.command.domain.Command;
 import com.savchenko.sqlTool.model.command.function.AggregationFunction;
 import com.savchenko.sqlTool.model.command.join.*;
 import com.savchenko.sqlTool.model.domain.Column;
-import com.savchenko.sqlTool.model.expression.BinaryOperation;
-import com.savchenko.sqlTool.model.expression.BooleanValue;
 import com.savchenko.sqlTool.model.expression.Expression;
 import com.savchenko.sqlTool.model.index.Index;
-import com.savchenko.sqlTool.model.operator.Operator;
 import org.apache.commons.lang3.builder.Builder;
 
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 public class Query implements Builder<List<Command>> {
 
@@ -57,11 +53,8 @@ public class Query implements Builder<List<Command>> {
         return this;
     }
 
-    public Query where(Expression expression, Expression... expressions) {
-        var targetExpression = Stream.of(Stream.of(expression), Arrays.stream(expressions))
-                .flatMap(s -> s)
-                .reduce(new BooleanValue(true), (p, c) -> new BinaryOperation(Operator.AND, p, c));
-        commands.add(new Where(targetExpression));
+    public Query where(Expression expression) {
+        commands.add(new Where(expression));
         return this;
     }
 

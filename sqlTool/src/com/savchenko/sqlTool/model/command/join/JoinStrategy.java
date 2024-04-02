@@ -116,14 +116,14 @@ public enum JoinStrategy {
                                 var row = ListUtils.union(row1, row2);
                                 var externalRow = new ExternalRow(columns, row);
 
-                                var columnValueMap = ModelUtils.columnValueMap(columns, row, externalRow);
+                                var columnValue = ModelUtils.columnValueMap(columns, row, externalRow);
 
-                                if (ExpressionUtils.columnsContainsNulls(columnValueMap, expression)) {
+                                if (ExpressionUtils.columnsContainsNulls(columnValue, expression)) {
                                     return null;
                                 }
 
                                 var value = expression
-                                        .accept(new ValueInjector(columnValueMap))
+                                        .accept(new ValueInjector(columnValue))
                                         .accept(new ExpressionCalculator(resolver, externalRow));
 
                                 if (value instanceof BooleanValue bv) {

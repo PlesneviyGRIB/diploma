@@ -37,7 +37,7 @@ public abstract class Join extends ComplexCalculedCommand {
     @Override
     public Table run(Table table, Projection projection, Resolver resolver, Calculator calculator) {
 
-        calculator.log(this, 0);
+        calculator.log(this, 0, 1);
         var resolverResult = resolver.resolve(commands);
         var joinedTable = resolverResult.table();
 
