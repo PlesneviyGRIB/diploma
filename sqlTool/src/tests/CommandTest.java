@@ -251,6 +251,40 @@ public class CommandTest extends TestBase {
         expectRowsCount(query, 14);
     }
 
+    @Test
+    public void ExternalRowTest() {
+
+        var predicate = Q.op(AND,
+                Q.op(EQ, Q.op(MINUS, Q.column("c", "id"), new LongNumber(2L)), Q.column("c1", "id")),
+                Q.op(EQ, Q.column("c1", "id"), Q.op(MINUS, Q.column("c2", "id"), new LongNumber(4L)))
+        );
+
+        var query = new Query()
+                .from("courses")
+                .as("c")
+                .where(Q.op(EXISTS, new SubTable(
+                        new Query()
+                                .from("courses")
+                                .as("c1")
+                                .where(Q.op(EXISTS, new SubTable(
+                                        new Query()
+                                                .from("courses")
+                                                .as("c2")
+                                                .where(predicate)
+                                                .build()))
+                                )
+                                .build()))
+                )
+                .orderBy(Map.of(Q.column("c", "id"), false))
+                .select(Q.column("c", "id"));
+
+        var resolverResult = resolver.resolve(query);
+        var ids = retrieveIds(resolverResult.table());
+
+        Assert.assertEquals(List.of(153L, 154L, 155L, 156L, 157L, 158L), ids);
+
+    }
+
     private void expectRowsCount(Query query, int count) {
         assertEquals(count, resolver.resolve(query).table().data().size());
     }

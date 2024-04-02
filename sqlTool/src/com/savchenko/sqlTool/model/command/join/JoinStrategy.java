@@ -48,7 +48,7 @@ public enum JoinStrategy {
 
             Function<List<Value<?>>, Value<?>> tableKeyMapper = values -> {
                 var columnValue = ModelUtils.columnValueMap(table.columns(), values, table.externalRow());
-                var externalRow = new ExternalRow(table.columns(), values);
+                var externalRow = table.externalRow().merge(new ExternalRow(table.columns(), values));
                 return tableExpression.get()
                         .accept(new ValueInjector(columnValue))
                         .accept(new ExpressionCalculator(resolver, externalRow));
@@ -56,7 +56,7 @@ public enum JoinStrategy {
 
             Function<List<Value<?>>, Value<?>> joinedTableKeyMapper = values -> {
                 var columnValue = ModelUtils.columnValueMap(joinedTable.columns(), values, joinedTable.externalRow());
-                var externalRow = new ExternalRow(joinedTable.columns(), values);
+                var externalRow = table.externalRow().merge(new ExternalRow(joinedTable.columns(), values));
                 return joinedTableExpression.get()
                         .accept(new ValueInjector(columnValue))
                         .accept(new ExpressionCalculator(resolver, externalRow));
@@ -114,7 +114,7 @@ public enum JoinStrategy {
                             .map(pair2 -> {
                                 var row2 = pair2.getRight();
                                 var row = ListUtils.union(row1, row2);
-                                var externalRow = new ExternalRow(columns, row);
+                                var externalRow = table.externalRow().merge(new ExternalRow(columns, row));
 
                                 var columnValue = ModelUtils.columnValueMap(columns, row, externalRow);
 

@@ -29,7 +29,7 @@ public class Where extends ComplexCalculedCommand {
                 .filter(row -> {
 
                     var columnValue = ModelUtils.columnValueMap(table.columns(), row, table.externalRow());
-                    var externalRow = new ExternalRow(table.columns(), row);
+                    var externalRow = table.externalRow().merge(new ExternalRow(table.columns(), row));
 
                     var value = expression
                             .accept(new ValueInjector(columnValue))
