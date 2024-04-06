@@ -9,6 +9,7 @@ import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class InnerJoin extends Join {
@@ -17,7 +18,12 @@ public class InnerJoin extends Join {
     }
 
     @Override
-    public Table run(Table table, Table joinedTable, Supplier<Triple<List<List<Value<?>>>, Set<Integer>, Set<Integer>>> strategyExecutionResultSupplier) {
+    public Table run(Table table,
+                     Table joinedTable,
+                     Supplier<Triple<List<List<Value<?>>>, Set<Integer>, Set<Integer>>> strategyExecutionResultSupplier,
+                     Consumer<Integer> remainderSizeConsumer) {
+
+        remainderSizeConsumer.accept(0);
 
         var result = strategyExecutionResultSupplier.get();
 

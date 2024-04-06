@@ -16,6 +16,7 @@ import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import static java.lang.String.format;
@@ -32,13 +33,15 @@ public abstract class Join extends ComplexCalculedCommand {
         this.strategy = strategy;
     }
 
-    abstract Table run(Table table, Table joinedTable, Supplier<Triple<List<List<Value<?>>>, Set<Integer>, Set<Integer>>> strategyExecutionResultSupplier);
+    abstract Table run(Table table,
+                       Table joinedTable,
+                       Supplier<Triple<List<List<Value<?>>>, Set<Integer>, Set<Integer>>> strategyExecutionResultSupplier,
+                       Consumer<Integer> remainderSizeConsumer);
 
     @Override
     public Table run(Table table, Projection projection, Resolver resolver, Calculator calculator) {
 
-        calculator.log(this, 0, 1);
-        var resolverResult = resolver.resolve(commands);
+        var resolverResult = resolver.resolve(commands, table.externalRow());
         var joinedTable = resolverResult.table();
 
         if (table.name().equals(joinedTable.name())) {
@@ -50,7 +53,12 @@ public abstract class Join extends ComplexCalculedCommand {
 
         Supplier<Triple<List<List<Value<?>>>, Set<Integer>, Set<Integer>>> strategyExecutionResultSupplier = () -> strategy.run(table, joinedTable, expression, resolver);
 
-        var targetTable = run(table, joinedTable, strategyExecutionResultSupplier);
+        Consumer<Integer> logComplicity = remainderSize -> {
+            var operationsCount = strategy.getStrategyComplicity(table, joinedTable);
+            calculator.log(this, resolverResult.calculator(), remainderSize, 0, operationsCount);
+        };
+
+        var targetTable = run(table, joinedTable, strategyExecutionResultSupplier, logComplicity);
         var tableName = format("%s_%s", table.name(), joinedTable.name());
 
         return ModelUtils.renameTable(targetTable, tableName);

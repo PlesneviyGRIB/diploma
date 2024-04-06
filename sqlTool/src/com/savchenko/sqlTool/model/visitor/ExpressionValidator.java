@@ -16,8 +16,8 @@ public class ExpressionValidator implements Expression.Visitor<Class<? extends V
     private final List<Column> columns;
 
     public ExpressionValidator(List<Column> columns, ExternalRow externalRow) {
-        ModelUtils.assertDifferentColumns(columns, externalRow.columns());
-        this.columns = ListUtils.union(columns, externalRow.columns());
+        ModelUtils.assertDifferentColumns(columns, externalRow.getColumns());
+        this.columns = ListUtils.union(columns, externalRow.getColumns());
     }
 
     @Override

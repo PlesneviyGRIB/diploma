@@ -5,12 +5,10 @@ import com.savchenko.sqlTool.exception.UnexpectedException;
 import com.savchenko.sqlTool.exception.UnsupportedTypeException;
 import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.domain.Column;
-import com.savchenko.sqlTool.model.domain.ExternalRow;
 import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.expression.*;
 import com.savchenko.sqlTool.model.operator.Operator;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.math.BigDecimal;
@@ -182,14 +180,6 @@ public class ModelUtils {
         return Arrays.stream(classes).allMatch(c -> c.equals(type));
     }
 
-    public static Map<Column, Value<?>> columnValueMap(List<Column> columns, List<Value<?>> values, ExternalRow externalRow) {
-        var columnValue = new HashMap<Column, Value<?>>();
-        var allColumns = ListUtils.union(columns, externalRow.columns());
-        var allValues = ListUtils.union(values, externalRow.values());
-        IntStream.range(0, allColumns.size()).forEach(i -> columnValue.put(allColumns.get(i), allValues.get(i)));
-        return columnValue;
-    }
-
     public static void assertDifferentColumns(List<Column> columns1, List<Column> columns2) {
         columns1.stream()
                 .filter(columns2::contains)
@@ -200,4 +190,5 @@ public class ModelUtils {
                             c.stringify());
                 });
     }
+
 }

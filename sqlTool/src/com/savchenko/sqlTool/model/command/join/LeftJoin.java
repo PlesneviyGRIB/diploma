@@ -10,6 +10,7 @@ import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class LeftJoin extends Join {
@@ -18,7 +19,10 @@ public class LeftJoin extends Join {
     }
 
     @Override
-    public Table run(Table table, Table joinedTable, Supplier<Triple<List<List<Value<?>>>, Set<Integer>, Set<Integer>>> strategyExecutionResultSupplier) {
+    public Table run(Table table,
+                     Table joinedTable,
+                     Supplier<Triple<List<List<Value<?>>>, Set<Integer>, Set<Integer>>> strategyExecutionResultSupplier,
+                     Consumer<Integer> remainderSizeConsumer) {
 
         var columns = ListUtils.union(table.columns(), joinedTable.columns());
 
@@ -28,6 +32,8 @@ public class LeftJoin extends Join {
                 .filter(pair -> !result.getMiddle().contains(pair.getLeft()))
                 .map(pair -> ListUtils.union(pair.getRight(), ModelUtils.emptyRow(joinedTable)))
                 .toList();
+
+        remainderSizeConsumer.accept(remainder.size());
 
         var data = ListUtils.union(result.getLeft(), remainder);
 

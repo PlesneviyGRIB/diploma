@@ -2,14 +2,16 @@ package com.savchenko.sqlTool.model.command.join;
 
 import com.savchenko.sqlTool.exception.UnexpectedException;
 import com.savchenko.sqlTool.exception.UnexpectedExpressionException;
-import com.savchenko.sqlTool.model.resolver.Resolver;
 import com.savchenko.sqlTool.model.domain.ExternalRow;
+import com.savchenko.sqlTool.model.domain.Row;
 import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.expression.BinaryOperation;
 import com.savchenko.sqlTool.model.expression.BooleanValue;
 import com.savchenko.sqlTool.model.expression.Expression;
 import com.savchenko.sqlTool.model.expression.Value;
 import com.savchenko.sqlTool.model.operator.Operator;
+import com.savchenko.sqlTool.model.resolver.Resolver;
+import com.savchenko.sqlTool.model.visitor.ContextSensitiveExpressionQualifier;
 import com.savchenko.sqlTool.model.visitor.ExpressionCalculator;
 import com.savchenko.sqlTool.model.visitor.ValueInjector;
 import com.savchenko.sqlTool.utils.ExpressionUtils;
@@ -17,16 +19,26 @@ import com.savchenko.sqlTool.utils.ModelUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.tuple.Triple;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public enum JoinStrategy {
     HASH, MERGE, LOOP;
+
+    public Integer getStrategyComplicity(Table table, Table joinedTable) {
+        switch (this) {
+            case HASH:
+                return table.data().size() + joinedTable.data().size();
+            case MERGE:
+                return null;
+            case LOOP:
+                return table.data().size() * joinedTable.data().size();
+            default:
+                return null;
+        }
+    }
 
     public Triple<List<List<Value<?>>>, Set<Integer>, Set<Integer>> run(Table table, Table joinedTable, Expression expression, Resolver resolver) {
         return switch (this) {
@@ -46,37 +58,37 @@ public enum JoinStrategy {
             Supplier<Expression> tableExpression = () -> forwardOrder ? leftExpression : rightExpression;
             Supplier<Expression> joinedTableExpression = () -> forwardOrder ? rightExpression : leftExpression;
 
-            Function<List<Value<?>>, Value<?>> tableKeyMapper = values -> {
-                var columnValue = ModelUtils.columnValueMap(table.columns(), values, table.externalRow());
+            var isContextSensitiveExpression = expression.accept(new ContextSensitiveExpressionQualifier(resolver, table));
+
+            Optional<Value<?>> tableValueProvider = isContextSensitiveExpression ?
+                    Optional.empty() : Optional.of(tableExpression.get().accept(new ExpressionCalculator(resolver, ExternalRow.empty())));
+
+            Optional<Value<?>> joinedTableValueProvider = isContextSensitiveExpression ?
+                    Optional.empty() : Optional.of(joinedTableExpression.get().accept(new ExpressionCalculator(resolver, ExternalRow.empty())));
+
+            Function<List<Value<?>>, Value<?>> tableKeyMapper = values -> tableValueProvider.orElseGet(() -> {
                 var externalRow = table.externalRow().merge(new ExternalRow(table.columns(), values));
                 return tableExpression.get()
-                        .accept(new ValueInjector(columnValue))
+                        .accept(new ValueInjector(new Row(table.columns(), values), table.externalRow()))
                         .accept(new ExpressionCalculator(resolver, externalRow));
-            };
+            });
 
-            Function<List<Value<?>>, Value<?>> joinedTableKeyMapper = values -> {
-                var columnValue = ModelUtils.columnValueMap(joinedTable.columns(), values, joinedTable.externalRow());
+            Function<List<Value<?>>, Value<?>> joinedTableKeyMapper = values -> joinedTableValueProvider.orElseGet(() -> {
                 var externalRow = table.externalRow().merge(new ExternalRow(joinedTable.columns(), values));
                 return joinedTableExpression.get()
-                        .accept(new ValueInjector(columnValue))
+                        .accept(new ValueInjector(new Row(joinedTable.columns(), values), joinedTable.externalRow()))
                         .accept(new ExpressionCalculator(resolver, externalRow));
-            };
+            });
 
             var hashTable = ModelUtils.getIndexedData(table.data()).stream()
-                    .filter(pair -> {
-                        var columnValue = ModelUtils.columnValueMap(table.columns(), pair.getRight(), table.externalRow());
-                        return !ExpressionUtils.columnsContainsNulls(columnValue, tableExpression.get());
-                    })
+                    .filter(pair -> !ExpressionUtils.columnsContainsNulls(new Row(table.columns(), pair.getRight()), table.externalRow(), tableExpression.get()))
                     .collect(Collectors.toMap(pair -> tableKeyMapper.apply(pair.getRight()), Function.identity()));
 
             var leftJoinedRowIndexes = new HashSet<Integer>();
             var rightJoinedRowIndexes = new HashSet<Integer>();
 
             var data = ModelUtils.getIndexedData(joinedTable.data()).stream()
-                    .filter(pair -> {
-                        var columnValue = ModelUtils.columnValueMap(joinedTable.columns(), pair.getRight(), joinedTable.externalRow());
-                        return !ExpressionUtils.columnsContainsNulls(columnValue, joinedTableExpression.get());
-                    })
+                    .filter(pair -> !ExpressionUtils.columnsContainsNulls(new Row(joinedTable.columns(), pair.getRight()), joinedTable.externalRow(), joinedTableExpression.get()))
                     .map(pair2 -> {
                         var key = joinedTableKeyMapper.apply(pair2.getRight());
                         var pair1 = hashTable.get(key);
@@ -107,6 +119,11 @@ public enum JoinStrategy {
         var rightJoinedRowIndexes = new HashSet<Integer>();
         var rightIndexedData = ModelUtils.getIndexedData(joinedTable.data());
 
+        var isContextSensitiveExpression = expression.accept(new ContextSensitiveExpressionQualifier(resolver, table));
+
+        Optional<Value<?>> valueProvider = isContextSensitiveExpression ?
+                Optional.empty() : Optional.of(expression.accept(new ExpressionCalculator(resolver, ExternalRow.empty())));
+
         var data = leftIndexedData.stream()
                 .flatMap(pair1 -> {
                     var row1 = pair1.getRight();
@@ -115,16 +132,16 @@ public enum JoinStrategy {
                                 var row2 = pair2.getRight();
                                 var row = ListUtils.union(row1, row2);
                                 var externalRow = table.externalRow().merge(new ExternalRow(columns, row));
+                                var tableRow = new Row(columns, row);
 
-                                var columnValue = ModelUtils.columnValueMap(columns, row, externalRow);
-
-                                if (ExpressionUtils.columnsContainsNulls(columnValue, expression)) {
+                                if (ExpressionUtils.columnsContainsNulls(tableRow, externalRow, expression)) {
                                     return null;
                                 }
 
-                                var value = expression
-                                        .accept(new ValueInjector(columnValue))
-                                        .accept(new ExpressionCalculator(resolver, externalRow));
+                                var value = valueProvider.orElseGet(() -> expression
+                                        .accept(new ValueInjector(tableRow, table.externalRow()))
+                                        .accept(new ExpressionCalculator(resolver, externalRow))
+                                );
 
                                 if (value instanceof BooleanValue bv) {
                                     if (bv.value()) {

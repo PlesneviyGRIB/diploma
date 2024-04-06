@@ -11,6 +11,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -20,7 +21,9 @@ public class FullJoin extends Join {
     }
 
     @Override
-    public Table run(Table table, Table joinedTable, Supplier<Triple<List<List<Value<?>>>, Set<Integer>, Set<Integer>>> strategyExecutionResultSupplier) {
+    public Table run(Table table,
+                     Table joinedTable, Supplier<Triple<List<List<Value<?>>>, Set<Integer>, Set<Integer>>> strategyExecutionResultSupplier,
+                     Consumer<Integer> remainderSizeConsumer) {
 
         var result = strategyExecutionResultSupplier.get();
 
@@ -33,6 +36,8 @@ public class FullJoin extends Join {
                 .filter(pair -> !result.getRight().contains(pair.getLeft()))
                 .map(pair -> ListUtils.union(ModelUtils.emptyRow(table), pair.getRight()))
                 .toList();
+
+        remainderSizeConsumer.accept(leftRemainder.size() + rightRemainder.size());
 
         var data = Stream.of(result.getLeft(), leftRemainder, rightRemainder).flatMap(Collection::stream).toList();
 
