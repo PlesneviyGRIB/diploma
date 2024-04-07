@@ -11,10 +11,8 @@ import com.savchenko.sqlTool.model.expression.BooleanValue;
 import com.savchenko.sqlTool.model.expression.Expression;
 import com.savchenko.sqlTool.model.expression.Value;
 import com.savchenko.sqlTool.model.resolver.Resolver;
-import com.savchenko.sqlTool.model.visitor.ContextSensitiveExpressionQualifier;
-import com.savchenko.sqlTool.model.visitor.ExpressionCalculator;
-import com.savchenko.sqlTool.model.visitor.ExpressionValidator;
-import com.savchenko.sqlTool.model.visitor.ValueInjector;
+import com.savchenko.sqlTool.model.visitor.*;
+import com.savchenko.sqlTool.utils.ModelUtils;
 
 import java.util.Optional;
 
@@ -30,12 +28,14 @@ public class Where extends ComplexCalculedCommand {
         expression.accept(new ExpressionValidator(table.columns(), table.externalRow()));
 
         var isContextSensitiveExpression = expression
-                .accept(new ContextSensitiveExpressionQualifier(resolver, table));
+                .accept(new ContextSensitiveExpressionQualifier(resolver, ModelUtils.getFullCopyExternalRow(table)));
 
         Optional<Value<?>> valueProvider = isContextSensitiveExpression ?
                 Optional.empty() : Optional.of(expression.accept(new ExpressionCalculator(resolver, ExternalRow.empty())));
 
-        calculator.log(this, 0, isContextSensitiveExpression ? table.data().size() : 1);
+        var calculedExpressionEntry = expression.accept(new ExpressionComplicityCalculator(resolver, ModelUtils.getFullCopyExternalRow(table))).normalize();
+
+        calculator.log(this, calculedExpressionEntry, table.data().size(), isContextSensitiveExpression);
 
         var data = table.data().stream()
                 .filter(row -> {

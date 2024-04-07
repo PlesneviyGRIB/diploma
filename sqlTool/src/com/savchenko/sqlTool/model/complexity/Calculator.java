@@ -20,16 +20,50 @@ public class Calculator {
         entries.add(new SimpleCalculedEntry(entry, complexity));
     }
 
-    public void log(ComplexCalculedCommand entry, Integer complexity, Integer count) {
-        entries.add(new ComplexCalculedEntry(entry, complexity, count));
+    public void log(ComplexCalculedCommand entry, CalculedExpressionEntry calculedExpressionEntry, Integer count, boolean isContextSensitive) {
+        entries.add(new ComplexCalculedEntry(entry, calculedExpressionEntry, count, isContextSensitive));
     }
 
-    public void log(Join entry, Calculator calculator, Integer remainderSize, Integer complexity, Integer count) {
-
+    public void log(Join entry, Calculator joinedTableCalculator, Integer remainderSize, CalculedExpressionEntry calculedExpressionEntry, Integer count, boolean isContextSensitive) {
+        entries.add(new JoinCalculedEntry(entry, joinedTableCalculator, remainderSize, calculedExpressionEntry, count, isContextSensitive));
     }
 
     public List<CalculatorEntry> getEntries() {
         return entries;
+    }
+
+    public Integer getTotalComplexity() {
+        return entries.stream()
+                .map(e -> e.accept(new CalculatorEntry.Visitor<Integer>() {
+
+                    @Override
+                    public Integer visit(SimpleEntry entry) {
+                        return 0;
+                    }
+
+                    @Override
+                    public Integer visit(SimpleCalculedEntry entry) {
+                        return entry.value();
+                    }
+
+                    @Override
+                    public Integer visit(ComplexCalculedEntry entry) {
+                        var cEntry = entry.calculedExpressionEntry();
+                        var totalExpressionComplicity = cEntry.complexity();
+
+                        return entry.isContextSensitive() ? totalExpressionComplicity * entry.count() : totalExpressionComplicity + entry.count();
+                    }
+
+                    @Override
+                    public Integer visit(JoinCalculedEntry entry) {
+                        var cEntry = entry.calculedExpressionEntry();
+                        var totalExpressionComplicity = cEntry.complexity();
+
+                        return entry.calculator().getTotalComplexity() + entry.remainderSize() +
+                                (entry.isContextSensitive() ? totalExpressionComplicity * entry.count() : totalExpressionComplicity + entry.count());
+                    }
+
+                })).reduce(0, Integer::sum);
     }
 
 }

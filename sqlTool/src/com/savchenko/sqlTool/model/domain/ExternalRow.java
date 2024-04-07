@@ -68,16 +68,17 @@ public class ExternalRow extends Row {
     }
 
     public ExternalRow deepCopy() {
-        if(Objects.nonNull(externalRow1) && Objects.nonNull(externalRow2)) {
-            return new ExternalRow(externalRow1.deepCopy(), externalRow2.deepCopy());
-        }
-
-        Set<Map.Entry<Column, Value<?>>> entries = this.columnValueMap.entrySet();
-
-        var columns = entries.stream().map(Map.Entry::getKey).toList();
-        var values = entries.stream().map(Map.Entry::getValue).collect(Collectors.<Value<?>>toList());
-
-        return new ExternalRow(columns, values);
+        return this;
+//        if(Objects.nonNull(externalRow1) && Objects.nonNull(externalRow2)) {
+//            return new ExternalRow(externalRow1.deepCopy(), externalRow2.deepCopy());
+//        }
+//
+//        Set<Map.Entry<Column, Value<?>>> entries = this.columnValueMap.entrySet();
+//
+//        var columns = entries.stream().map(Map.Entry::getKey).toList();
+//        var values = entries.stream().map(Map.Entry::getValue).collect(Collectors.<Value<?>>toList());
+//
+//        return new ExternalRow(columns, values);
     }
 
 }

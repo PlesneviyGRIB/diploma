@@ -5,6 +5,7 @@ import com.savchenko.sqlTool.exception.UnexpectedException;
 import com.savchenko.sqlTool.exception.UnsupportedTypeException;
 import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.domain.Column;
+import com.savchenko.sqlTool.model.domain.ExternalRow;
 import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.expression.*;
 import com.savchenko.sqlTool.model.operator.Operator;
@@ -189,6 +190,11 @@ public class ModelUtils {
                             "Ambiguity found: Column name for sub table and parent table is the same '%s'. Try to rename sub or parent table",
                             c.stringify());
                 });
+    }
+
+    public static ExternalRow getFullCopyExternalRow(Table table) {
+        var externalRow = table.data().isEmpty() ? ExternalRow.empty() : new ExternalRow(table.columns(), table.data().get(0));
+        return table.externalRow().merge(externalRow).deepCopy();
     }
 
 }

@@ -1,16 +1,29 @@
 package com.savchenko.sqlTool.utils.printer;
 
-import com.savchenko.sqlTool.model.command.domain.Command;
-import com.savchenko.sqlTool.model.complexity.*;
+import com.savchenko.sqlTool.model.complexity.Calculator;
+import com.savchenko.sqlTool.model.complexity.CalculatorEntry;
 
-import java.util.function.Function;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
 public class CalculatorPrinter extends Printer<Calculator> {
 
+    private final String prefix;
+
+    private final Boolean isSubTable;
+
     public CalculatorPrinter(Calculator domain) {
         super(domain);
+        this.prefix = "| ";
+        this.isSubTable = null;
+    }
+
+    public CalculatorPrinter(Calculator domain, String prefix, boolean isSubTable) {
+        super(domain);
+        this.prefix = prefix;
+        this.isSubTable = isSubTable;
     }
 
     @Override
@@ -20,49 +33,26 @@ public class CalculatorPrinter extends Printer<Calculator> {
     }
 
     private void appendHeader() {
-        var total = domain.getEntries().stream()
-                .map(e -> e.accept(new CalculatorEntry.Visitor<Integer>() {
-                    @Override
-                    public Integer visit(SimpleEntry entry) {
-                        return 0;
-                    }
+        var complicity = domain.getTotalComplexity();
 
-                    @Override
-                    public Integer visit(SimpleCalculedEntry entry) {
-                        return entry.value();
-                    }
+        if(Objects.isNull(isSubTable)) {
+            sb.append(format("%sTOTAL COMPLEXITY: \u001B[34m%s\u001B[0m \n", prefix, complicity));
+            return;
+        }
 
-                    @Override
-                    public Integer visit(ComplexCalculedEntry entry) {
-                        return entry.value();
-                    }
-                })).reduce(0, Integer::sum);
-
-        sb.append(format("TOTAL COMPLEXITY: %s\n", total));
-        sb.append("-".repeat(20)).append("\n");
+        if(isSubTable) {
+            sb.append(format("%sSUB TABLE COMPLEXITY: \u001B[32m%s\u001B[0m\n", prefix, complicity));
+        } else {
+            sb.append(format("%sJOINED TABLE COMPLEXITY: \u001B[32m%s\u001B[0m\n", prefix, complicity));
+        }
     }
 
     private void appendInfo() {
-        domain.getEntries().stream()
-                .map(e -> e.accept(new CalculatorEntry.Visitor<String>() {
+        var data = domain.getEntries().stream()
+                .map(c -> c.stringify(prefix))
+                .collect(Collectors.joining("\n"));
 
-                    private final Function<Command, String> printer = command -> command.getClass().getSimpleName().toUpperCase();
-
-                    @Override
-                    public String visit(SimpleEntry entry) {
-                        return format("%s -\n", printer.apply(entry.command()));
-                    }
-
-                    @Override
-                    public String visit(SimpleCalculedEntry entry) {
-                        return format("%s %d\n", printer.apply(entry.command()), entry.value());
-                    }
-
-                    @Override
-                    public String visit(ComplexCalculedEntry entry) {
-                        return format("%s %d\n", printer.apply(entry.command()), entry.value());
-                    }
-                })).forEach(sb::append);
+        sb.append(data);
     }
 
 }

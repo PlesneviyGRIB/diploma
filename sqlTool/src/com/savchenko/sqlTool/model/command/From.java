@@ -21,4 +21,8 @@ public class From implements SimpleCommand {
 
         return new Table(resolvedTable.name(), resolvedTable.columns(), resolvedTable.data(), table.externalRow());
     }
+
+    public String getTableName() {
+        return tableName;
+    }
 }

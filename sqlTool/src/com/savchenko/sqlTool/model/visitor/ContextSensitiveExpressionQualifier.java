@@ -2,7 +2,6 @@ package com.savchenko.sqlTool.model.visitor;
 
 import com.savchenko.sqlTool.model.domain.Column;
 import com.savchenko.sqlTool.model.domain.ExternalRow;
-import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.expression.*;
 import com.savchenko.sqlTool.model.resolver.Resolver;
 
@@ -10,11 +9,11 @@ public class ContextSensitiveExpressionQualifier implements Expression.Visitor<B
 
     private final Resolver resolver;
 
-    private final Table externalTable;
+    private final ExternalRow externalRow;
 
-    public ContextSensitiveExpressionQualifier(Resolver resolver, Table externalTable) {
+    public ContextSensitiveExpressionQualifier(Resolver resolver, ExternalRow externalRow) {
         this.resolver = resolver;
-        this.externalTable = externalTable;
+        this.externalRow = externalRow;
     }
 
     @Override
@@ -24,7 +23,6 @@ public class ContextSensitiveExpressionQualifier implements Expression.Visitor<B
 
     @Override
     public Boolean visit(SubTable table) {
-        var externalRow = getFullExternalRow(externalTable);
         resolver.resolve(table.commands(), externalRow);
         return externalRow.isUsed();
     }
@@ -96,8 +94,4 @@ public class ContextSensitiveExpressionQualifier implements Expression.Visitor<B
         return false;
     }
 
-    private ExternalRow getFullExternalRow(Table table) {
-        var externalRow = table.data().isEmpty() ? ExternalRow.empty() : new ExternalRow(table.columns(), table.data().get(0));
-        return table.externalRow().merge(externalRow).deepCopy();
-    }
 }

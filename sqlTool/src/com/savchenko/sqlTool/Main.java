@@ -4,6 +4,7 @@ import com.savchenko.sqlTool.model.command.join.JoinStrategy;
 import com.savchenko.sqlTool.model.expression.BooleanValue;
 import com.savchenko.sqlTool.model.expression.LongNumber;
 import com.savchenko.sqlTool.model.expression.StringValue;
+import com.savchenko.sqlTool.model.expression.SubTable;
 import com.savchenko.sqlTool.model.resolver.Resolver;
 import com.savchenko.sqlTool.query.Q;
 import com.savchenko.sqlTool.query.Query;
@@ -13,6 +14,7 @@ import com.savchenko.sqlTool.utils.printer.TablePrinter;
 
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Map;
 
 import static com.savchenko.sqlTool.config.Constants.*;
 import static com.savchenko.sqlTool.model.operator.Operator.*;
@@ -41,6 +43,43 @@ public class Main {
                         Q.op(EQ, Q.column("r", "action_id"), new StringValue("addRow")))
                 )
                 .limit(2);
+
+        var predicate = Q.op(AND,
+                Q.op(EQ, Q.op(MINUS, Q.column("c1", "id"), new LongNumber(2L)), Q.column("c1", "id")),
+                Q.op(EQ, Q.column("c1", "id"), Q.op(MINUS, Q.column("c2", "id"), new LongNumber(4L)))
+        );
+
+        query = new Query()
+                .from("courses")
+                .as("c")
+                .where(Q.op(EXISTS, new SubTable(
+                        new Query()
+                                .from("courses")
+                                .as("c1")
+                                .where(Q.op(OR,
+                                        Q.op(EXISTS, new SubTable(
+                                        new Query()
+                                                .from("courses")
+                                                .as("c2")
+                                                .where(Q.op(GREATER, Q.column("c2", "id"), new LongNumber(152L)))
+                                                .where(predicate)
+                                                .build())),
+                                        Q.op(NOT,
+                                                Q.op(EXISTS, new SubTable(
+                                                        new Query()
+                                                                .from("courses")
+                                                                .as("c2")
+                                                                .where(Q.op(GREATER, Q.column("c2", "id"), new LongNumber(152L)))
+                                                                .where(predicate)
+                                                                .build()))
+
+                                                )
+                                        )
+                                )
+                                .build()))
+                )
+                .orderBy(Map.of(Q.column("c", "id"), false))
+                .select(Q.column("c", "id"));
 
 
         var resolverResult = new Resolver(projection).resolve(query);
