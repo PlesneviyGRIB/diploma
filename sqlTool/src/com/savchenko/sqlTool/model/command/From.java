@@ -2,10 +2,11 @@ package com.savchenko.sqlTool.model.command;
 
 import com.savchenko.sqlTool.model.command.domain.SimpleCommand;
 import com.savchenko.sqlTool.model.complexity.Calculator;
+import com.savchenko.sqlTool.model.complexity.laziness.Lazy;
 import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.Table;
 
-public class From implements SimpleCommand {
+public class From implements SimpleCommand, Lazy {
     private final String tableName;
 
     public From(String tableName) {

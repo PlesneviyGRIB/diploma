@@ -4,6 +4,7 @@ import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.command.domain.Command;
 import com.savchenko.sqlTool.model.command.domain.ComplexCalculedCommand;
 import com.savchenko.sqlTool.model.complexity.Calculator;
+import com.savchenko.sqlTool.model.complexity.laziness.Lazy;
 import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.expression.Expression;
@@ -23,7 +24,7 @@ import java.util.function.Supplier;
 
 import static java.lang.String.format;
 
-public abstract class Join extends ComplexCalculedCommand {
+public abstract class Join extends ComplexCalculedCommand implements Lazy {
 
     private final List<Command> commands;
 

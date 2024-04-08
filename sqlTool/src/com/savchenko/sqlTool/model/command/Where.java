@@ -3,6 +3,7 @@ package com.savchenko.sqlTool.model.command;
 import com.savchenko.sqlTool.exception.UnsupportedTypeException;
 import com.savchenko.sqlTool.model.command.domain.ComplexCalculedCommand;
 import com.savchenko.sqlTool.model.complexity.Calculator;
+import com.savchenko.sqlTool.model.complexity.laziness.Lazy;
 import com.savchenko.sqlTool.model.domain.ExternalRow;
 import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.Row;
@@ -16,7 +17,7 @@ import com.savchenko.sqlTool.utils.ModelUtils;
 
 import java.util.Optional;
 
-public class Where extends ComplexCalculedCommand {
+public class Where extends ComplexCalculedCommand implements Lazy {
 
     public Where(Expression expression) {
         super(expression);

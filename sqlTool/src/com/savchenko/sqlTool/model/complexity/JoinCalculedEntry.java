@@ -26,7 +26,7 @@ public record JoinCalculedEntry(Join command,
                             Expression: %s
                             %s (joined table complexity) + %s (expression complexity) %s %s (number of calculations) = %s (total)"""
                         .formatted(
-                                stringifyCommand(command), command.getStrategy(), getTotalComplexityWithoutRemainder(),
+                                stringifyCommand(command), command.getStrategy(), getTotalComplexity(),
                                 new CalculatorPrinter(calculator, "    | ", false).stringify(),
                                 calculedExpressionResult.expression().accept(new ExpressionPrinter()),
                                 calculator.getTotalComplexity(), calculedExpressionResult.complexity(), getSign(), count, getTotalComplexityWithoutRemainder()

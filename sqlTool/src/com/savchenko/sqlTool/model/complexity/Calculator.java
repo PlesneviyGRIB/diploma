@@ -39,4 +39,9 @@ public class Calculator implements TotalCalculed {
                 .reduce(0, Integer::sum);
     }
 
+    public Calculator instanceWithTakenLazinessIntoAccount() {
+        // TODO
+        return this;
+    }
+
 }

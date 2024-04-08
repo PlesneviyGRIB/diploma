@@ -23,7 +23,6 @@ public record TimestampValue(Timestamp value) implements Value<TimestampValue> {
         var calendar = Calendar.getInstance();
         calendar.setTimeInMillis(this.value.getTime());
 
-        //TODO
         switch (operator) {
             case PLUS -> {
                 calendar.add(Calendar.MILLISECOND, (int) val.value().getTime());

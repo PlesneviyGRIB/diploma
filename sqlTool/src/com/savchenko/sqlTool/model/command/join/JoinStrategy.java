@@ -32,7 +32,7 @@ public enum JoinStrategy {
             case HASH:
                 return table.data().size() + joinedTable.data().size();
             case MERGE:
-                return null;
+                return table.data().size() + joinedTable.data().size();
             case LOOP:
                 return table.data().size() * joinedTable.data().size();
             default:
@@ -103,11 +103,11 @@ public enum JoinStrategy {
 
             return Triple.of(data, leftJoinedRowIndexes, rightJoinedRowIndexes);
         }
-        throw new UnexpectedException("Hash join expects EQUALITY operation, but found '%s'", expression.stringify());
+        throw new UnexpectedException("Hash/Merge join expects EQUALITY operation, but found '%s'", expression.stringify());
     }
 
     private Triple<List<List<Value<?>>>, Set<Integer>, Set<Integer>> mergeImpl(Table table, Table joinedTable, Expression expression, Resolver resolver) {
-        return null;
+        return hashImpl(table, joinedTable, expression, resolver);
     }
 
     private Triple<List<List<Value<?>>>, Set<Integer>, Set<Integer>> loopImpl(Table table, Table joinedTable, Expression expression, Resolver resolver) {

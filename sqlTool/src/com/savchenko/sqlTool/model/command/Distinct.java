@@ -2,10 +2,11 @@ package com.savchenko.sqlTool.model.command;
 
 import com.savchenko.sqlTool.model.command.domain.SimpleCalculedCommand;
 import com.savchenko.sqlTool.model.complexity.Calculator;
+import com.savchenko.sqlTool.model.complexity.laziness.Lazy;
 import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.Table;
 
-public class Distinct implements SimpleCalculedCommand {
+public class Distinct implements SimpleCalculedCommand, Lazy {
 
     @Override
     public Table run(Table table, Projection projection, Calculator calculator) {

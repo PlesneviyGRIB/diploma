@@ -28,7 +28,7 @@ public class Main {
 
         var query = new Query()
                 .from("actions")
-                .fullJoin(new Query().from("content"), new BooleanValue(true), JoinStrategy.LOOP)
+                .leftJoin(new Query().from("content"), Q.op(EQ, Q.column("actions", "id"), Q.column("content", "id")), JoinStrategy.LOOP)
                 .as("a")
                 .where(Q.op(AND
                         , Q.op(
@@ -41,8 +41,7 @@ public class Main {
                                 )
                         ),
                         Q.op(EQ, Q.column("a", "action_id"), new StringValue("addRow")))
-                )
-                .limit(2);
+                );
 
 
         var resolverResult = new Resolver(projection).resolve(query);

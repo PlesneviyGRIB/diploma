@@ -3,11 +3,12 @@ package com.savchenko.sqlTool.model.command;
 import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.command.domain.SimpleCommand;
 import com.savchenko.sqlTool.model.complexity.Calculator;
+import com.savchenko.sqlTool.model.complexity.laziness.LazinessIndependent;
 import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.utils.ModelUtils;
 
-public class Alias implements SimpleCommand {
+public class Alias implements SimpleCommand, LazinessIndependent {
 
     private final String alias;
 

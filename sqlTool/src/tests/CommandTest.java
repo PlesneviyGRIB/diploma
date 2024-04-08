@@ -242,7 +242,6 @@ public class CommandTest extends TestBase {
 
     @Test
     public void groupBy() {
-        // TODO
         var query = new Query()
                 .from("courses")
                 .select(Q.column("courses", "lti_context_id"), Q.column("courses", "id"))

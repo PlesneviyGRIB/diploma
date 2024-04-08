@@ -3,10 +3,11 @@ package com.savchenko.sqlTool.model.command;
 import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.command.domain.SimpleCommand;
 import com.savchenko.sqlTool.model.complexity.Calculator;
+import com.savchenko.sqlTool.model.complexity.laziness.ClauseReducer;
 import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.Table;
 
-public class Offset implements SimpleCommand {
+public class Offset implements SimpleCommand, ClauseReducer {
     private final Integer offset;
 
     public Offset(Integer offset) {

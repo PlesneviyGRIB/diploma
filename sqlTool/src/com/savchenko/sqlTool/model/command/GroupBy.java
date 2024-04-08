@@ -5,6 +5,7 @@ import com.savchenko.sqlTool.model.command.domain.SimpleCalculedCommand;
 import com.savchenko.sqlTool.model.command.function.AggregationFunction;
 import com.savchenko.sqlTool.model.command.function.Identity;
 import com.savchenko.sqlTool.model.complexity.Calculator;
+import com.savchenko.sqlTool.model.complexity.laziness.LazyConcealer;
 import com.savchenko.sqlTool.model.domain.Column;
 import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.Table;
@@ -19,7 +20,7 @@ import java.util.function.Function;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.groupingBy;
 
-public class GroupBy implements SimpleCalculedCommand {
+public class GroupBy implements SimpleCalculedCommand, LazyConcealer {
 
     private final Map<Column, AggregationFunction> columnMapperMap;
 

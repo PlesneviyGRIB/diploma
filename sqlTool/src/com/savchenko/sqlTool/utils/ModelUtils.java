@@ -44,8 +44,9 @@ public class ModelUtils {
     }
 
     public static List<Value<?>> emptyRow(Table table) {
-        var row = new ArrayList<Value<?>>(table.columns().size());
-        Collections.fill(row, null);
+        var size = table.columns().size();
+        var row = new ArrayList<Value<?>>(size);
+        IntStream.range(0, size).forEach(index -> row.add(index, new NullValue()));
         return row;
     }
 
