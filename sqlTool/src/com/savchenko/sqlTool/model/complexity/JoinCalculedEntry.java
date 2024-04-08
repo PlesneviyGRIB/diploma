@@ -24,7 +24,7 @@ public record JoinCalculedEntry(Join command,
                         %s[%s] %s
                         %s
                             Expression: %s
-                            %s (joined table complicity) + %s (expression complicity) %s %s (number of calculations) = %s (total)"""
+                            %s (joined table complexity) + %s (expression complexity) %s %s (number of calculations) = %s (total)"""
                         .formatted(
                                 stringifyCommand(command), command.getStrategy(), getTotalComplexityWithoutRemainder(),
                                 new CalculatorPrinter(calculator, "    | ", false).stringify(),

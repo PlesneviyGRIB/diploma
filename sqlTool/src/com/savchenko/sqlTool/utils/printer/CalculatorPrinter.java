@@ -33,17 +33,17 @@ public class CalculatorPrinter extends Printer<Calculator> {
     }
 
     private void appendHeader() {
-        var complicity = domain.getTotalComplexity();
+        var complexity = domain.getTotalComplexity();
 
         if(Objects.isNull(isSubTable)) {
-            sb.append(format("%sTOTAL COMPLEXITY: \u001B[34m%s\u001B[0m \n", prefix, complicity));
+            sb.append(format("%sTOTAL COMPLEXITY: \u001B[34m%s\u001B[0m \n", prefix, complexity));
             return;
         }
 
         if(isSubTable) {
-            sb.append(format("%sSUB TABLE COMPLEXITY: \u001B[32m%s\u001B[0m\n", prefix, complicity));
+            sb.append(format("%sSUB TABLE COMPLEXITY: \u001B[32m%s\u001B[0m\n", prefix, complexity));
         } else {
-            sb.append(format("%sJOINED TABLE COMPLEXITY: \u001B[32m%s\u001B[0m\n", prefix, complicity));
+            sb.append(format("%sJOINED TABLE COMPLEXITY: \u001B[32m%s\u001B[0m\n", prefix, complexity));
         }
     }
 

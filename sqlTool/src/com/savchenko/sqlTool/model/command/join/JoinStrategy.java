@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 public enum JoinStrategy {
     HASH, MERGE, LOOP;
 
-    public Integer getStrategyComplicity(Table table, Table joinedTable) {
+    public Integer getStrategyComplexity(Table table, Table joinedTable) {
         switch (this) {
             case HASH:
                 return table.data().size() + joinedTable.data().size();

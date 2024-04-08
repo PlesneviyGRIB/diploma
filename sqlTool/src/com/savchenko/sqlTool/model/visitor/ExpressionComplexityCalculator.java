@@ -11,13 +11,13 @@ import java.util.List;
 
 import static com.savchenko.sqlTool.model.operator.Operator.IN;
 
-public class ExpressionComplicityCalculator implements Expression.Visitor<CalculedExpressionResult> {
+public class ExpressionComplexityCalculator implements Expression.Visitor<CalculedExpressionResult> {
 
     private final Resolver resolver;
 
     private final ExternalRow externalRow;
 
-    public ExpressionComplicityCalculator(Resolver resolver, ExternalRow externalRow) {
+    public ExpressionComplexityCalculator(Resolver resolver, ExternalRow externalRow) {
         this.resolver = resolver;
         this.externalRow = externalRow;
     }

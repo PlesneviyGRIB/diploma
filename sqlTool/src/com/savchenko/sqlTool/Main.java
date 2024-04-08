@@ -29,57 +29,20 @@ public class Main {
         var query = new Query()
                 .from("actions")
                 .fullJoin(new Query().from("content"), new BooleanValue(true), JoinStrategy.LOOP)
-                .as("r")
+                .as("a")
                 .where(Q.op(AND
                         , Q.op(
                                 LESS_OR_EQ,
-                                Q.column("r", "actions.id"),
+                                Q.column("a", "actions.id"),
                                 Q.op(
                                         MULTIPLY,
                                         new LongNumber(1L),
                                         new LongNumber(1042L)
                                 )
                         ),
-                        Q.op(EQ, Q.column("r", "action_id"), new StringValue("addRow")))
+                        Q.op(EQ, Q.column("a", "action_id"), new StringValue("addRow")))
                 )
                 .limit(2);
-
-        var predicate = Q.op(AND,
-                Q.op(EQ, Q.op(MINUS, Q.column("c1", "id"), new LongNumber(2L)), Q.column("c1", "id")),
-                Q.op(EQ, Q.column("c1", "id"), Q.op(MINUS, Q.column("c2", "id"), new LongNumber(4L)))
-        );
-
-        query = new Query()
-                .from("courses")
-                .as("c")
-                .where(Q.op(EXISTS, new SubTable(
-                        new Query()
-                                .from("courses")
-                                .as("c1")
-                                .where(Q.op(OR,
-                                        Q.op(EXISTS, new SubTable(
-                                        new Query()
-                                                .from("courses")
-                                                .as("c2")
-                                                .where(Q.op(GREATER, Q.column("c2", "id"), new LongNumber(152L)))
-                                                .where(predicate)
-                                                .build())),
-                                        Q.op(NOT,
-                                                Q.op(EXISTS, new SubTable(
-                                                        new Query()
-                                                                .from("courses")
-                                                                .as("c2")
-                                                                .where(Q.op(GREATER, Q.column("c2", "id"), new LongNumber(152L)))
-                                                                .where(predicate)
-                                                                .build()))
-
-                                                )
-                                        )
-                                )
-                                .build()))
-                )
-                .orderBy(Map.of(Q.column("c", "id"), false))
-                .select(Q.column("c", "id"));
 
 
         var resolverResult = new Resolver(projection).resolve(query);

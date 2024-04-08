@@ -10,7 +10,7 @@ import com.savchenko.sqlTool.model.expression.Expression;
 import com.savchenko.sqlTool.model.expression.Value;
 import com.savchenko.sqlTool.model.resolver.Resolver;
 import com.savchenko.sqlTool.model.visitor.ContextSensitiveExpressionQualifier;
-import com.savchenko.sqlTool.model.visitor.ExpressionComplicityCalculator;
+import com.savchenko.sqlTool.model.visitor.ExpressionComplexityCalculator;
 import com.savchenko.sqlTool.model.visitor.ExpressionValidator;
 import com.savchenko.sqlTool.utils.ModelUtils;
 import org.apache.commons.collections4.ListUtils;
@@ -56,16 +56,16 @@ public abstract class Join extends ComplexCalculedCommand {
 
         Supplier<Triple<List<List<Value<?>>>, Set<Integer>, Set<Integer>>> strategyExecutionResultSupplier = () -> strategy.run(table, joinedTable, expression, resolver);
 
-        Consumer<Integer> logComplicity = remainderSize -> {
+        Consumer<Integer> logComplexity = remainderSize -> {
 
-            var operationsCount = strategy.getStrategyComplicity(table, joinedTable);
-            var calculedExpressionEntry = expression.accept(new ExpressionComplicityCalculator(resolver, ModelUtils.getFullCopyExternalRow(table))).normalize();
+            var operationsCount = strategy.getStrategyComplexity(table, joinedTable);
+            var calculedExpressionEntry = expression.accept(new ExpressionComplexityCalculator(resolver, ModelUtils.getFullCopyExternalRow(table))).normalize();
             var isContextSensitiveExpression = expression.accept(new ContextSensitiveExpressionQualifier(resolver, ModelUtils.getFullCopyExternalRow(table)));
 
             calculator.log(this, resolverResult.calculator(), remainderSize, calculedExpressionEntry, operationsCount, isContextSensitiveExpression);
         };
 
-        var targetTable = run(table, joinedTable, strategyExecutionResultSupplier, logComplicity);
+        var targetTable = run(table, joinedTable, strategyExecutionResultSupplier, logComplexity);
         var tableName = format("%s_%s", table.name(), joinedTable.name());
 
         return ModelUtils.renameTable(targetTable, tableName);

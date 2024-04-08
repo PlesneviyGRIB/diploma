@@ -33,7 +33,7 @@ public class Where extends ComplexCalculedCommand {
         Optional<Value<?>> valueProvider = isContextSensitiveExpression ?
                 Optional.empty() : Optional.of(expression.accept(new ExpressionCalculator(resolver, ExternalRow.empty())));
 
-        var calculedExpressionEntry = expression.accept(new ExpressionComplicityCalculator(resolver, ModelUtils.getFullCopyExternalRow(table))).normalize();
+        var calculedExpressionEntry = expression.accept(new ExpressionComplexityCalculator(resolver, ModelUtils.getFullCopyExternalRow(table))).normalize();
 
         calculator.log(this, calculedExpressionEntry, table.data().size(), isContextSensitiveExpression);
 

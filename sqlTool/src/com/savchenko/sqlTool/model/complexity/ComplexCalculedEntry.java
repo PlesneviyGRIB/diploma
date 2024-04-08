@@ -21,7 +21,7 @@ public record ComplexCalculedEntry(ComplexCalculedCommand command,
                """
                %s %s
                    Expression: %s
-                   %s (expression complicity) %s %s (number of calculations) = %s (total)"""
+                   %s (expression complexity) %s %s (number of calculations) = %s (total)"""
                        .formatted(
                                stringifyCommand(command), getTotalComplexity(),
                                calculedExpressionResult.expression().accept(new ExpressionPrinter()),
