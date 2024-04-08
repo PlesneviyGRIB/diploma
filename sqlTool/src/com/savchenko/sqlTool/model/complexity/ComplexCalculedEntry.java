@@ -11,39 +11,48 @@ import java.util.stream.Collectors;
 import static java.lang.String.format;
 
 public record ComplexCalculedEntry(ComplexCalculedCommand command,
-                                   CalculedExpressionEntry calculedExpressionEntry,
+                                   CalculedExpressionResult calculedExpressionResult,
                                    Integer count,
-                                   boolean isContextSensitive) implements CalculatorEntry {
-
-    @Override
-    public <T> T accept(Visitor<T> visitor) {
-        return visitor.visit(this);
-    }
+                                   boolean isContextSensitive) implements CalculatorEntry, TotalCalculed {
 
     @Override
     public String stringify(String prefix) {
-        var entry = calculedExpressionEntry;
-        var strings =
+        var template =
                """
                %s %s
                    Expression: %s
-                   %s (expression complicity) %s %s (number of calculations) = %s (total)""".formatted(
-                       stringifyType(command), (isContextSensitive ? entry.complexity() * count : entry.complexity() + count),
-                       entry.expression().accept(new ExpressionPrinter()), entry.complexity(), isContextSensitive ? "*" : "+", count,
-                       isContextSensitive ? entry.complexity() * count : entry.complexity() + count
-               ).split("\n");
+                   %s (expression complicity) %s %s (number of calculations) = %s (total)"""
+                       .formatted(
+                               stringifyCommand(command), getTotalComplexity(),
+                               calculedExpressionResult.expression().accept(new ExpressionPrinter()),
+                               calculedExpressionResult.complexity(), getSign(), count, getTotalComplexity()
+                       );
 
-        var res = Arrays.stream(strings).map(s -> format("%s%s", prefix, s)).collect(Collectors.joining("\n"));
+        var text = Arrays.stream(template.split("\n"))
+                .map(s -> toRow(prefix, "%s", s))
+                .collect(Collectors.joining("\n"));
 
-        var subTablesVerbose= entry.calculators().stream()
-                .map(c -> new CalculatorPrinter(c, format("%s%s", prefix, "    | "), true).stringify())
+        var prefixRorSubTable = toRow(prefix,"%s", "    | ");
+        var subTablesVerbose= calculedExpressionResult.calculators().stream()
+                .map(c -> new CalculatorPrinter(c, prefixRorSubTable, true).stringify())
                 .collect(Collectors.joining(format("\n%s\n", prefix)));
 
         if(StringUtils.isNoneBlank(subTablesVerbose)) {
-            res += format("\n%s\n%s", prefix, subTablesVerbose);
+            text += format("\n%s\n%s", prefix, subTablesVerbose);
         }
 
-        return res;
+        return text;
+    }
+
+    @Override
+    public Integer getTotalComplexity() {
+        return isContextSensitive ?
+                calculedExpressionResult.complexity() * count :
+                calculedExpressionResult.complexity() + count;
+    }
+
+    private String getSign() {
+        return isContextSensitive ? "*" : "+";
     }
 
 }

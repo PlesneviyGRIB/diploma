@@ -1,6 +1,6 @@
 package com.savchenko.sqlTool.model.visitor;
 
-import com.savchenko.sqlTool.model.complexity.CalculedExpressionEntry;
+import com.savchenko.sqlTool.model.complexity.CalculedExpressionResult;
 import com.savchenko.sqlTool.model.domain.Column;
 import com.savchenko.sqlTool.model.domain.ExternalRow;
 import com.savchenko.sqlTool.model.expression.*;
@@ -11,7 +11,7 @@ import java.util.List;
 
 import static com.savchenko.sqlTool.model.operator.Operator.IN;
 
-public class ExpressionComplicityCalculator implements Expression.Visitor<CalculedExpressionEntry> {
+public class ExpressionComplicityCalculator implements Expression.Visitor<CalculedExpressionResult> {
 
     private final Resolver resolver;
 
@@ -23,29 +23,29 @@ public class ExpressionComplicityCalculator implements Expression.Visitor<Calcul
     }
 
     @Override
-    public CalculedExpressionEntry visit(ExpressionList list) {
-        return new CalculedExpressionEntry(0, List.of(), list);
+    public CalculedExpressionResult visit(ExpressionList list) {
+        return new CalculedExpressionResult(0, List.of(), list);
     }
 
     @Override
-    public CalculedExpressionEntry visit(SubTable table) {
+    public CalculedExpressionResult visit(SubTable table) {
         var result = resolver.resolve(table.commands(), externalRow);
-        return new CalculedExpressionEntry(result.calculator().getTotalComplexity(), List.of(result.calculator()), table);
+        return new CalculedExpressionResult(result.calculator().getTotalComplexity(), List.of(result.calculator()), table);
     }
 
     @Override
-    public CalculedExpressionEntry visit(Column column) {
-        return new CalculedExpressionEntry(1, List.of(), column);
+    public CalculedExpressionResult visit(Column column) {
+        return new CalculedExpressionResult(1, List.of(), column);
     }
 
     @Override
-    public CalculedExpressionEntry visit(UnaryOperation operation) {
+    public CalculedExpressionResult visit(UnaryOperation operation) {
         var calculedExpressionEntry = operation.expression().accept(this);
-        return new CalculedExpressionEntry(calculedExpressionEntry.complexity() + 1, calculedExpressionEntry.calculators(), operation);
+        return new CalculedExpressionResult(calculedExpressionEntry.complexity() + 1, calculedExpressionEntry.calculators(), operation);
     }
 
     @Override
-    public CalculedExpressionEntry visit(BinaryOperation operation) {
+    public CalculedExpressionResult visit(BinaryOperation operation) {
 
         var left = operation.left().accept(this);
         var right = operation.right().accept(this);
@@ -63,12 +63,12 @@ public class ExpressionComplicityCalculator implements Expression.Visitor<Calcul
             }
         }
 
-        return new CalculedExpressionEntry(left.complexity() + right.complexity() + 1 + additionalComplexity,
+        return new CalculedExpressionResult(left.complexity() + right.complexity() + 1 + additionalComplexity,
                 ListUtils.union(left.calculators(), right.calculators()), operation);
     }
 
     @Override
-    public CalculedExpressionEntry visit(TernaryOperation operation) {
+    public CalculedExpressionResult visit(TernaryOperation operation) {
         var first = operation.first().accept(this);
         var second = operation.second().accept(this);
         var third = operation.third().accept(this);
@@ -83,7 +83,7 @@ public class ExpressionComplicityCalculator implements Expression.Visitor<Calcul
             additionalComplexity += secondStringValue.value().length() + thirdStringValue.value().length();
         }
 
-        return new CalculedExpressionEntry(
+        return new CalculedExpressionResult(
                 first.complexity() + second.complexity() + third.complexity() + additionalComplexity,
                 ListUtils.union(ListUtils.union(first.calculators(), second.calculators()), third.calculators()),
                 operation
@@ -91,48 +91,48 @@ public class ExpressionComplicityCalculator implements Expression.Visitor<Calcul
     }
 
     @Override
-    public CalculedExpressionEntry visit(NullValue value) {
-        return new CalculedExpressionEntry(0, List.of(), value);
+    public CalculedExpressionResult visit(NullValue value) {
+        return new CalculedExpressionResult(0, List.of(), value);
     }
 
     @Override
-    public CalculedExpressionEntry visit(StringValue value) {
-        return new CalculedExpressionEntry(0, List.of(), value);
+    public CalculedExpressionResult visit(StringValue value) {
+        return new CalculedExpressionResult(0, List.of(), value);
     }
 
     @Override
-    public CalculedExpressionEntry visit(BooleanValue value) {
-        return new CalculedExpressionEntry(0, List.of(), value);
+    public CalculedExpressionResult visit(BooleanValue value) {
+        return new CalculedExpressionResult(0, List.of(), value);
     }
 
     @Override
-    public CalculedExpressionEntry visit(IntegerNumber value) {
-        return new CalculedExpressionEntry(0, List.of(), value);
+    public CalculedExpressionResult visit(IntegerNumber value) {
+        return new CalculedExpressionResult(0, List.of(), value);
     }
 
     @Override
-    public CalculedExpressionEntry visit(LongNumber value) {
-        return new CalculedExpressionEntry(0, List.of(), value);
+    public CalculedExpressionResult visit(LongNumber value) {
+        return new CalculedExpressionResult(0, List.of(), value);
     }
 
     @Override
-    public CalculedExpressionEntry visit(FloatNumber value) {
-        return new CalculedExpressionEntry(0, List.of(), value);
+    public CalculedExpressionResult visit(FloatNumber value) {
+        return new CalculedExpressionResult(0, List.of(), value);
     }
 
     @Override
-    public CalculedExpressionEntry visit(DoubleNumber value) {
-        return new CalculedExpressionEntry(0, List.of(), value);
+    public CalculedExpressionResult visit(DoubleNumber value) {
+        return new CalculedExpressionResult(0, List.of(), value);
     }
 
     @Override
-    public CalculedExpressionEntry visit(BigDecimalNumber value) {
-        return new CalculedExpressionEntry(0, List.of(), value);
+    public CalculedExpressionResult visit(BigDecimalNumber value) {
+        return new CalculedExpressionResult(0, List.of(), value);
     }
 
     @Override
-    public CalculedExpressionEntry visit(TimestampValue value) {
-        return new CalculedExpressionEntry(0, List.of(), value);
+    public CalculedExpressionResult visit(TimestampValue value) {
+        return new CalculedExpressionResult(0, List.of(), value);
     }
 
 }

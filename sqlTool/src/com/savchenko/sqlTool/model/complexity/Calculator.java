@@ -8,7 +8,7 @@ import com.savchenko.sqlTool.model.command.join.Join;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Calculator {
+public class Calculator implements TotalCalculed {
 
     private final List<CalculatorEntry> entries = new LinkedList<>();
 
@@ -20,50 +20,23 @@ public class Calculator {
         entries.add(new SimpleCalculedEntry(entry, complexity));
     }
 
-    public void log(ComplexCalculedCommand entry, CalculedExpressionEntry calculedExpressionEntry, Integer count, boolean isContextSensitive) {
-        entries.add(new ComplexCalculedEntry(entry, calculedExpressionEntry, count, isContextSensitive));
+    public void log(ComplexCalculedCommand entry, CalculedExpressionResult calculedExpressionResult, Integer count, boolean isContextSensitive) {
+        entries.add(new ComplexCalculedEntry(entry, calculedExpressionResult, count, isContextSensitive));
     }
 
-    public void log(Join entry, Calculator joinedTableCalculator, Integer remainderSize, CalculedExpressionEntry calculedExpressionEntry, Integer count, boolean isContextSensitive) {
-        entries.add(new JoinCalculedEntry(entry, joinedTableCalculator, remainderSize, calculedExpressionEntry, count, isContextSensitive));
+    public void log(Join entry, Calculator joinedTableCalculator, Integer remainderSize, CalculedExpressionResult calculedExpressionResult, Integer count, boolean isContextSensitive) {
+        entries.add(new JoinCalculedEntry(entry, joinedTableCalculator, remainderSize, calculedExpressionResult, count, isContextSensitive));
     }
 
     public List<CalculatorEntry> getEntries() {
         return entries;
     }
 
+    @Override
     public Integer getTotalComplexity() {
         return entries.stream()
-                .map(e -> e.accept(new CalculatorEntry.Visitor<Integer>() {
-
-                    @Override
-                    public Integer visit(SimpleEntry entry) {
-                        return 0;
-                    }
-
-                    @Override
-                    public Integer visit(SimpleCalculedEntry entry) {
-                        return entry.value();
-                    }
-
-                    @Override
-                    public Integer visit(ComplexCalculedEntry entry) {
-                        var cEntry = entry.calculedExpressionEntry();
-                        var totalExpressionComplicity = cEntry.complexity();
-
-                        return entry.isContextSensitive() ? totalExpressionComplicity * entry.count() : totalExpressionComplicity + entry.count();
-                    }
-
-                    @Override
-                    public Integer visit(JoinCalculedEntry entry) {
-                        var cEntry = entry.calculedExpressionEntry();
-                        var totalExpressionComplicity = cEntry.complexity();
-
-                        return entry.calculator().getTotalComplexity() + entry.remainderSize() +
-                                (entry.isContextSensitive() ? totalExpressionComplicity * entry.count() : totalExpressionComplicity + entry.count());
-                    }
-
-                })).reduce(0, Integer::sum);
+                .map(TotalCalculed::getTotalComplexity)
+                .reduce(0, Integer::sum);
     }
 
 }
