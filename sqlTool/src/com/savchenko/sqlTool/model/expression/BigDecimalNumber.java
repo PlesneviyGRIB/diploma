@@ -4,6 +4,7 @@ import com.savchenko.sqlTool.exception.UnexpectedException;
 import com.savchenko.sqlTool.model.operator.Operator;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 public record BigDecimalNumber(BigDecimal value) implements Value<BigDecimalNumber> {
     @Override
@@ -37,5 +38,18 @@ public record BigDecimalNumber(BigDecimal value) implements Value<BigDecimalNumb
             }
         }
         throw new UnexpectedException();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BigDecimalNumber that = (BigDecimalNumber) o;
+        return Objects.equals(value, that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(value);
     }
 }

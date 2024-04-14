@@ -25,11 +25,6 @@ public class Main {
         var connection = DriverManager.getConnection(String.format("jdbc:%s://localhost:%s/%s", DB_DRIVER, DB_PORT, DB_NAME), DB_USER, DB_PASSWORD);
         var projection = new DatabaseReader(connection).read();
 
-        var predicate = Q.op(AND,
-                Q.op(EQ, Q.op(MINUS, Q.column("c1", "id"), new LongNumber(2L)), Q.column("c1", "id")),
-                Q.op(EQ, Q.column("c1", "id"), Q.op(MINUS, Q.column("c2", "id"), new LongNumber(4L)))
-        );
-
         var query = new Query()
                 .from("courses")
                 .as("c")
@@ -43,7 +38,10 @@ public class Main {
                                                                 .from("courses")
                                                                 .as("c2")
                                                                 .where(Q.op(GREATER, Q.column("c2", "id"), new LongNumber(152L)))
-                                                                .where(predicate)
+                                                                .where(Q.op(AND,
+                                                                        Q.op(EQ, Q.op(MINUS, Q.column("c1", "id"), new LongNumber(2L)), Q.column("c1", "id")),
+                                                                        Q.op(EQ, Q.column("c1", "id"), Q.op(MINUS, Q.column("c2", "id"), new LongNumber(4L)))
+                                                                ))
                                                                 .build())),
                                                 Q.op(NOT,
                                                         Q.op(EXISTS, new SubTable(
@@ -51,9 +49,11 @@ public class Main {
                                                                         .from("courses")
                                                                         .as("c2")
                                                                         .where(Q.op(GREATER, Q.column("c2", "id"), new LongNumber(152L)))
-                                                                        .where(predicate)
+                                                                        .where(Q.op(AND,
+                                                                                Q.op(EQ, Q.op(MINUS, Q.column("c1", "id"), new LongNumber(2L)), Q.column("c1", "id")),
+                                                                                Q.op(EQ, Q.column("c1", "id"), Q.op(MINUS, Q.column("c2", "id"), new LongNumber(4L)))
+                                                                        ))
                                                                         .build()))
-
                                                 )
                                         )
                                 )

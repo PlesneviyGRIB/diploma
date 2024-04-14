@@ -1,5 +1,7 @@
 package com.savchenko.sqlTool.model.expression;
 
+import java.util.Objects;
+
 public record NullValue() implements Value<Object> {
     @Override
     public <T> T accept(Expression.Visitor<T> visitor) {
@@ -14,4 +16,13 @@ public record NullValue() implements Value<Object> {
         return -1;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        return getClass() == obj.getClass();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(null);
+    }
 }

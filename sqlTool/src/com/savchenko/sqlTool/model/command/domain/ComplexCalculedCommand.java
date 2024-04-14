@@ -10,7 +10,7 @@ import java.util.Objects;
 
 public abstract class ComplexCalculedCommand implements Command {
 
-    protected final Expression expression;
+    public final Expression expression;
 
     public ComplexCalculedCommand(Expression expression) {
         this.expression = expression;

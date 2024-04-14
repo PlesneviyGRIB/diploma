@@ -16,6 +16,7 @@ import com.savchenko.sqlTool.model.resolver.Resolver;
 import com.savchenko.sqlTool.model.visitor.*;
 import com.savchenko.sqlTool.utils.ModelUtils;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public class Where extends ComplexCalculedCommand implements Lazy {
@@ -59,6 +60,19 @@ public class Where extends ComplexCalculedCommand implements Lazy {
                 new Table(table.name(), table.columns(), data, table.externalRow()),
                 new ComplexCalculatorEntry(this, calculedExpressionEntry, table.data().size(), isContextSensitiveExpression)
         );
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ComplexCalculedCommand that = (ComplexCalculedCommand) o;
+        return Objects.equals(expression, that.expression);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(expression);
     }
 
 }
