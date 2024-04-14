@@ -36,16 +36,21 @@ public record JoinCalculedEntry(Join command,
                 .map(s -> format("%s%s", prefix, s))
                 .collect(Collectors.joining("\n"));
 
-        var prefixRorSubTable = toRow(prefix,"%s", "    | ");
+        var prefixRorSubTable = toRow(prefix, "%s", "    | ");
         var subTablesVerbose = calculedExpressionResult.calculators().stream()
                 .map(c -> new CalculatorPrinter(c, prefixRorSubTable, true).stringify())
                 .collect(Collectors.joining(format("\n%s\n", prefix)));
 
-        if(StringUtils.isNoneBlank(subTablesVerbose)) {
+        if (StringUtils.isNoneBlank(subTablesVerbose)) {
             text += format("\n%s\n%s", prefix, subTablesVerbose);
         }
 
         return text;
+    }
+
+    @Override
+    public String stringifyCached(String prefix) {
+        return toRow(prefix, "%s %s", stringifyCommand(command), stringifyCachedResult());
     }
 
     @Override

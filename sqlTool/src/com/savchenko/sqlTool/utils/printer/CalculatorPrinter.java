@@ -1,7 +1,6 @@
 package com.savchenko.sqlTool.utils.printer;
 
 import com.savchenko.sqlTool.model.complexity.Calculator;
-import com.savchenko.sqlTool.model.complexity.CalculatorEntry;
 
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -35,12 +34,12 @@ public class CalculatorPrinter extends Printer<Calculator> {
     private void appendHeader() {
         var complexity = domain.getTotalComplexity();
 
-        if(Objects.isNull(isSubTable)) {
+        if (Objects.isNull(isSubTable)) {
             sb.append(format("%sTOTAL COMPLEXITY: \u001B[34m%s\u001B[0m \n", prefix, complexity));
             return;
         }
 
-        if(isSubTable) {
+        if (isSubTable) {
             sb.append(format("%sSUB TABLE COMPLEXITY: \u001B[32m%s\u001B[0m\n", prefix, complexity));
         } else {
             sb.append(format("%sJOINED TABLE COMPLEXITY: \u001B[32m%s\u001B[0m\n", prefix, complexity));

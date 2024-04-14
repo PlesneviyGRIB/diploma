@@ -1,12 +1,13 @@
 package com.savchenko.sqlTool.model.command;
 
 import com.savchenko.sqlTool.model.command.domain.SimpleCommand;
-import com.savchenko.sqlTool.model.complexity.Calculator;
+import com.savchenko.sqlTool.model.complexity.SimpleEntry;
 import com.savchenko.sqlTool.model.complexity.laziness.LazinessIndependent;
 import com.savchenko.sqlTool.model.domain.Column;
 import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.expression.Value;
+import com.savchenko.sqlTool.model.resolver.CommandResult;
 import com.savchenko.sqlTool.utils.ModelUtils;
 
 import java.util.ArrayList;
@@ -20,9 +21,8 @@ public class Select implements SimpleCommand, LazinessIndependent {
     }
 
     @Override
-    public Table run(Table table, Projection projection, Calculator calculator) {
+    public CommandResult run(Table table, Projection projection) {
 
-        calculator.log(this);
         var contextColumns = table.columns();
         var indexes = columns.stream().map(c -> ModelUtils.resolveColumnIndex(contextColumns, c)).toList();
         var data = table.data().stream()
@@ -33,8 +33,13 @@ public class Select implements SimpleCommand, LazinessIndependent {
                     }
                     return list;
                 }).toList();
+
         var targetColumns = indexes.stream().map(contextColumns::get).toList();
-        return new Table(table.name(), targetColumns, data, table.externalRow());
+
+        return new CommandResult(
+                new Table(table.name(), targetColumns, data, table.externalRow()),
+                new SimpleEntry(this)
+        );
     }
 
 }

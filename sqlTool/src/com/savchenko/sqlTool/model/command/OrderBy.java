@@ -2,11 +2,12 @@ package com.savchenko.sqlTool.model.command;
 
 import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.command.domain.SimpleCalculedCommand;
-import com.savchenko.sqlTool.model.complexity.Calculator;
+import com.savchenko.sqlTool.model.complexity.SimpleCalculedEntry;
 import com.savchenko.sqlTool.model.complexity.laziness.LazyConcealer;
 import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.expression.Value;
+import com.savchenko.sqlTool.model.resolver.CommandResult;
 import com.savchenko.sqlTool.utils.ModelUtils;
 
 import java.util.Comparator;
@@ -22,9 +23,7 @@ public class OrderBy implements SimpleCalculedCommand, LazyConcealer {
     }
 
     @Override
-    public Table run(Table table, Projection projection, Calculator calculator) {
-
-        calculator.log(this, 0);
+    public CommandResult run(Table table, Projection projection) {
 
         orders.stream()
                 .collect(Collectors.groupingBy(Order::column, Collectors.counting()))
@@ -58,7 +57,10 @@ public class OrderBy implements SimpleCalculedCommand, LazyConcealer {
         };
 
         var data = table.data().stream().sorted(rowsComparator).toList();
-        return new Table(table.name(), table.columns(), data, table.externalRow());
+        return new CommandResult(
+                new Table(table.name(), table.columns(), data, table.externalRow()),
+                new SimpleCalculedEntry(this, 0)
+        );
     }
 
 }

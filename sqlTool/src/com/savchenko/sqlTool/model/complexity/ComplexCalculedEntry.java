@@ -18,30 +18,35 @@ public record ComplexCalculedEntry(ComplexCalculedCommand command,
     @Override
     public String stringify(String prefix) {
         var template =
-               """
-               %s %s
-                   Expression: %s
-                   %s (expression complexity) %s %s (number of calculations) = %s (total)"""
-                       .formatted(
-                               stringifyCommand(command), getTotalComplexity(),
-                               calculedExpressionResult.expression().accept(new ExpressionPrinter()),
-                               calculedExpressionResult.complexity(), getSign(), count, getTotalComplexity()
-                       );
+                """
+                        %s %s
+                            Expression: %s
+                            %s (expression complexity) %s %s (number of calculations) = %s (total)"""
+                        .formatted(
+                                stringifyCommand(command), getTotalComplexity(),
+                                calculedExpressionResult.expression().accept(new ExpressionPrinter()),
+                                calculedExpressionResult.complexity(), getSign(), count, getTotalComplexity()
+                        );
 
         var text = Arrays.stream(template.split("\n"))
                 .map(s -> toRow(prefix, "%s", s))
                 .collect(Collectors.joining("\n"));
 
-        var prefixRorSubTable = toRow(prefix,"%s", "    | ");
-        var subTablesVerbose= calculedExpressionResult.calculators().stream()
+        var prefixRorSubTable = toRow(prefix, "%s", "    | ");
+        var subTablesVerbose = calculedExpressionResult.calculators().stream()
                 .map(c -> new CalculatorPrinter(c, prefixRorSubTable, true).stringify())
                 .collect(Collectors.joining(format("\n%s\n", prefix)));
 
-        if(StringUtils.isNoneBlank(subTablesVerbose)) {
+        if (StringUtils.isNoneBlank(subTablesVerbose)) {
             text += format("\n%s\n%s", prefix, subTablesVerbose);
         }
 
         return text;
+    }
+
+    @Override
+    public String stringifyCached(String prefix) {
+        return toRow(prefix, "%s %s", stringifyCommand(command), stringifyCachedResult());
     }
 
     @Override

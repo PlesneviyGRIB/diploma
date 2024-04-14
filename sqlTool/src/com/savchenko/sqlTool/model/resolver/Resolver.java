@@ -45,24 +45,27 @@ public class Resolver {
 
             var tableRef = table;
 
-            table = cmd.accept(new Command.Visitor<>() {
+            var commandResult = cmd.accept(new Command.Visitor<CommandResult>() {
 
                 @Override
-                public Table visit(SimpleCommand command) {
-                    return command.run(tableRef, projection, calculator);
+                public CommandResult visit(SimpleCommand command) {
+                    return command.run(tableRef, projection);
                 }
 
                 @Override
-                public Table visit(SimpleCalculedCommand command) {
-                    return command.run(tableRef, projection, calculator);
+                public CommandResult visit(SimpleCalculedCommand command) {
+                    return command.run(tableRef, projection);
                 }
 
                 @Override
-                public Table visit(ComplexCalculedCommand command) {
-                    return command.run(tableRef, projection, Resolver.this, calculator);
+                public CommandResult visit(ComplexCalculedCommand command) {
+                    return command.run(tableRef, projection, Resolver.this);
                 }
 
             });
+
+            calculator.log(commandResult.calculatorEntry());
+            table = commandResult.table();
 
         }
         return new ResolverResult(table, calculator);

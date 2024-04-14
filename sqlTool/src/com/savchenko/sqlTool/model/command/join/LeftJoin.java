@@ -6,11 +6,11 @@ import com.savchenko.sqlTool.model.expression.Expression;
 import com.savchenko.sqlTool.model.expression.Value;
 import com.savchenko.sqlTool.utils.ModelUtils;
 import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class LeftJoin extends Join {
@@ -19,10 +19,11 @@ public class LeftJoin extends Join {
     }
 
     @Override
-    public Table run(Table table,
-                     Table joinedTable,
-                     Supplier<Triple<List<List<Value<?>>>, Set<Integer>, Set<Integer>>> strategyExecutionResultSupplier,
-                     Consumer<Integer> remainderSizeConsumer) {
+    public Pair<Table, Integer> run(Table table,
+                                    Table joinedTable,
+                                    Supplier<Triple<List<List<Value<?>>>,
+                                            Set<Integer>, Set<Integer>>> strategyExecutionResultSupplier
+    ) {
 
         var columns = ListUtils.union(table.columns(), joinedTable.columns());
 
@@ -33,11 +34,9 @@ public class LeftJoin extends Join {
                 .map(pair -> ListUtils.union(pair.getRight(), ModelUtils.emptyRow(joinedTable)))
                 .toList();
 
-        remainderSizeConsumer.accept(remainder.size());
-
         var data = ListUtils.union(result.getLeft(), remainder);
 
-        return new Table(null, columns, data, table.externalRow());
+        return Pair.of(new Table(null, columns, data, table.externalRow()), remainder.size());
     }
 
 }

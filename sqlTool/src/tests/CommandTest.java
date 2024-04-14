@@ -149,10 +149,10 @@ public class CommandTest extends TestBase {
 
         var emtyTable = new Table("", List.of(), List.of(), ExternalRow.empty());
 
-        var mathElementsTable = new From("content").run(emtyTable, projection, new Calculator());
-        var finalAnswersTable = new From("content_descriptor").run(emtyTable, projection, new Calculator());
+        var mathElementsTable = new From("content").run(emtyTable, projection);
+        var finalAnswersTable = new From("content_descriptor").run(emtyTable, projection);
 
-        var cartesianProduct = cartesianProduct(mathElementsTable, finalAnswersTable);
+        var cartesianProduct = cartesianProduct(mathElementsTable.table(), finalAnswersTable.table());
         Assert.assertEquals(
                 ModelUtils.renameTable(cartesianProduct, "res"),
                 ModelUtils.renameTable(resTable, "res")

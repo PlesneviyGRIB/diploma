@@ -10,6 +10,11 @@ public record SimpleCalculedEntry(SimpleCalculedCommand command, Integer value) 
     }
 
     @Override
+    public String stringifyCached(String prefix) {
+        return toRow(prefix, "%s %s", stringifyCommand(command), stringifyCachedResult());
+    }
+
+    @Override
     public Integer getTotalComplexity() {
         return value;
     }

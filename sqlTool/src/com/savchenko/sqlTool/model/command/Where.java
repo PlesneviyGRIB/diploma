@@ -2,7 +2,7 @@ package com.savchenko.sqlTool.model.command;
 
 import com.savchenko.sqlTool.exception.UnsupportedTypeException;
 import com.savchenko.sqlTool.model.command.domain.ComplexCalculedCommand;
-import com.savchenko.sqlTool.model.complexity.Calculator;
+import com.savchenko.sqlTool.model.complexity.ComplexCalculedEntry;
 import com.savchenko.sqlTool.model.complexity.laziness.Lazy;
 import com.savchenko.sqlTool.model.domain.ExternalRow;
 import com.savchenko.sqlTool.model.domain.Projection;
@@ -11,6 +11,7 @@ import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.expression.BooleanValue;
 import com.savchenko.sqlTool.model.expression.Expression;
 import com.savchenko.sqlTool.model.expression.Value;
+import com.savchenko.sqlTool.model.resolver.CommandResult;
 import com.savchenko.sqlTool.model.resolver.Resolver;
 import com.savchenko.sqlTool.model.visitor.*;
 import com.savchenko.sqlTool.utils.ModelUtils;
@@ -24,7 +25,7 @@ public class Where extends ComplexCalculedCommand implements Lazy {
     }
 
     @Override
-    public Table run(Table table, Projection projection, Resolver resolver, Calculator calculator) {
+    public CommandResult run(Table table, Projection projection, Resolver resolver) {
 
         expression.accept(new ExpressionValidator(table.columns(), table.externalRow()));
 
@@ -35,8 +36,6 @@ public class Where extends ComplexCalculedCommand implements Lazy {
                 Optional.empty() : Optional.of(expression.accept(new ExpressionCalculator(resolver, ExternalRow.empty())));
 
         var calculedExpressionEntry = expression.accept(new ExpressionComplexityCalculator(resolver, ModelUtils.getFullCopyExternalRow(table))).normalize();
-
-        calculator.log(this, calculedExpressionEntry, table.data().size(), isContextSensitiveExpression);
 
         var data = table.data().stream()
                 .filter(row -> {
@@ -55,7 +54,11 @@ public class Where extends ComplexCalculedCommand implements Lazy {
                     throw new UnsupportedTypeException();
                 })
                 .toList();
-        return new Table(table.name(), table.columns(), data, table.externalRow());
+
+        return new CommandResult(
+                new Table(table.name(), table.columns(), data, table.externalRow()),
+                new ComplexCalculedEntry(this, calculedExpressionEntry, table.data().size(), isContextSensitiveExpression)
+        );
     }
 
 }

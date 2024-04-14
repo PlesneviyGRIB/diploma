@@ -1,10 +1,11 @@
 package com.savchenko.sqlTool.model.command;
 
 import com.savchenko.sqlTool.model.command.domain.SimpleCommand;
-import com.savchenko.sqlTool.model.complexity.Calculator;
+import com.savchenko.sqlTool.model.complexity.SimpleEntry;
 import com.savchenko.sqlTool.model.complexity.laziness.Lazy;
 import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.Table;
+import com.savchenko.sqlTool.model.resolver.CommandResult;
 
 public class From implements SimpleCommand, Lazy {
     private final String tableName;
@@ -14,13 +15,14 @@ public class From implements SimpleCommand, Lazy {
     }
 
     @Override
-    public Table run(Table table, Projection projection, Calculator calculator) {
-
-        calculator.log(this);
+    public CommandResult run(Table table, Projection projection) {
 
         var resolvedTable = projection.getByName(tableName);
 
-        return new Table(resolvedTable.name(), resolvedTable.columns(), resolvedTable.data(), table.externalRow());
+        return new CommandResult(
+                new Table(resolvedTable.name(), resolvedTable.columns(), resolvedTable.data(), table.externalRow()),
+                new SimpleEntry(this)
+        );
     }
 
     public String getTableName() {

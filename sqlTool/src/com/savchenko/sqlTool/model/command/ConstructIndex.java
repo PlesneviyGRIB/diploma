@@ -1,11 +1,11 @@
 package com.savchenko.sqlTool.model.command;
 
 import com.savchenko.sqlTool.model.command.domain.SimpleCalculedCommand;
-import com.savchenko.sqlTool.model.complexity.Calculator;
 import com.savchenko.sqlTool.model.complexity.laziness.LazinessIndependent;
 import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.index.Index;
+import com.savchenko.sqlTool.model.resolver.CommandResult;
 import com.savchenko.sqlTool.utils.ModelUtils;
 
 public class ConstructIndex implements SimpleCalculedCommand, LazinessIndependent {
@@ -17,10 +17,10 @@ public class ConstructIndex implements SimpleCalculedCommand, LazinessIndependen
     }
 
     @Override
-    public Table run(Table table, Projection projection, Calculator calculator) {
+    public CommandResult run(Table table, Projection projection) {
 
-        calculator.log(this, 0);
         index.getColumns().forEach(column -> ModelUtils.resolveColumn(table.columns(), column));
+
         return null;
     }
 
