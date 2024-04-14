@@ -1,10 +1,10 @@
 package com.savchenko.sqlTool;
 
+import com.savchenko.sqlTool.model.cache.CacheContext;
+import com.savchenko.sqlTool.model.cache.CacheStrategy;
 import com.savchenko.sqlTool.model.command.join.JoinStrategy;
-import com.savchenko.sqlTool.model.expression.BooleanValue;
 import com.savchenko.sqlTool.model.expression.LongNumber;
 import com.savchenko.sqlTool.model.expression.StringValue;
-import com.savchenko.sqlTool.model.expression.SubTable;
 import com.savchenko.sqlTool.model.resolver.Resolver;
 import com.savchenko.sqlTool.query.Q;
 import com.savchenko.sqlTool.query.Query;
@@ -14,7 +14,6 @@ import com.savchenko.sqlTool.utils.printer.TablePrinter;
 
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Map;
 
 import static com.savchenko.sqlTool.config.Constants.*;
 import static com.savchenko.sqlTool.model.operator.Operator.*;
@@ -43,8 +42,8 @@ public class Main {
                         Q.op(EQ, Q.column("a", "action_id"), new StringValue("addRow")))
                 );
 
-
-        var resolverResult = new Resolver(projection).resolve(query);
+        var cacheContext = new CacheContext(CacheStrategy.PROPER);
+        var resolverResult = new Resolver(projection, cacheContext).resolve(query);
         var tableStr = new TablePrinter(resolverResult.table()).stringify();
         var calculatorStr = new CalculatorPrinter(resolverResult.calculator()).stringify();
 

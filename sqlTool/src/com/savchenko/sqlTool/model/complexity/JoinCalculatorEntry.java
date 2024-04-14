@@ -10,12 +10,26 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
-public record JoinCalculatorEntry(Join command,
-                                  Calculator calculator,
-                                  Integer remainderSize,
-                                  CalculedExpressionResult calculedExpressionResult,
-                                  Integer count,
-                                  boolean isContextSensitive) implements CalculatorEntry {
+public class JoinCalculatorEntry extends ExecutedCalculatorEntry {
+
+    private final Calculator calculator;
+
+    private final Integer remainderSize;
+
+    private final CalculatedExpressionResult calculatedExpressionResult;
+
+    private final Integer count;
+
+    private final boolean isContextSensitive;
+
+    public JoinCalculatorEntry(Join command, Calculator calculator, Integer remainderSize, CalculatedExpressionResult calculatedExpressionResult, Integer count, boolean isContextSensitive) {
+        super(command);
+        this.calculator = calculator;
+        this.remainderSize = remainderSize;
+        this.calculatedExpressionResult = calculatedExpressionResult;
+        this.count = count;
+        this.isContextSensitive = isContextSensitive;
+    }
 
     @Override
     public String stringify(String prefix) {
@@ -26,10 +40,10 @@ public record JoinCalculatorEntry(Join command,
                             Expression: %s
                             %s (joined table complexity) + %s (expression complexity) %s %s (number of calculations) = %s (total)"""
                         .formatted(
-                                stringifyCommand(command), command.getStrategy(), getTotalComplexity(),
+                                stringifyCommand(), ((Join) command).getStrategy(), getTotalComplexity(),
                                 new CalculatorPrinter(calculator, "    | ", false).stringify(),
-                                calculedExpressionResult.expression().accept(new ExpressionPrinter()),
-                                calculator.getTotalComplexity(), calculedExpressionResult.complexity(), getSign(), count, getTotalComplexityWithoutRemainder()
+                                calculatedExpressionResult.expression().accept(new ExpressionPrinter()),
+                                calculator.getTotalComplexity(), calculatedExpressionResult.complexity(), getSign(), count, getTotalComplexityWithoutRemainder()
                         );
 
         var text = Arrays.stream(template.split("\n"))
@@ -37,7 +51,7 @@ public record JoinCalculatorEntry(Join command,
                 .collect(Collectors.joining("\n"));
 
         var prefixRorSubTable = toRow(prefix, "%s", "    | ");
-        var subTablesVerbose = calculedExpressionResult.calculators().stream()
+        var subTablesVerbose = calculatedExpressionResult.calculators().stream()
                 .map(c -> new CalculatorPrinter(c, prefixRorSubTable, true).stringify())
                 .collect(Collectors.joining(format("\n%s\n", prefix)));
 
@@ -52,15 +66,15 @@ public record JoinCalculatorEntry(Join command,
     public Integer getTotalComplexity() {
         return calculator.getTotalComplexity() + remainderSize +
                 (isContextSensitive ?
-                        calculedExpressionResult.complexity() * count :
-                        calculedExpressionResult.complexity() + count);
+                        calculatedExpressionResult.complexity() * count :
+                        calculatedExpressionResult.complexity() + count);
     }
 
     public Integer getTotalComplexityWithoutRemainder() {
         return calculator.getTotalComplexity() +
                 (isContextSensitive ?
-                        calculedExpressionResult.complexity() * count :
-                        calculedExpressionResult.complexity() + count);
+                        calculatedExpressionResult.complexity() * count :
+                        calculatedExpressionResult.complexity() + count);
     }
 
     private String getSign() {

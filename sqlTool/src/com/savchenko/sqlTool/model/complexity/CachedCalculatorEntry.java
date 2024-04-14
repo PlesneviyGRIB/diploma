@@ -1,12 +1,10 @@
 package com.savchenko.sqlTool.model.complexity;
 
-import com.savchenko.sqlTool.model.command.domain.Command;
-
-public record CachedCalculatorEntry(Command command, Integer complexity) implements CalculatorEntry {
+public record CachedCalculatorEntry(ExecutedCalculatorEntry calculatorEntry) implements CalculatorEntry {
 
     @Override
     public String stringify(String prefix) {
-        return toRow(prefix, "%s CACHED(%d -> 0)", stringifyCommand(command), complexity);
+        return toRow(prefix, "%s CACHED(%d -> 0)", calculatorEntry.stringifyCommand(), calculatorEntry.getTotalComplexity());
     }
 
     @Override

@@ -174,4 +174,16 @@ public class GroupBy implements SimpleCalculedCommand, LazyConcealer {
         );
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GroupBy groupBy = (GroupBy) o;
+        return Objects.equals(columnMapperMap, groupBy.columnMapperMap);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(columnMapperMap);
+    }
 }

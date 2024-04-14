@@ -9,6 +9,8 @@ import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.resolver.CommandResult;
 import com.savchenko.sqlTool.utils.ModelUtils;
 
+import java.util.Objects;
+
 public class Alias implements SimpleCommand, LazinessIndependent {
 
     private final String alias;
@@ -33,4 +35,16 @@ public class Alias implements SimpleCommand, LazinessIndependent {
         );
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Alias alias1 = (Alias) o;
+        return Objects.equals(alias, alias1.alias);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(alias);
+    }
 }

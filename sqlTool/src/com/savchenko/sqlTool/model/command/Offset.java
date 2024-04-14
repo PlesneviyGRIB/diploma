@@ -8,6 +8,8 @@ import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.resolver.CommandResult;
 
+import java.util.Objects;
+
 public class Offset implements SimpleCommand, ClauseReducer {
     private final Integer offset;
 
@@ -29,4 +31,16 @@ public class Offset implements SimpleCommand, ClauseReducer {
         );
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Offset offset1 = (Offset) o;
+        return Objects.equals(offset, offset1.offset);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(offset);
+    }
 }

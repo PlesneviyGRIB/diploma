@@ -7,6 +7,8 @@ import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.resolver.CommandResult;
 
+import java.util.Objects;
+
 public class From implements SimpleCommand, Lazy {
     private final String tableName;
 
@@ -27,5 +29,18 @@ public class From implements SimpleCommand, Lazy {
 
     public String getTableName() {
         return tableName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        From from = (From) o;
+        return Objects.equals(tableName, from.tableName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(tableName);
     }
 }

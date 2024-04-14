@@ -13,9 +13,11 @@ import com.savchenko.sqlTool.utils.ModelUtils;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class OrderBy implements SimpleCalculedCommand, LazyConcealer {
+
     private final List<Order> orders;
 
     public OrderBy(List<Order> orders) {
@@ -63,4 +65,16 @@ public class OrderBy implements SimpleCalculedCommand, LazyConcealer {
         );
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        OrderBy orderBy = (OrderBy) o;
+        return Objects.equals(orders, orderBy.orders);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(orders);
+    }
 }

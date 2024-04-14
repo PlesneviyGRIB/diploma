@@ -1,12 +1,19 @@
 package com.savchenko.sqlTool.model.complexity;
 
-import com.savchenko.sqlTool.model.command.domain.SimpleCalculedCommand;
+import com.savchenko.sqlTool.model.command.domain.Command;
 
-public record SimpleCalculatorEntry(SimpleCalculedCommand command, Integer value) implements CalculatorEntry {
+public class SimpleCalculatorEntry extends ExecutedCalculatorEntry {
+
+    private final Integer value;
+
+    public SimpleCalculatorEntry(Command command, Integer value) {
+        super(command);
+        this.value = value;
+    }
 
     @Override
     public String stringify(String prefix) {
-        return toRow(prefix, "%s %d", stringifyCommand(command), value);
+        return toRow(prefix, "%s %d", stringifyCommand(), value);
     }
 
     @Override

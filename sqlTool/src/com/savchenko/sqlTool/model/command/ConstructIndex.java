@@ -8,6 +8,8 @@ import com.savchenko.sqlTool.model.index.Index;
 import com.savchenko.sqlTool.model.resolver.CommandResult;
 import com.savchenko.sqlTool.utils.ModelUtils;
 
+import java.util.Objects;
+
 public class ConstructIndex implements SimpleCalculedCommand, LazinessIndependent {
 
     private final Index index;
@@ -24,4 +26,16 @@ public class ConstructIndex implements SimpleCalculedCommand, LazinessIndependen
         return null;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ConstructIndex that = (ConstructIndex) o;
+        return Objects.equals(index, that.index);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(index);
+    }
 }

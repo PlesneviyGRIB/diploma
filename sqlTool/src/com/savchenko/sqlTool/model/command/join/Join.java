@@ -3,7 +3,7 @@ package com.savchenko.sqlTool.model.command.join;
 import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.command.domain.Command;
 import com.savchenko.sqlTool.model.command.domain.ComplexCalculedCommand;
-import com.savchenko.sqlTool.model.complexity.CalculatorEntry;
+import com.savchenko.sqlTool.model.complexity.ExecutedCalculatorEntry;
 import com.savchenko.sqlTool.model.complexity.JoinCalculatorEntry;
 import com.savchenko.sqlTool.model.complexity.laziness.Lazy;
 import com.savchenko.sqlTool.model.domain.Projection;
@@ -21,6 +21,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -59,7 +60,7 @@ public abstract class Join extends ComplexCalculedCommand implements Lazy {
 
         Supplier<Triple<List<List<Value<?>>>, Set<Integer>, Set<Integer>>> strategyExecutionResultSupplier = () -> strategy.run(table, joinedTable, expression, resolver);
 
-        Function<Integer, CalculatorEntry> toCalculatorEntry = remainderSize -> {
+        Function<Integer, ExecutedCalculatorEntry> toCalculatorEntry = remainderSize -> {
 
             var operationsCount = strategy.getStrategyComplexity(table, joinedTable);
             var calculedExpressionEntry = expression.accept(new ExpressionComplexityCalculator(resolver, ModelUtils.getFullCopyExternalRow(table))).normalize();
@@ -75,6 +76,19 @@ public abstract class Join extends ComplexCalculedCommand implements Lazy {
                 ModelUtils.renameTable(pair.getLeft(), tableName),
                 toCalculatorEntry.apply(pair.getRight())
         );
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Join join = (Join) o;
+        return Objects.equals(commands, join.commands) && strategy == join.strategy;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(commands, strategy);
     }
 
     public JoinStrategy getStrategy() {

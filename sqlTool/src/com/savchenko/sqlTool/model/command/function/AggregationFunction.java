@@ -5,5 +5,7 @@ import com.savchenko.sqlTool.model.expression.Value;
 
 @FunctionalInterface
 public interface AggregationFunction {
+
     Value<?> apply(ExpressionList list);
+
 }

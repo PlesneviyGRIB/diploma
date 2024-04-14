@@ -1,10 +1,12 @@
 package tests;
 
-import com.savchenko.sqlTool.model.resolver.Resolver;
+import com.savchenko.sqlTool.model.cache.CacheContext;
+import com.savchenko.sqlTool.model.cache.CacheStrategy;
 import com.savchenko.sqlTool.model.domain.ExternalRow;
 import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.expression.LongNumber;
+import com.savchenko.sqlTool.model.resolver.Resolver;
 import com.savchenko.sqlTool.utils.DatabaseReader;
 import org.apache.commons.collections4.ListUtils;
 import org.junit.Assert;
@@ -22,7 +24,7 @@ public class TestBase {
         try {
             var connection = DriverManager.getConnection(String.format("jdbc:%s://localhost:%s/%s", DB_DRIVER, DB_PORT, DB_NAME), DB_USER, DB_PASSWORD);
             projection = new DatabaseReader(connection).read();
-            resolver = new Resolver(TestBase.projection);
+            resolver = new Resolver(TestBase.projection, new CacheContext(CacheStrategy.NONE));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

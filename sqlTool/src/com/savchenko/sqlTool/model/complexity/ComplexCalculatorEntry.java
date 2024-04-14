@@ -10,10 +10,23 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
-public record ComplexCalculatorEntry(ComplexCalculedCommand command,
-                                     CalculedExpressionResult calculedExpressionResult,
-                                     Integer count,
-                                     boolean isContextSensitive) implements CalculatorEntry, TotalCalculed {
+public class ComplexCalculatorEntry extends ExecutedCalculatorEntry implements TotalCalculed {
+
+    private final ComplexCalculedCommand command;
+
+    private final CalculatedExpressionResult calculatedExpressionResult;
+
+    private final Integer count;
+
+    private final boolean isContextSensitive;
+
+    public ComplexCalculatorEntry(ComplexCalculedCommand command, CalculatedExpressionResult calculatedExpressionResult, Integer count, boolean isContextSensitive) {
+        super(command);
+        this.command = command;
+        this.calculatedExpressionResult = calculatedExpressionResult;
+        this.count = count;
+        this.isContextSensitive = isContextSensitive;
+    }
 
     @Override
     public String stringify(String prefix) {
@@ -23,9 +36,9 @@ public record ComplexCalculatorEntry(ComplexCalculedCommand command,
                             Expression: %s
                             %s (expression complexity) %s %s (number of calculations) = %s (total)"""
                         .formatted(
-                                stringifyCommand(command), getTotalComplexity(),
-                                calculedExpressionResult.expression().accept(new ExpressionPrinter()),
-                                calculedExpressionResult.complexity(), getSign(), count, getTotalComplexity()
+                                stringifyCommand(), getTotalComplexity(),
+                                calculatedExpressionResult.expression().accept(new ExpressionPrinter()),
+                                calculatedExpressionResult.complexity(), getSign(), count, getTotalComplexity()
                         );
 
         var text = Arrays.stream(template.split("\n"))
@@ -33,7 +46,7 @@ public record ComplexCalculatorEntry(ComplexCalculedCommand command,
                 .collect(Collectors.joining("\n"));
 
         var prefixRorSubTable = toRow(prefix, "%s", "    | ");
-        var subTablesVerbose = calculedExpressionResult.calculators().stream()
+        var subTablesVerbose = calculatedExpressionResult.calculators().stream()
                 .map(c -> new CalculatorPrinter(c, prefixRorSubTable, true).stringify())
                 .collect(Collectors.joining(format("\n%s\n", prefix)));
 
@@ -47,8 +60,8 @@ public record ComplexCalculatorEntry(ComplexCalculedCommand command,
     @Override
     public Integer getTotalComplexity() {
         return isContextSensitive ?
-                calculedExpressionResult.complexity() * count :
-                calculedExpressionResult.complexity() + count;
+                calculatedExpressionResult.complexity() * count :
+                calculatedExpressionResult.complexity() + count;
     }
 
     private String getSign() {

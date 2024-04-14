@@ -1,11 +1,13 @@
 package com.savchenko.sqlTool.model.resolver;
 
 import com.savchenko.sqlTool.exception.ValidationException;
+import com.savchenko.sqlTool.model.cache.CacheContext;
 import com.savchenko.sqlTool.model.command.From;
 import com.savchenko.sqlTool.model.command.domain.Command;
 import com.savchenko.sqlTool.model.command.domain.ComplexCalculedCommand;
 import com.savchenko.sqlTool.model.command.domain.SimpleCalculedCommand;
 import com.savchenko.sqlTool.model.command.domain.SimpleCommand;
+import com.savchenko.sqlTool.model.complexity.CachedCalculatorEntry;
 import com.savchenko.sqlTool.model.complexity.Calculator;
 import com.savchenko.sqlTool.model.domain.ExternalRow;
 import com.savchenko.sqlTool.model.domain.Projection;
@@ -18,8 +20,11 @@ public class Resolver {
 
     private final Projection projection;
 
-    public Resolver(Projection projection) {
+    private final CacheContext cacheContext;
+
+    public Resolver(Projection projection, CacheContext cacheContext) {
         this.projection = projection;
+        this.cacheContext = cacheContext;
     }
 
     public ResolverResult resolve(Query query) {
@@ -41,11 +46,21 @@ public class Resolver {
         Table table = new Table(null, null, null, externalRow);
         Calculator calculator = new Calculator();
 
-        for (Command cmd : commands) {
+        for (int i = 0; i < commands.size(); i++) {
 
+            var command = commands.get(i);
             var tableRef = table;
+            var cachePattern = commands.subList(0, i);
+            var cachedResult = cacheContext.get(cachePattern);
 
-            var commandResult = cmd.accept(new Command.Visitor<CommandResult>() {
+            if (cachedResult.isPresent()) {
+                var commandResult = cachedResult.get();
+                calculator.log(new CachedCalculatorEntry(commandResult.calculatorEntry()));
+                table = commandResult.table();
+                continue;
+            }
+
+            var commandResult = command.accept(new Command.Visitor<CommandResult>() {
 
                 @Override
                 public CommandResult visit(SimpleCommand command) {
@@ -68,6 +83,7 @@ public class Resolver {
             table = commandResult.table();
 
         }
+
         return new ResolverResult(table, calculator);
     }
 }

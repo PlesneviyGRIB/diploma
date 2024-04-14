@@ -12,8 +12,10 @@ import com.savchenko.sqlTool.utils.ModelUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Select implements SimpleCommand, LazinessIndependent {
+
     private final List<Column> columns;
 
     public Select(List<Column> columns) {
@@ -42,4 +44,16 @@ public class Select implements SimpleCommand, LazinessIndependent {
         );
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Select select = (Select) o;
+        return Objects.equals(columns, select.columns);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(columns);
+    }
 }
