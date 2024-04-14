@@ -2,7 +2,7 @@ package com.savchenko.sqlTool.model.command;
 
 import com.savchenko.sqlTool.exception.UnsupportedTypeException;
 import com.savchenko.sqlTool.model.command.domain.ComplexCalculedCommand;
-import com.savchenko.sqlTool.model.complexity.ComplexCalculedEntry;
+import com.savchenko.sqlTool.model.complexity.ComplexCalculatorEntry;
 import com.savchenko.sqlTool.model.complexity.laziness.Lazy;
 import com.savchenko.sqlTool.model.domain.ExternalRow;
 import com.savchenko.sqlTool.model.domain.Projection;
@@ -57,7 +57,7 @@ public class Where extends ComplexCalculedCommand implements Lazy {
 
         return new CommandResult(
                 new Table(table.name(), table.columns(), data, table.externalRow()),
-                new ComplexCalculedEntry(this, calculedExpressionEntry, table.data().size(), isContextSensitiveExpression)
+                new ComplexCalculatorEntry(this, calculedExpressionEntry, table.data().size(), isContextSensitiveExpression)
         );
     }
 

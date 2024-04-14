@@ -4,7 +4,7 @@ import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.command.domain.Command;
 import com.savchenko.sqlTool.model.command.domain.ComplexCalculedCommand;
 import com.savchenko.sqlTool.model.complexity.CalculatorEntry;
-import com.savchenko.sqlTool.model.complexity.JoinCalculedEntry;
+import com.savchenko.sqlTool.model.complexity.JoinCalculatorEntry;
 import com.savchenko.sqlTool.model.complexity.laziness.Lazy;
 import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.Table;
@@ -65,7 +65,7 @@ public abstract class Join extends ComplexCalculedCommand implements Lazy {
             var calculedExpressionEntry = expression.accept(new ExpressionComplexityCalculator(resolver, ModelUtils.getFullCopyExternalRow(table))).normalize();
             var isContextSensitiveExpression = expression.accept(new ContextSensitiveExpressionQualifier(resolver, ModelUtils.getFullCopyExternalRow(table)));
 
-            return new JoinCalculedEntry(this, resolverResult.calculator(), remainderSize, calculedExpressionEntry, operationsCount, isContextSensitiveExpression);
+            return new JoinCalculatorEntry(this, resolverResult.calculator(), remainderSize, calculedExpressionEntry, operationsCount, isContextSensitiveExpression);
         };
 
         var pair = run(table, joinedTable, strategyExecutionResultSupplier);

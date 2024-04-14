@@ -4,7 +4,7 @@ import com.savchenko.sqlTool.exception.UnexpectedException;
 import com.savchenko.sqlTool.model.command.domain.SimpleCalculedCommand;
 import com.savchenko.sqlTool.model.command.function.AggregationFunction;
 import com.savchenko.sqlTool.model.command.function.Identity;
-import com.savchenko.sqlTool.model.complexity.SimpleCalculedEntry;
+import com.savchenko.sqlTool.model.complexity.SimpleCalculatorEntry;
 import com.savchenko.sqlTool.model.complexity.laziness.LazyConcealer;
 import com.savchenko.sqlTool.model.domain.Column;
 import com.savchenko.sqlTool.model.domain.Projection;
@@ -67,7 +67,7 @@ public class GroupBy implements SimpleCalculedCommand, LazyConcealer {
 
             return new CommandResult(
                     new Table(table.name(), targetColumns, List.of(values), table.externalRow()),
-                    new SimpleCalculedEntry(this, 0)
+                    new SimpleCalculatorEntry(this, 0)
             );
         }
 
@@ -170,7 +170,7 @@ public class GroupBy implements SimpleCalculedCommand, LazyConcealer {
 
         return new CommandResult(
                 new Table(table.name(), table.columns(), data, table.externalRow()),
-                new SimpleCalculedEntry(this, 0)
+                new SimpleCalculatorEntry(this, 0)
         );
     }
 

@@ -1,7 +1,7 @@
 package com.savchenko.sqlTool.model.command;
 
 import com.savchenko.sqlTool.model.command.domain.SimpleCalculedCommand;
-import com.savchenko.sqlTool.model.complexity.SimpleCalculedEntry;
+import com.savchenko.sqlTool.model.complexity.SimpleCalculatorEntry;
 import com.savchenko.sqlTool.model.complexity.laziness.Lazy;
 import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.Table;
@@ -17,7 +17,7 @@ public class Distinct implements SimpleCalculedCommand, Lazy {
 
         return new CommandResult(
                 new Table(table.name(), table.columns(), targetData, table.externalRow()),
-                new SimpleCalculedEntry(this, data.size())
+                new SimpleCalculatorEntry(this, data.size())
         );
     }
 }

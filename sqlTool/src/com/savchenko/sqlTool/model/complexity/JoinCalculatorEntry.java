@@ -10,12 +10,12 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
-public record JoinCalculedEntry(Join command,
-                                Calculator calculator,
-                                Integer remainderSize,
-                                CalculedExpressionResult calculedExpressionResult,
-                                Integer count,
-                                boolean isContextSensitive) implements CalculatorEntry {
+public record JoinCalculatorEntry(Join command,
+                                  Calculator calculator,
+                                  Integer remainderSize,
+                                  CalculedExpressionResult calculedExpressionResult,
+                                  Integer count,
+                                  boolean isContextSensitive) implements CalculatorEntry {
 
     @Override
     public String stringify(String prefix) {
@@ -46,11 +46,6 @@ public record JoinCalculedEntry(Join command,
         }
 
         return text;
-    }
-
-    @Override
-    public String stringifyCached(String prefix) {
-        return toRow(prefix, "%s %s", stringifyCommand(command), stringifyCachedResult());
     }
 
     @Override

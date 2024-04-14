@@ -2,7 +2,7 @@ package com.savchenko.sqlTool.model.command;
 
 import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.command.domain.SimpleCalculedCommand;
-import com.savchenko.sqlTool.model.complexity.SimpleCalculedEntry;
+import com.savchenko.sqlTool.model.complexity.SimpleCalculatorEntry;
 import com.savchenko.sqlTool.model.complexity.laziness.LazyConcealer;
 import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.Table;
@@ -59,7 +59,7 @@ public class OrderBy implements SimpleCalculedCommand, LazyConcealer {
         var data = table.data().stream().sorted(rowsComparator).toList();
         return new CommandResult(
                 new Table(table.name(), table.columns(), data, table.externalRow()),
-                new SimpleCalculedEntry(this, 0)
+                new SimpleCalculatorEntry(this, 0)
         );
     }
 
