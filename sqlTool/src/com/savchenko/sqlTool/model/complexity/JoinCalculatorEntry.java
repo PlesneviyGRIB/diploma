@@ -8,6 +8,8 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+import static com.savchenko.sqlTool.utils.printer.CalculatorPrinter.TableType.INNER;
+import static com.savchenko.sqlTool.utils.printer.CalculatorPrinter.TableType.JOIN;
 import static java.lang.String.format;
 
 public class JoinCalculatorEntry extends ExecutedCalculatorEntry {
@@ -41,7 +43,7 @@ public class JoinCalculatorEntry extends ExecutedCalculatorEntry {
                             %s (joined table complexity) + %s (expression complexity) %s %s (number of calculations) = %s (total)"""
                         .formatted(
                                 stringifyCommand(), ((Join) command).getStrategy(), getTotalComplexity(),
-                                new CalculatorPrinter(calculator, "    | ", false).stringify(),
+                                new CalculatorPrinter(calculator, "    | ", JOIN).stringify(),
                                 calculatedExpressionResult.expression().accept(new ExpressionPrinter()),
                                 calculator.getTotalComplexity(), calculatedExpressionResult.complexity(), getSign(), count, getTotalComplexityWithoutRemainder()
                         );
@@ -52,7 +54,7 @@ public class JoinCalculatorEntry extends ExecutedCalculatorEntry {
 
         var prefixRorSubTable = toRow(prefix, "%s", "    | ");
         var subTablesVerbose = calculatedExpressionResult.calculators().stream()
-                .map(c -> new CalculatorPrinter(c, prefixRorSubTable, true).stringify())
+                .map(c -> new CalculatorPrinter(c, prefixRorSubTable, INNER).stringify())
                 .collect(Collectors.joining(format("\n%s\n", prefix)));
 
         if (StringUtils.isNoneBlank(subTablesVerbose)) {

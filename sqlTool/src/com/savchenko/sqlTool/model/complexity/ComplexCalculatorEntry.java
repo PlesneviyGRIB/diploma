@@ -8,11 +8,10 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+import static com.savchenko.sqlTool.utils.printer.CalculatorPrinter.TableType.INNER;
 import static java.lang.String.format;
 
 public class ComplexCalculatorEntry extends ExecutedCalculatorEntry implements TotalCalculed {
-
-    private final ComplexCalculedCommand command;
 
     private final CalculatedExpressionResult calculatedExpressionResult;
 
@@ -22,7 +21,6 @@ public class ComplexCalculatorEntry extends ExecutedCalculatorEntry implements T
 
     public ComplexCalculatorEntry(ComplexCalculedCommand command, CalculatedExpressionResult calculatedExpressionResult, Integer count, boolean isContextSensitive) {
         super(command);
-        this.command = command;
         this.calculatedExpressionResult = calculatedExpressionResult;
         this.count = count;
         this.isContextSensitive = isContextSensitive;
@@ -47,7 +45,7 @@ public class ComplexCalculatorEntry extends ExecutedCalculatorEntry implements T
 
         var prefixRorSubTable = toRow(prefix, "%s", "    | ");
         var subTablesVerbose = calculatedExpressionResult.calculators().stream()
-                .map(c -> new CalculatorPrinter(c, prefixRorSubTable, true).stringify())
+                .map(c -> new CalculatorPrinter(c, prefixRorSubTable, INNER).stringify())
                 .collect(Collectors.joining(format("\n%s\n", prefix)));
 
         if (StringUtils.isNoneBlank(subTablesVerbose)) {

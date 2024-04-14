@@ -50,8 +50,8 @@ public class Resolver {
 
             var command = commands.get(i);
             var tableRef = table;
-            var cachePattern = commands.subList(0, i);
-            var cachedResult = cacheContext.get(cachePattern);
+            var cachePattern = commands.subList(0, i + 1);
+            var cachedResult = cacheContext.get(cachePattern, externalRow);
 
             if (cachedResult.isPresent()) {
                 var commandResult = cachedResult.get();
@@ -79,6 +79,7 @@ public class Resolver {
 
             });
 
+            cacheContext.cacheCommand(cachePattern, externalRow, commandResult);
             calculator.log(commandResult.calculatorEntry());
             table = commandResult.table();
 

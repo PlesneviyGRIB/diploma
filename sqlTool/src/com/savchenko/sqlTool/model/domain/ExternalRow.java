@@ -81,4 +81,19 @@ public class ExternalRow extends Row {
 //        return new ExternalRow(columns, values);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ExternalRow that = (ExternalRow) o;
+        return used == that.used
+                && Objects.equals(externalRow1, that.externalRow1)
+                && Objects.equals(externalRow2, that.externalRow2)
+                && Objects.equals(columnValueMap, that.columnValueMap);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(externalRow1, externalRow2, used);
+    }
 }

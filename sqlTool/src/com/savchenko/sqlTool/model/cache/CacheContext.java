@@ -1,6 +1,7 @@
 package com.savchenko.sqlTool.model.cache;
 
 import com.savchenko.sqlTool.model.command.domain.Command;
+import com.savchenko.sqlTool.model.domain.ExternalRow;
 import com.savchenko.sqlTool.model.resolver.CommandResult;
 
 import java.util.HashMap;
@@ -18,14 +19,14 @@ public class CacheContext {
         this.strategy = strategy;
     }
 
-    public void cacheCommand(List<Command> commands, CommandResult commandResult) {
+    public void cacheCommand(List<Command> commands, ExternalRow externalRow, CommandResult commandResult) {
         if (strategy == CacheStrategy.PROPER) {
-            cache.put(new CacheKey(commands), commandResult);
+            cache.put(new CacheKey(commands, externalRow), commandResult);
         }
     }
 
-    public Optional<CommandResult> get(List<Command> commands) {
-        return Optional.ofNullable(cache.get(new CacheKey(commands)));
+    public Optional<CommandResult> get(List<Command> commands, ExternalRow externalRow) {
+        return Optional.ofNullable(cache.get(new CacheKey(commands, externalRow)));
     }
 
 }
