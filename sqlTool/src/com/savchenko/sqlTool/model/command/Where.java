@@ -16,7 +16,6 @@ import com.savchenko.sqlTool.model.resolver.Resolver;
 import com.savchenko.sqlTool.model.visitor.*;
 import com.savchenko.sqlTool.utils.ModelUtils;
 
-import java.util.Objects;
 import java.util.Optional;
 
 public class Where extends ComplexCalculedCommand implements Lazy {
@@ -31,12 +30,12 @@ public class Where extends ComplexCalculedCommand implements Lazy {
         expression.accept(new ExpressionValidator(table.columns(), table.externalRow()));
 
         var isContextSensitiveExpression = expression
-                .accept(new ContextSensitiveExpressionQualifier(resolver, ModelUtils.getFullCopyExternalRow(table)));
+                .accept(new ContextSensitiveExpressionQualifier(resolver.utilityInstance(), ModelUtils.getFullCopyExternalRow(table)));
 
         Optional<Value<?>> valueProvider = isContextSensitiveExpression ?
                 Optional.empty() : Optional.of(expression.accept(new ExpressionCalculator(resolver, ExternalRow.empty())));
 
-        var calculedExpressionEntry = expression.accept(new ExpressionComplexityCalculator(resolver, ModelUtils.getFullCopyExternalRow(table))).normalize();
+        var calculatedExpressionEntry = expression.accept(new ExpressionComplexityCalculator(resolver, ModelUtils.getFullCopyExternalRow(table))).normalize();
 
         var data = table.data().stream()
                 .filter(row -> {
@@ -58,21 +57,8 @@ public class Where extends ComplexCalculedCommand implements Lazy {
 
         return new CommandResult(
                 new Table(table.name(), table.columns(), data, table.externalRow()),
-                new ComplexCalculatorEntry(this, calculedExpressionEntry, table.data().size(), isContextSensitiveExpression)
+                new ComplexCalculatorEntry(this, calculatedExpressionEntry, table.data().size(), isContextSensitiveExpression)
         );
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ComplexCalculedCommand that = (ComplexCalculedCommand) o;
-        return Objects.equals(expression, that.expression);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(expression);
     }
 
 }

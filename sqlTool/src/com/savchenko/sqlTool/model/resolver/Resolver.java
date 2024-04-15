@@ -2,6 +2,7 @@ package com.savchenko.sqlTool.model.resolver;
 
 import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.cache.CacheContext;
+import com.savchenko.sqlTool.model.cache.CacheStrategy;
 import com.savchenko.sqlTool.model.command.From;
 import com.savchenko.sqlTool.model.command.domain.Command;
 import com.savchenko.sqlTool.model.command.domain.ComplexCalculedCommand;
@@ -86,5 +87,9 @@ public class Resolver {
         }
 
         return new ResolverResult(table, calculator);
+    }
+
+    public Resolver utilityInstance() {
+        return new Resolver(projection, new CacheContext(CacheStrategy.NONE));
     }
 }

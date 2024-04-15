@@ -58,7 +58,7 @@ public enum JoinStrategy {
             Supplier<Expression> tableExpression = () -> forwardOrder ? leftExpression : rightExpression;
             Supplier<Expression> joinedTableExpression = () -> forwardOrder ? rightExpression : leftExpression;
 
-            var isContextSensitiveExpression = expression.accept(new ContextSensitiveExpressionQualifier(resolver, ModelUtils.getFullCopyExternalRow(table)));
+            var isContextSensitiveExpression = expression.accept(new ContextSensitiveExpressionQualifier(resolver.utilityInstance(), ModelUtils.getFullCopyExternalRow(table)));
 
             Optional<Value<?>> tableValueProvider = isContextSensitiveExpression ?
                     Optional.empty() : Optional.of(tableExpression.get().accept(new ExpressionCalculator(resolver, ExternalRow.empty())));
@@ -119,7 +119,7 @@ public enum JoinStrategy {
         var rightJoinedRowIndexes = new HashSet<Integer>();
         var rightIndexedData = ModelUtils.getIndexedData(joinedTable.data());
 
-        var isContextSensitiveExpression = expression.accept(new ContextSensitiveExpressionQualifier(resolver, ModelUtils.getFullCopyExternalRow(table)));
+        var isContextSensitiveExpression = expression.accept(new ContextSensitiveExpressionQualifier(resolver.utilityInstance(), ModelUtils.getFullCopyExternalRow(table)));
 
         Optional<Value<?>> valueProvider = isContextSensitiveExpression ?
                 Optional.empty() : Optional.of(expression.accept(new ExpressionCalculator(resolver, ExternalRow.empty())));

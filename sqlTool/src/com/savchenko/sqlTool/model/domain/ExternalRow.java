@@ -2,8 +2,10 @@ package com.savchenko.sqlTool.model.domain;
 
 import com.savchenko.sqlTool.model.expression.Value;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public class ExternalRow extends Row {
@@ -67,33 +69,18 @@ public class ExternalRow extends Row {
         return new ExternalRow(this, row);
     }
 
-    public ExternalRow deepCopy() {
-        return this;
-//        if(Objects.nonNull(externalRow1) && Objects.nonNull(externalRow2)) {
-//            return new ExternalRow(externalRow1.deepCopy(), externalRow2.deepCopy());
-//        }
-//
-//        Set<Map.Entry<Column, Value<?>>> entries = this.columnValueMap.entrySet();
-//
-//        var columns = entries.stream().map(Map.Entry::getKey).toList();
-//        var values = entries.stream().map(Map.Entry::getValue).collect(Collectors.<Value<?>>toList());
-//
-//        return new ExternalRow(columns, values);
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ExternalRow that = (ExternalRow) o;
-        return used == that.used
-                && Objects.equals(externalRow1, that.externalRow1)
+        return Objects.equals(externalRow1, that.externalRow1)
                 && Objects.equals(externalRow2, that.externalRow2)
                 && Objects.equals(columnValueMap, that.columnValueMap);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(externalRow1, externalRow2, used);
+        return Objects.hash(externalRow1, externalRow2, columnValueMap);
     }
 }

@@ -195,7 +195,7 @@ public class ModelUtils {
 
     public static ExternalRow getFullCopyExternalRow(Table table) {
         var externalRow = table.data().isEmpty() ? ExternalRow.empty() : new ExternalRow(table.columns(), table.data().get(0));
-        return table.externalRow().merge(externalRow).deepCopy();
+        return table.externalRow().merge(externalRow);
     }
 
 }
