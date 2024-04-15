@@ -151,7 +151,7 @@ public class ModelUtils {
             return check.apply(List.of(AND, BETWEEN, OR));
         }
         if (clazz.equals(StringValue.class)) {
-            return check.apply(List.of(BETWEEN, PLUS));
+            return check.apply(List.of(BETWEEN, PLUS, LIKE));
         }
         if (clazz.equals(BooleanValue.class)) {
             return List.of(AND, OR, EXISTS, IN, IS_NULL, EQ, NOT_EQ, NOT).contains(operator);
@@ -196,6 +196,13 @@ public class ModelUtils {
     public static ExternalRow getFullCopyExternalRow(Table table) {
         var externalRow = table.data().isEmpty() ? ExternalRow.empty() : new ExternalRow(table.columns(), table.data().get(0));
         return table.externalRow().merge(externalRow).deepCopy();
+    }
+
+    public static String sqlPatternToJavaPattern(String pattern) {
+        return pattern
+                .replace(".", "\\.")
+                .replace("?", ".")
+                .replace("%", ".*");
     }
 
 }

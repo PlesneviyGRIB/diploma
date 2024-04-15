@@ -109,6 +109,12 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
             case PLUS, MINUS, MULTIPLY, DIVISION, MOD -> {
                 return l.processArithmetic(operation.operator(), r);
             }
+            case LIKE -> {
+                var target = ((StringValue) l).value();
+                var pattern = ((StringValue) r).value();
+                var matches = target.matches(ModelUtils.sqlPatternToJavaPattern(pattern));
+                return new BooleanValue(matches);
+            }
             default -> throw new UnexpectedExpressionException(operation);
         }
     }

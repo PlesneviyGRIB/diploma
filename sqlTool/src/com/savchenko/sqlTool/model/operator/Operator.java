@@ -10,6 +10,7 @@ public enum Operator {
     IN("in"),
     OR("or"),
     IS_NULL("is null"),
+    LIKE("like"),
 
     EQ("="),
     NOT_EQ("!="),
@@ -30,7 +31,7 @@ public enum Operator {
     }
 
     public boolean isLogic() {
-        var operators = List.of(AND, BETWEEN, EXISTS, IN, OR, IS_NULL, EQ, NOT_EQ, GREATER_OR_EQ, LESS_OR_EQ, GREATER, LESS, NOT);
+        var operators = List.of(AND, BETWEEN, EXISTS, IN, OR, IS_NULL, EQ, NOT_EQ, GREATER_OR_EQ, LESS_OR_EQ, GREATER, LESS, NOT, LIKE);
         return operators.stream().anyMatch(o -> o.equals(this));
     }
 
@@ -45,7 +46,7 @@ public enum Operator {
     }
 
     public boolean isBinary() {
-        var operators = List.of(AND, IN, OR, EQ, NOT_EQ, GREATER_OR_EQ, LESS_OR_EQ, GREATER, LESS, PLUS, MINUS, MULTIPLY, DIVISION, MOD);
+        var operators = List.of(AND, IN, OR, EQ, NOT_EQ, GREATER_OR_EQ, LESS_OR_EQ, GREATER, LESS, PLUS, MINUS, MULTIPLY, DIVISION, MOD, LIKE);
         return operators.stream().anyMatch(o -> o.equals(this));
     }
 

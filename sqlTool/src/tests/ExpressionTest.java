@@ -2,10 +2,8 @@ package tests;
 
 import com.savchenko.sqlTool.exception.ComputedTypeException;
 import com.savchenko.sqlTool.model.domain.ExternalRow;
-import com.savchenko.sqlTool.model.expression.ExpressionList;
-import com.savchenko.sqlTool.model.expression.IntegerNumber;
-import com.savchenko.sqlTool.model.expression.LongNumber;
-import com.savchenko.sqlTool.model.expression.SubTable;
+import com.savchenko.sqlTool.model.domain.Table;
+import com.savchenko.sqlTool.model.expression.*;
 import com.savchenko.sqlTool.model.visitor.ExpressionValidator;
 import com.savchenko.sqlTool.query.Q;
 import com.savchenko.sqlTool.query.Query;
@@ -14,6 +12,7 @@ import org.junit.Test;
 
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static com.savchenko.sqlTool.model.operator.Operator.*;
 
@@ -107,6 +106,20 @@ public class ExpressionTest extends TestBase {
 
         Assert.assertEquals(550, res.data().size());
 
+    }
+
+    @Test
+    public void like() {
+        Function<String, Table> resultProvider = pattern -> resolver.resolve(
+                new Query()
+                        .from("actions")
+                        .where(Q.op(LIKE, Q.column("actions", "parameters"), new StringValue(pattern)))
+        ).table();
+
+        Assert.assertEquals(435, resultProvider.apply("%final%").data().size());
+        Assert.assertEquals(418, resultProvider.apply("\\{\\}").data().size());
+        Assert.assertEquals(409, resultProvider.apply("%finalAnswerPlaceholderId%").data().size());
+        Assert.assertEquals(50, resultProvider.apply("%c5666703-4b9f-40f6-9268-8f92619d1199%").data().size());
     }
 
 }
