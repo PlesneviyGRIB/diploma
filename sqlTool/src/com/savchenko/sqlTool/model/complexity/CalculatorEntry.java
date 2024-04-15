@@ -2,7 +2,7 @@ package com.savchenko.sqlTool.model.complexity;
 
 import static java.lang.String.format;
 
-public interface CalculatorEntry extends TotalCalculed {
+public interface CalculatorEntry extends TotalCalculated {
 
     String stringify(String prefix);
 

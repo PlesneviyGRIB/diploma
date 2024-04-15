@@ -2,10 +2,8 @@ package com.savchenko.sqlTool.model.domain;
 
 import com.savchenko.sqlTool.model.expression.Value;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ExternalRow extends Row {
@@ -67,6 +65,18 @@ public class ExternalRow extends Row {
 
     public ExternalRow merge(ExternalRow row) {
         return new ExternalRow(this, row);
+    }
+
+    public ExternalRow deepCopy() {
+        if (Objects.nonNull(externalRow1)) {
+            return new ExternalRow(externalRow1.deepCopy(), externalRow2.deepCopy());
+        }
+
+        var entries = columnValueMap.entrySet().stream().toList();
+        var columns = entries.stream().map(Map.Entry::getKey).toList();
+        List<Value<?>> values = entries.stream().map(Map.Entry::getValue).collect(Collectors.toList());
+
+        return new ExternalRow(columns, values);
     }
 
     @Override

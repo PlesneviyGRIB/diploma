@@ -48,13 +48,21 @@ public class CalculatorPrinter extends Printer<Calculator> {
     }
 
     private void appendHeader() {
-        var complexity = domain.getTotalComplexity();
+        var totalComplexity = domain.getTotalComplexity();
 
         switch (tableType) {
-            case PRIMARY -> sb.append(format("%sTOTAL COMPLEXITY: \u001B[34m%s\u001B[0m \n", prefix, complexity));
-            case JOIN -> sb.append(format("%sJOINED TABLE COMPLEXITY: \u001B[32m%s\u001B[0m\n", prefix, complexity));
-            case INNER -> sb.append(format("%sSUB TABLE COMPLEXITY: \u001B[32m%s\u001B[0m\n", prefix, complexity));
+            case PRIMARY -> sb.append(format("%sTOTAL COMPLEXITY: \u001B[34m%s\u001B[0m", prefix, totalComplexity));
+            case JOIN -> sb.append(format("%sJOINED TABLE COMPLEXITY: \u001B[32m%s\u001B[0m", prefix, totalComplexity));
+            case INNER -> sb.append(format("%sSUB TABLE COMPLEXITY: \u001B[32m%s\u001B[0m", prefix, totalComplexity));
         }
+
+        var fullComplexity = domain.getFullComplexity();
+
+        if(!totalComplexity.equals(fullComplexity)) {
+            sb.append(" (CACHED ").append(fullComplexity - totalComplexity).append(" -> 0)");
+        }
+
+        sb.append("\n");
     }
 
     private void appendInfo() {

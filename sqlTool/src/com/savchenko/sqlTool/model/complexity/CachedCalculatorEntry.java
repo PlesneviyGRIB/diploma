@@ -12,4 +12,9 @@ public record CachedCalculatorEntry(ExecutedCalculatorEntry calculatorEntry) imp
         return 0;
     }
 
+    @Override
+    public Integer getFullComplexity() {
+        return calculatorEntry.getFullComplexity();
+    }
+
 }

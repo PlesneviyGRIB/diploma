@@ -72,6 +72,17 @@ public class JoinCalculatorEntry extends ExecutedCalculatorEntry {
                         calculatedExpressionResult.complexity() + count);
     }
 
+    @Override
+    public Integer getFullComplexity() {
+        var expressionComplexity = calculatedExpressionResult.calculators().stream()
+                .map(c -> c.getFullComplexity() - c.getTotalComplexity())
+                .reduce(0, Integer::sum) + getTotalComplexity();
+
+        return isContextSensitive ?
+                expressionComplexity * count :
+                expressionComplexity + count;
+    }
+
     public Integer getTotalComplexityWithoutRemainder() {
         return calculator.getTotalComplexity() +
                 (isContextSensitive ?

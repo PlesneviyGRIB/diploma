@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import static com.savchenko.sqlTool.utils.printer.CalculatorPrinter.TableType.INNER;
 import static java.lang.String.format;
 
-public class ComplexCalculatorEntry extends ExecutedCalculatorEntry implements TotalCalculed {
+public class ComplexCalculatorEntry extends ExecutedCalculatorEntry implements TotalCalculated {
 
     private final CalculatedExpressionResult calculatedExpressionResult;
 
@@ -60,6 +60,17 @@ public class ComplexCalculatorEntry extends ExecutedCalculatorEntry implements T
         return isContextSensitive ?
                 calculatedExpressionResult.complexity() * count :
                 calculatedExpressionResult.complexity() + count;
+    }
+
+    @Override
+    public Integer getFullComplexity() {
+        var expressionComplexity = calculatedExpressionResult.calculators().stream()
+                .map(c -> c.getFullComplexity() - c.getTotalComplexity())
+                .reduce(0, Integer::sum) + calculatedExpressionResult.complexity();
+
+        return isContextSensitive ?
+                expressionComplexity * count :
+                expressionComplexity + count;
     }
 
     private String getSign() {

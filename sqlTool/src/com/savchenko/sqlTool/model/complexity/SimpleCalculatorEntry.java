@@ -20,4 +20,9 @@ public class SimpleCalculatorEntry extends ExecutedCalculatorEntry {
     public Integer getTotalComplexity() {
         return value;
     }
+
+    @Override
+    public Integer getFullComplexity() {
+        return value;
+    }
 }

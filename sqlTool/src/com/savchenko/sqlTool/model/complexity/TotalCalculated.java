@@ -1,7 +1,9 @@
 package com.savchenko.sqlTool.model.complexity;
 
-public interface TotalCalculed {
+public interface TotalCalculated {
 
     Integer getTotalComplexity();
+
+    Integer getFullComplexity();
 
 }

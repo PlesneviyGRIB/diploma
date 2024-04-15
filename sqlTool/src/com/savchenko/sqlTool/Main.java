@@ -32,7 +32,7 @@ public class Main {
                         new Query()
                                 .from("courses")
                                 .as("c1")
-                                .where(Q.op(OR,
+                                .where(Q.op(OR, Q.op(OR,
                                                 Q.op(EXISTS, new SubTable(
                                                         new Query()
                                                                 .from("courses")
@@ -55,6 +55,17 @@ public class Main {
                                                                         ))
                                                                         .build()))
                                                 )
+                                        ),
+                                        Q.op(EXISTS, new SubTable(
+                                                new Query()
+                                                        .from("courses")
+                                                        .as("c2")
+                                                        .where(Q.op(GREATER, Q.column("c2", "id"), new LongNumber(152L)))
+                                                        .where(Q.op(AND,
+                                                                Q.op(EQ, Q.op(MINUS, Q.column("c1", "id"), new LongNumber(2L)), Q.column("c1", "id")),
+                                                                Q.op(EQ, Q.column("c1", "id"), Q.op(MINUS, Q.column("c2", "id"), new LongNumber(4L)))
+                                                        ))
+                                                        .build()))
                                         )
                                 )
                                 .build()))
