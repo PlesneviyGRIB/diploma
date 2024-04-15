@@ -12,25 +12,16 @@ import static com.savchenko.sqlTool.utils.printer.CalculatorPrinter.TableType.IN
 import static com.savchenko.sqlTool.utils.printer.CalculatorPrinter.TableType.JOIN;
 import static java.lang.String.format;
 
-public class JoinCalculatorEntry extends ExecutedCalculatorEntry {
+public class JoinCalculatorEntry extends ComplexCalculatorEntry {
 
     private final Calculator calculator;
 
     private final Integer remainderSize;
 
-    private final CalculatedExpressionResult calculatedExpressionResult;
-
-    private final Integer count;
-
-    private final boolean isContextSensitive;
-
     public JoinCalculatorEntry(Join command, Calculator calculator, Integer remainderSize, CalculatedExpressionResult calculatedExpressionResult, Integer count, boolean isContextSensitive) {
-        super(command);
+        super(command, calculatedExpressionResult, count, isContextSensitive);
         this.calculator = calculator;
         this.remainderSize = remainderSize;
-        this.calculatedExpressionResult = calculatedExpressionResult;
-        this.count = count;
-        this.isContextSensitive = isContextSensitive;
     }
 
     @Override
@@ -45,7 +36,7 @@ public class JoinCalculatorEntry extends ExecutedCalculatorEntry {
                                 stringifyCommand(), ((Join) command).getStrategy(), getTotalComplexity(),
                                 new CalculatorPrinter(calculator, "    | ", JOIN).stringify(),
                                 calculatedExpressionResult.expression().accept(new ExpressionPrinter()),
-                                calculator.getTotalComplexity(), calculatedExpressionResult.complexity(), getSign(), count, getTotalComplexityWithoutRemainder()
+                                calculator.getTotalComplexity(), calculatedExpressionResult.complexity(), getSign(), count, super.getTotalComplexity()
                         );
 
         var text = Arrays.stream(template.split("\n"))
@@ -76,22 +67,11 @@ public class JoinCalculatorEntry extends ExecutedCalculatorEntry {
     public Integer getFullComplexity() {
         var expressionComplexity = calculatedExpressionResult.calculators().stream()
                 .map(c -> c.getFullComplexity() - c.getTotalComplexity())
-                .reduce(0, Integer::sum) + getTotalComplexity();
+                .reduce(0, Integer::sum) + calculatedExpressionResult.complexity() + remainderSize;
 
         return isContextSensitive ?
                 expressionComplexity * count :
                 expressionComplexity + count;
-    }
-
-    public Integer getTotalComplexityWithoutRemainder() {
-        return calculator.getTotalComplexity() +
-                (isContextSensitive ?
-                        calculatedExpressionResult.complexity() * count :
-                        calculatedExpressionResult.complexity() + count);
-    }
-
-    private String getSign() {
-        return isContextSensitive ? "*" : "+";
     }
 
 }

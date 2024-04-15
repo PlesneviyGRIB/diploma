@@ -1,5 +1,7 @@
 package com.savchenko.sqlTool.utils.printer;
 
+import static java.lang.String.format;
+
 public abstract class Printer<T> {
 
     protected final T domain;
@@ -20,4 +22,17 @@ public abstract class Printer<T> {
     }
 
     protected abstract void buildString();
+
+    protected String green(Object object) {
+        return format("\u001B[32m%s\u001B[0m", object);
+    }
+
+    protected String red(Object object) {
+        return format("\u001B[31m%s\u001B[0m", object);
+    }
+
+    protected String blue(Object object) {
+        return format("\u001B[34m%s\u001B[0m", object);
+    }
+
 }

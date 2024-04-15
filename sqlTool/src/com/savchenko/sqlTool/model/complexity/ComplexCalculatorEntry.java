@@ -13,11 +13,11 @@ import static java.lang.String.format;
 
 public class ComplexCalculatorEntry extends ExecutedCalculatorEntry implements TotalCalculated {
 
-    private final CalculatedExpressionResult calculatedExpressionResult;
+    protected final CalculatedExpressionResult calculatedExpressionResult;
 
-    private final Integer count;
+    protected final Integer count;
 
-    private final boolean isContextSensitive;
+    protected final boolean isContextSensitive;
 
     public ComplexCalculatorEntry(ComplexCalculedCommand command, CalculatedExpressionResult calculatedExpressionResult, Integer count, boolean isContextSensitive) {
         super(command);
@@ -73,7 +73,7 @@ public class ComplexCalculatorEntry extends ExecutedCalculatorEntry implements T
                 expressionComplexity + count;
     }
 
-    private String getSign() {
+    protected String getSign() {
         return isContextSensitive ? "*" : "+";
     }
 
