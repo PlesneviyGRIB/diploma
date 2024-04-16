@@ -44,85 +44,19 @@ public class GroupBy implements SimpleCalculedCommand, LazyConcealer {
                 .map(Map.Entry::getKey)
                 .toList();
 
-        Function<Integer, ExpressionList> getColumnValues = index -> {
-            var list = table.data().stream()
-                    .map(row -> row.get(index))
-                    .toList();
-
-            return new ExpressionList(list, table.columns().get(index).type());
-        };
-
         if (groupColumns.isEmpty()) {
-            var columns = table.columns();
-            var targetColumns = new ArrayList<Column>();
-            var values = new ArrayList<Value<?>>();
-
-            for (int i = 0; i < columns.size(); i++) {
-                var column = columns.get(i);
-                var function = columnMapperMap.get(column);
-                var columnName = format("%s.%s", column.name(), function.getClass().getSimpleName().toUpperCase());
-                targetColumns.add(new Column(columnName, column.table(), column.type()));
-                values.add(function.apply(getColumnValues.apply(i)));
-            }
-
-            return new CommandResult(
-                    new Table(table.name(), targetColumns, List.of(values), table.externalRow()),
-                    new SimpleCalculatorEntry(this, 0)
-            );
+            return collapseTableToOneRow(table);
         }
-
-
-        List<AggregationFunction> functions = table.columns().stream().map(columnMapperMap::get).toList();
-
-        BiFunction<Integer, List<List<List<Value<?>>>>, List<List<List<Value<?>>>>> processGroups = (index, groupedData) -> groupedData.stream()
-                .map(group -> {
-                    BiFunction<Integer, List<List<List<Value<?>>>>, List<List<List<Value<?>>>>> tmp = (index1, rows) ->
-                            rows.stream().map(r -> {
-                                List<List<List<Value<?>>>> targetRows = new LinkedList<>();
-                                if (functions.get(index1) instanceof Identity) {
-                                    var list = group.get(index1);
-                                    list.forEach(value -> {
-                                        List<List<Value<?>>> phantomRow = new ArrayList<>(group);
-                                        phantomRow.set(index1, List.of(value));
-                                        targetRows.add(phantomRow);
-                                    });
-                                }
-                                return targetRows.isEmpty() ? List.of(r) : targetRows;
-                            }).flatMap(Collection::stream).toList();
-
-                    List<List<List<Value<?>>>> targetGroup = new LinkedList<>();
-                    for (int i = 0; i < group.size(); i++) {
-                        targetGroup = tmp.apply(i, List.of(group));
-                    }
-
-                    return targetGroup.isEmpty() ? List.of(group) : targetGroup;
-                }).flatMap(Collection::stream)
-                .collect(groupingBy(row -> row.get(index).get(0)))
-                .entrySet().stream()
-                .map(entry -> {
-                    var rows = entry.getValue();
-                    var size = rows.get(0).size();
-                    List<List<Value<?>>> groupedRow = new ArrayList<>(size);
-
-                    for (int i = 0; i < size; i++) {
-                        groupedRow.add(new LinkedList<>());
-                        for (int j = 0; j < rows.size(); j++) {
-                            groupedRow.get(i).addAll(rows.get(j).get(i));
-                        }
-                    }
-
-                    groupedRow.set(index, List.of(entry.getKey()));
-                    return groupedRow;
-                }).toList();
 
         var wrappedValues = table.data().stream()
                 .map(row -> row.stream().map(List::<Value<?>>of).toList())
                 .toList();
 
+        var functions = table.columns().stream().map(columnMapperMap::get).toList();
         var indexes = groupColumns.stream().map(c -> ModelUtils.resolveColumnIndex(table.columns(), c)).toList();
 
         for (var index : indexes) {
-            wrappedValues = processGroups.apply(index, wrappedValues);
+            wrappedValues = processGroups(index, wrappedValues, functions);
         }
 
         wrappedValues = wrappedValues.stream()
@@ -168,9 +102,11 @@ public class GroupBy implements SimpleCalculedCommand, LazyConcealer {
                     return row;
                 }).toList();
 
+        var complexity = table.columns().size() * table.data().size() * groupColumns.size();
+
         return new CommandResult(
                 new Table(table.name(), table.columns(), data, table.externalRow()),
-                new SimpleCalculatorEntry(this, 0)
+                new SimpleCalculatorEntry(this, complexity)
         );
     }
 
@@ -185,5 +121,75 @@ public class GroupBy implements SimpleCalculedCommand, LazyConcealer {
     @Override
     public int hashCode() {
         return Objects.hashCode(columnMapperMap);
+    }
+
+    private CommandResult collapseTableToOneRow(Table table) {
+        var columns = table.columns();
+        var targetColumns = new ArrayList<Column>();
+        var values = new ArrayList<Value<?>>();
+        var complexity = columns.size() * table.data().size();
+
+        Function<Integer, ExpressionList> getColumnValues = index -> {
+            var list = table.data().stream()
+                    .map(row -> row.get(index))
+                    .toList();
+            return new ExpressionList(list, table.columns().get(index).type());
+        };
+
+        for (int i = 0; i < columns.size(); i++) {
+            var column = columns.get(i);
+            var function = columnMapperMap.get(column);
+            var columnName = format("%s.%s", column.name(), function.getClass().getSimpleName().toUpperCase());
+            targetColumns.add(new Column(columnName, column.table(), column.type()));
+            values.add(function.apply(getColumnValues.apply(i)));
+        }
+
+        return new CommandResult(
+                new Table(table.name(), targetColumns, List.of(values), table.externalRow()),
+                new SimpleCalculatorEntry(this, complexity)
+        );
+    }
+
+    private List<List<List<Value<?>>>> processGroups(Integer index, List<List<List<Value<?>>>> groupedData, List<AggregationFunction> functions) {
+        return groupedData.stream()
+                .map(group -> {
+                    BiFunction<Integer, List<List<List<Value<?>>>>, List<List<List<Value<?>>>>> tmp = (index1, rows) ->
+                            rows.stream().map(r -> {
+                                List<List<List<Value<?>>>> targetRows = new LinkedList<>();
+                                if (functions.get(index1) instanceof Identity) {
+                                    var list = group.get(index1);
+                                    list.forEach(value -> {
+                                        List<List<Value<?>>> phantomRow = new ArrayList<>(group);
+                                        phantomRow.set(index1, List.of(value));
+                                        targetRows.add(phantomRow);
+                                    });
+                                }
+                                return targetRows.isEmpty() ? List.of(r) : targetRows;
+                            }).flatMap(Collection::stream).toList();
+
+                    List<List<List<Value<?>>>> targetGroup = new LinkedList<>();
+                    for (int i = 0; i < group.size(); i++) {
+                        targetGroup = tmp.apply(i, List.of(group));
+                    }
+
+                    return targetGroup.isEmpty() ? List.of(group) : targetGroup;
+                }).flatMap(Collection::stream)
+                .collect(groupingBy(row -> row.get(index).get(0)))
+                .entrySet().stream()
+                .map(entry -> {
+                    var rows = entry.getValue();
+                    var size = rows.get(0).size();
+                    List<List<Value<?>>> groupedRow = new ArrayList<>(size);
+
+                    for (int i = 0; i < size; i++) {
+                        groupedRow.add(new LinkedList<>());
+                        for (int j = 0; j < rows.size(); j++) {
+                            groupedRow.get(i).addAll(rows.get(j).get(i));
+                        }
+                    }
+
+                    groupedRow.set(index, List.of(entry.getKey()));
+                    return groupedRow;
+                }).toList();
     }
 }
