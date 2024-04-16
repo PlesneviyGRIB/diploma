@@ -5,16 +5,15 @@ import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.command.From;
 import com.savchenko.sqlTool.model.command.function.Identity;
 import com.savchenko.sqlTool.model.command.join.JoinStrategy;
-import com.savchenko.sqlTool.model.complexity.Calculator;
 import com.savchenko.sqlTool.model.domain.Column;
 import com.savchenko.sqlTool.model.domain.ExternalRow;
 import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.expression.*;
-import com.savchenko.sqlTool.model.index.BalancedTreeIndex;
 import com.savchenko.sqlTool.query.Q;
 import com.savchenko.sqlTool.query.Query;
 import com.savchenko.sqlTool.utils.ModelUtils;
 import org.apache.commons.lang3.function.TriFunction;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -274,7 +273,7 @@ public class CommandTest extends TestBase {
                                 )
                                 .build()))
                 )
-                .orderBy(Map.of(Q.column("c", "id"), false))
+                .orderBy(List.of(Pair.of(Q.column("c", "id"), false)))
                 .select(Q.column("c", "id"));
 
         var resolverResult = resolver.resolve(query);

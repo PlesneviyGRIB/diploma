@@ -8,6 +8,7 @@ import com.savchenko.sqlTool.model.domain.Column;
 import com.savchenko.sqlTool.model.expression.Expression;
 import com.savchenko.sqlTool.model.index.Index;
 import org.apache.commons.lang3.builder.Builder;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -58,9 +59,9 @@ public class Query implements Builder<List<Command>> {
         return this;
     }
 
-    public Query orderBy(Map<Column, Boolean> map) {
-        var orders = map.entrySet().stream()
-                .map(entry -> new Order(entry.getKey(), entry.getValue()))
+    public Query orderBy(List<Pair<Column, Boolean>> orderList) {
+        var orders = orderList.stream()
+                .map(pair -> new Order(pair.getLeft(), pair.getRight()))
                 .toList();
         commands.add(new OrderBy(orders));
         return this;

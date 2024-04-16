@@ -8,11 +8,11 @@ import com.savchenko.sqlTool.model.expression.SubTable;
 import com.savchenko.sqlTool.model.resolver.Resolver;
 import com.savchenko.sqlTool.query.Q;
 import com.savchenko.sqlTool.query.Query;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.List;
-import java.util.Map;
 
 import static com.savchenko.sqlTool.model.operator.Operator.*;
 
@@ -64,7 +64,7 @@ public class CacheTest extends TestBase {
                                     )
                                     .build()))
                     )
-                    .orderBy(Map.of(Q.column("c", "id"), false))
+                    .orderBy(List.of(Pair.of(Q.column("c", "id"), false)))
                     .select(Q.column("c", "id")),
             new Query()
                     .from("math_elements")

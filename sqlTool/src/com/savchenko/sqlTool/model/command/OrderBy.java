@@ -6,6 +6,7 @@ import com.savchenko.sqlTool.model.complexity.SimpleCalculatorEntry;
 import com.savchenko.sqlTool.model.complexity.laziness.LazyConcealer;
 import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.Table;
+import com.savchenko.sqlTool.model.expression.StringValue;
 import com.savchenko.sqlTool.model.expression.Value;
 import com.savchenko.sqlTool.model.resolver.CommandResult;
 import com.savchenko.sqlTool.utils.ModelUtils;
@@ -40,6 +41,10 @@ public class OrderBy implements SimpleCalculedCommand, LazyConcealer {
                 .map(o -> ModelUtils.resolveColumnIndex(table.columns(), o.column()))
                 .toList();
 
+        var complexityCollector = new Object() {
+            public Integer complexity = 0;
+        };
+
         Comparator<? super List<Value<?>>> rowsComparator = (row1, row2) -> {
             for (int i = 0; i < indexes.size(); i++) {
                 var idx = indexes.get(i);
@@ -47,6 +52,7 @@ public class OrderBy implements SimpleCalculedCommand, LazyConcealer {
                 var elem2 = row2.get(idx);
 
                 var res = ModelUtils.compareValues(elem1, elem2, table.columns().get(idx).type());
+                complexityCollector.complexity += getComparisonComplexity(elem1, elem2);
 
                 if (orders.get(i).reverse()) {
                     res *= -1;
@@ -61,7 +67,7 @@ public class OrderBy implements SimpleCalculedCommand, LazyConcealer {
         var data = table.data().stream().sorted(rowsComparator).toList();
         return new CommandResult(
                 new Table(table.name(), table.columns(), data, table.externalRow()),
-                new SimpleCalculatorEntry(this, 0)
+                new SimpleCalculatorEntry(this, complexityCollector.complexity)
         );
     }
 
@@ -76,5 +82,12 @@ public class OrderBy implements SimpleCalculedCommand, LazyConcealer {
     @Override
     public int hashCode() {
         return Objects.hashCode(orders);
+    }
+
+    private Integer getComparisonComplexity(Value<?> value1, Value<?> value2) {
+        if (value1 instanceof StringValue v1 && value2 instanceof StringValue v2) {
+            return Math.min(v1.value().length(), v2.value().length());
+        }
+        return 1;
     }
 }
