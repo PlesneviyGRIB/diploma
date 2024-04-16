@@ -26,52 +26,12 @@ public class Main {
         var projection = new DatabaseReader(connection).read();
 
         var query = new Query()
-                .from("courses")
-                .as("c")
-                .where(Q.op(EXISTS, new SubTable(
-                        new Query()
-                                .from("courses")
-                                .as("c1")
-                                .where(Q.op(OR, Q.op(OR,
-                                                Q.op(EXISTS, new SubTable(
-                                                        new Query()
-                                                                .from("courses")
-                                                                .as("c2")
-                                                                .where(Q.op(GREATER, Q.column("c2", "id"), new LongNumber(152L)))
-                                                                .where(Q.op(AND,
-                                                                        Q.op(EQ, Q.op(MINUS, Q.column("c1", "id"), new LongNumber(2L)), Q.column("c1", "id")),
-                                                                        Q.op(EQ, Q.column("c1", "id"), Q.op(MINUS, Q.column("c2", "id"), new LongNumber(4L)))
-                                                                ))
-                                                                .build())),
-                                                Q.op(NOT,
-                                                        Q.op(EXISTS, new SubTable(
-                                                                new Query()
-                                                                        .from("courses")
-                                                                        .as("c2")
-                                                                        .where(Q.op(GREATER, Q.column("c2", "id"), new LongNumber(152L)))
-                                                                        .where(Q.op(AND,
-                                                                                Q.op(EQ, Q.op(MINUS, Q.column("c1", "id"), new LongNumber(2L)), Q.column("c1", "id")),
-                                                                                Q.op(EQ, Q.column("c1", "id"), Q.op(MINUS, Q.column("c2", "id"), new LongNumber(4L)))
-                                                                        ))
-                                                                        .build()))
-                                                )
-                                        ),
-                                        Q.op(EXISTS, new SubTable(
-                                                new Query()
-                                                        .from("courses")
-                                                        .as("c2")
-                                                        .where(Q.op(GREATER, Q.column("c2", "id"), new LongNumber(152L)))
-                                                        .where(Q.op(AND,
-                                                                Q.op(EQ, Q.op(MINUS, Q.column("c1", "id"), new LongNumber(2L)), Q.column("c1", "id")),
-                                                                Q.op(EQ, Q.column("c1", "id"), Q.op(MINUS, Q.column("c2", "id"), new LongNumber(4L)))
-                                                        ))
-                                                        .build()))
-                                        )
-                                )
-                                .build()))
-                )
-                .orderBy(Map.of(Q.column("c", "id"), false))
-                .select(Q.column("c", "id"));
+                .from("math_elements")
+                .fullJoin(
+                        new Query().from("expression"),
+                        Q.op(EQ, Q.column("math_elements", "id"), Q.column("expression", "id")),
+                        JoinStrategy.LOOP
+                );
 
 
         var cacheContext = new CacheContext(CacheStrategy.PROPER);

@@ -2,6 +2,7 @@ package com.savchenko.sqlTool.model.resolver;
 
 import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.cache.CacheContext;
+import com.savchenko.sqlTool.model.cache.CacheKey;
 import com.savchenko.sqlTool.model.cache.CacheStrategy;
 import com.savchenko.sqlTool.model.command.From;
 import com.savchenko.sqlTool.model.command.domain.Command;
@@ -16,6 +17,7 @@ import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.query.Query;
 
 import java.util.List;
+import java.util.Objects;
 
 public class Resolver {
 
@@ -44,49 +46,63 @@ public class Resolver {
             }
         }
 
-        Table table = new Table(null, null, null, externalRow);
-        Calculator calculator = new Calculator();
+        var table = new Table(null, null, null, externalRow);
+        var calculator = new Calculator();
 
         for (int i = 0; i < commands.size(); i++) {
 
             var command = commands.get(i);
-            var tableRef = table;
-            var cachePattern = commands.subList(0, i + 1);
-            var cachedResult = cacheContext.get(cachePattern, externalRow);
+            var commandSequence = commands.subList(0, i + 1);
+            var cacheKey = new CacheKey(commandSequence, externalRow);
 
-            if (cachedResult.isPresent()) {
-                var commandResult = cachedResult.get();
-                calculator.log(new CachedCalculatorEntry(commandResult.calculatorEntry()));
-                table = commandResult.table();
-                continue;
+            //cache
+            var cachedCommandResult = cacheContext.get(cacheKey).orElse(null);
+            if (Objects.nonNull(cachedCommandResult)) {
+
+                var cachedCalculatorEntry = cachedCommandResult.calculatorEntry();
+                var cachedTable = cachedCommandResult.table();
+
+                calculator.log(new CachedCalculatorEntry(cachedCalculatorEntry));
+
+                if (Objects.nonNull(cachedTable)) {
+                    table = cachedCommandResult.table();
+                    continue;
+                }
             }
 
-            var commandResult = command.accept(new Command.Visitor<CommandResult>() {
+            //execution
+            var commandResult = run(command, table);
 
-                @Override
-                public CommandResult visit(SimpleCommand command) {
-                    return command.run(tableRef, projection);
-                }
-
-                @Override
-                public CommandResult visit(SimpleCalculedCommand command) {
-                    return command.run(tableRef, projection);
-                }
-
-                @Override
-                public CommandResult visit(ComplexCalculedCommand command) {
-                    return command.run(tableRef, projection, Resolver.this);
-                }
-
-            });
-
-            cacheContext.cacheCommand(cachePattern, externalRow, commandResult);
-            calculator.log(commandResult.calculatorEntry());
+            cacheContext.put(cacheKey, commandResult);
+            if (Objects.isNull(cachedCommandResult)) {
+                calculator.log(commandResult.calculatorEntry());
+            }
             table = commandResult.table();
 
         }
 
         return new ResolverResult(table, calculator);
+    }
+
+    private CommandResult run(Command command, Table table) {
+        return command.accept(new Command.Visitor<>() {
+
+            @Override
+            public CommandResult visit(SimpleCommand command) {
+                return command.run(table, projection);
+            }
+
+            @Override
+            public CommandResult visit(SimpleCalculedCommand command) {
+                return command.run(table, projection);
+            }
+
+            @Override
+            public CommandResult visit(ComplexCalculedCommand command) {
+                return command.run(table, projection, Resolver.this);
+            }
+
+        });
     }
 
     public Resolver utilityInstance() {
