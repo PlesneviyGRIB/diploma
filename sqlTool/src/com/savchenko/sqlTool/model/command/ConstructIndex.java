@@ -1,6 +1,7 @@
 package com.savchenko.sqlTool.model.command;
 
 import com.savchenko.sqlTool.model.command.domain.SimpleCalculedCommand;
+import com.savchenko.sqlTool.model.complexity.SimpleCalculatorEntry;
 import com.savchenko.sqlTool.model.complexity.laziness.LazinessIndependent;
 import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.Table;
@@ -23,7 +24,10 @@ public class ConstructIndex implements SimpleCalculedCommand, LazinessIndependen
 
         index.getColumns().forEach(column -> ModelUtils.resolveColumn(table.columns(), column));
 
-        return null;
+        return new CommandResult(
+                table,
+                new SimpleCalculatorEntry(this, table.data().size() * table.data().size())
+        );
     }
 
     @Override
