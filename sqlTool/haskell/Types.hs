@@ -2,7 +2,14 @@ module Types where
 
 import Data.Time.Clock
 
-data Query = Query [Command]
+
+type Query = [Command]
+
+type TableName = [Char]
+type ColumnName = [Char]
+type IndexName = [Char]
+
+newtype Column = Column(TableName, ColumnName)
 
 data Command = Select [Column]
              | Distinct
@@ -12,12 +19,16 @@ data Command = Select [Column]
              | RightJoin Query Expression JoinStrategy
              | FullJoin  Query Expression JoinStrategy
              | Where Expression
-             | OrderBy [Order]
-             | GroupBy
+             | OrderBy [(Column, OrderDirection)]
+             | GroupBy [(Column, AggregationFunction)]
              | Limit Int
              | Offset Int
-             | ConstructIndex Index
+             | ConstructIndex (IndexName, [Column])
              | Alias String
+
+data OrderDirection = ASC | DESC deriving (Enum)
+data JoinStrategy = LOOP | HASH | MERGE deriving (Enum)
+data AggregationFunction = COUNT | SUM | AVG | MIN | MAX | IDENTITY deriving (Enum)
 
 data Value = NullValue
            | BooleanValue Bool
@@ -29,36 +40,15 @@ data Value = NullValue
            | StringValue String
            | TimestampValue UTCTime
 
-data Column = Column { columnName :: String, tableName :: String }
+data Expression = Value
+                | UnaryOperation (Operator, Expression)
+                | BinaryOperation (Operator, Expression, Expression)
+                | TernaryOperation (Operator, Expression, Expression, Expression)
+                | SubTable Query
+                | ExpressionList [Value]
 
-data Order = Order Column OrderDirection
+data Operator =
+  AND | BETWEEN | EXISTS | NOT | IN | OR | IS_NULL | LIKE |
+  EQ | NOT_EQ | GREATER_OR_EQ | LESS_OR_EQ | GREATER | LESS |
+  PLUS | MINUS | MULTIPLY | DIVISION | MOD deriving (Enum)
 
-data OrderDirection = ASC | DESC
-
-data JoinStrategy = LOOP | HASH | MERGE
-
-data UnaryOperation = UnaryOperation { op :: Operator, exp :: Expression }
-
-data BinaryOperation = BinaryOperation { op :: Operator, left :: Expression, right :: Expression }
-
-data TernaryOperation = TernaryOperation { op :: Operator, first :: Expression, second :: Expression, third :: Expression }
-
-data Expression = Expression Query
---                | Operator -> Expression -> Expression
---                | BinaryOperation
---                | TernaryOperation
---                | Value
-
-
-data Operator = Equal
-             | NotEqual
-             | LessThan
-             | LessThanOrEqual
-             | GreaterThan
-             | GreaterThanOrEqual
-             | And
-             | Or
-
-data Index = Index { indexName :: String, columns :: [Column] }
-
-data AggregationFunction = Count | Sum | Avg | Min | Max | Identity
