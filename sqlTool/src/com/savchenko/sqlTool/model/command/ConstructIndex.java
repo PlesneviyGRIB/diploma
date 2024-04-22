@@ -26,7 +26,7 @@ public class ConstructIndex implements SimpleCalculedCommand, LazinessIndependen
 
         return new CommandResult(
                 table,
-                new SimpleCalculatorEntry(this, table.data().size() * table.data().size())
+                new SimpleCalculatorEntry(this, 0)
         );
     }
 

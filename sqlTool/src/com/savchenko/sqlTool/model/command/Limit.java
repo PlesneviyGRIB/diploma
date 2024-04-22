@@ -11,6 +11,7 @@ import com.savchenko.sqlTool.model.resolver.CommandResult;
 import java.util.Objects;
 
 public class Limit implements SimpleCommand, ClauseReducer {
+
     private final Integer limit;
 
     public Limit(Integer limit) {
@@ -19,14 +20,13 @@ public class Limit implements SimpleCommand, ClauseReducer {
 
     @Override
     public CommandResult run(Table table, Projection projection) {
+
         if (limit < 0) {
             throw new ValidationException("Limit can not be less than 0! Current value is '%s'", limit);
         }
 
-        var data = table.data();
-
         return new CommandResult(
-                new Table(table.name(), table.columns(), data.subList(0, Math.min(limit, data.size())), table.externalRow()),
+                new Table(table.name(), table.columns(), table.dataStream().limit(limit), table.externalRow()),
                 new SimpleEntry(this)
         );
     }

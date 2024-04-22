@@ -23,26 +23,24 @@ public class FullJoin extends Join {
     @Override
     public Pair<Table, Integer> run(Table table,
                                     Table joinedTable,
-                                    Supplier<Triple<List<List<Value<?>>>,
+                                    Supplier<Triple<Stream<List<Value<?>>>,
                                             Set<Integer>, Set<Integer>>> strategyExecutionResultSupplier
     ) {
 
         var result = strategyExecutionResultSupplier.get();
 
-        var leftRemainder = ModelUtils.getIndexedData(table.data()).stream()
-                .filter(pair -> !result.getMiddle().contains(pair.getLeft()))
-                .map(pair -> ListUtils.union(pair.getRight(), ModelUtils.emptyRow(joinedTable)))
-                .toList();
-
-        var rightRemainder = ModelUtils.getIndexedData(joinedTable.data()).stream()
-                .filter(pair -> !result.getRight().contains(pair.getLeft()))
-                .map(pair -> ListUtils.union(ModelUtils.emptyRow(table), pair.getRight()))
-                .toList();
-
-        var data = Stream.of(result.getLeft(), leftRemainder, rightRemainder).flatMap(Collection::stream).toList();
+//        var leftRemainder = ModelUtils.getIndexedData(table.dataStream())
+//                .filter(pair -> !result.getMiddle().contains(pair.getLeft()))
+//                .map(pair -> ListUtils.union(pair.getRight(), ModelUtils.emptyRow(joinedTable)));
+//
+//        var rightRemainder = ModelUtils.getIndexedData(joinedTable.dataStream())
+//                .filter(pair -> !result.getRight().contains(pair.getLeft()))
+//                .map(pair -> ListUtils.union(ModelUtils.emptyRow(table), pair.getRight()));
+//
+//        var dataStream = Stream.concat(result.getLeft(), Stream.concat(leftRemainder, rightRemainder));
 
         var mergedColumns = ListUtils.union(table.columns(), joinedTable.columns());
 
-        return Pair.of(new Table(null, mergedColumns, data, table.externalRow()), leftRemainder.size() + rightRemainder.size());
+        return Pair.of(new Table(null, mergedColumns, result.getLeft(), table.externalRow()), 0);
     }
 }

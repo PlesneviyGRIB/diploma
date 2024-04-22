@@ -46,14 +46,14 @@ public class TestBase {
     }
 
     protected Table cartesianProduct(Table table1, Table table2) {
-        var data1 = table1.data();
-        var data2 = table2.data();
-        var data = data1.stream().flatMap(prefix -> data2.stream().map(postfix -> ListUtils.union(prefix, postfix))).toList();
+        var data1 = table1.dataStream();
+        var data2 = table2.dataStream();
+        var data = data1.flatMap(prefix -> data2.map(postfix -> ListUtils.union(prefix, postfix)));
         return new Table(format("%s_%s", table1.name(), table2.name()), ListUtils.union(table1.columns(), table2.columns()), data, ExternalRow.empty());
     }
 
     protected List<Long> retrieveIds(Table table) {
-        return table.data().stream()
+        return table.dataStream()
                 .map(row -> row.get(0))
                 .filter(value -> value instanceof LongNumber)
                 .map(ln -> ((LongNumber) ln).value())

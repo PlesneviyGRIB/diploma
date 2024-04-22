@@ -180,7 +180,7 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
 
             if (operation.expression() instanceof SubTable subTable) {
                 var table = resolver.resolve(subTable.commands(), externalRow).table();
-                return Optional.of(new BooleanValue(!table.data().isEmpty()));
+                return Optional.of(new BooleanValue(table.dataStream().findAny().isPresent()));
             }
 
         }
@@ -212,7 +212,7 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
             throw new UnexpectedException("Expected exactly one column in table '%s'", table.name());
         }
 
-        var columnData = table.data().stream()
+        var columnData = table.dataStream()
                 .map(row -> (Value<?>) row.get(0))
                 .toList();
 

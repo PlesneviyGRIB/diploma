@@ -59,7 +59,7 @@ public class ExpressionComplexityCalculator implements Expression.Visitor<Calcul
 
             if (right.expression() instanceof SubTable subTable) {
                 var result = resolver.resolve(subTable.commands(), externalRow);
-                additionalComplexity = result.table().data().size();
+                additionalComplexity = 0;
             }
         }
 

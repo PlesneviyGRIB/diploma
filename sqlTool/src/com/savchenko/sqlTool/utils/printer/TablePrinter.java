@@ -57,7 +57,7 @@ public class TablePrinter extends Printer<Table> {
     }
 
     private void appendRows() {
-        var array = new ArrayList<>(domain.data());
+        var array = domain.dataStream().toList();
         for (int i = 0; i < Math.min(rowsCount(), PRINTED_ROWS_MAX_COUNT); i++) {
             var row = array.get(i);
             sb.append("|");
@@ -91,7 +91,7 @@ public class TablePrinter extends Printer<Table> {
     }
 
     private Integer rowsCount() {
-        return domain.data().size();
+        return domain.dataStream().toList().size();
     }
 
     private Integer columnsCount() {

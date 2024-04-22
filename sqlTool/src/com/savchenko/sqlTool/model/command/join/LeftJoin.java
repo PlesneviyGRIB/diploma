@@ -12,6 +12,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 public class LeftJoin extends Join {
     public LeftJoin(List<Command> commands, Expression expression, JoinStrategy strategy) {
@@ -21,7 +22,7 @@ public class LeftJoin extends Join {
     @Override
     public Pair<Table, Integer> run(Table table,
                                     Table joinedTable,
-                                    Supplier<Triple<List<List<Value<?>>>,
+                                    Supplier<Triple<Stream<List<Value<?>>>,
                                             Set<Integer>, Set<Integer>>> strategyExecutionResultSupplier
     ) {
 
@@ -29,14 +30,13 @@ public class LeftJoin extends Join {
 
         var result = strategyExecutionResultSupplier.get();
 
-        var remainder = ModelUtils.getIndexedData(table.data()).stream()
+        var remainder = ModelUtils.getIndexedData(table.dataStream())
                 .filter(pair -> !result.getMiddle().contains(pair.getLeft()))
-                .map(pair -> ListUtils.union(pair.getRight(), ModelUtils.emptyRow(joinedTable)))
-                .toList();
+                .map(pair -> ListUtils.union(pair.getRight(), ModelUtils.emptyRow(joinedTable)));
 
-        var data = ListUtils.union(result.getLeft(), remainder);
+        var dataStream = Stream.concat(result.getLeft(), remainder);
 
-        return Pair.of(new Table(null, columns, data, table.externalRow()), remainder.size());
+        return Pair.of(new Table(null, columns, dataStream, table.externalRow()), remainder.toList().size());
     }
 
 }

@@ -13,13 +13,9 @@ public class Distinct implements SimpleCalculedCommand, Lazy {
 
     @Override
     public CommandResult run(Table table, Projection projection) {
-
-        var data = table.data();
-        var targetData = data.stream().distinct().toList();
-
         return new CommandResult(
-                new Table(table.name(), table.columns(), targetData, table.externalRow()),
-                new SimpleCalculatorEntry(this, data.size())
+                new Table(table.name(), table.columns(), table.dataStream().distinct(), table.externalRow()),
+                new SimpleCalculatorEntry(this, 0)
         );
     }
 

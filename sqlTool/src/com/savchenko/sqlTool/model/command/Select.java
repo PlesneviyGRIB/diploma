@@ -27,14 +27,14 @@ public class Select implements SimpleCommand, LazinessIndependent {
 
         var contextColumns = table.columns();
         var indexes = columns.stream().map(c -> ModelUtils.resolveColumnIndex(contextColumns, c)).toList();
-        var data = table.data().stream()
+        var data = table.dataStream()
                 .map(l -> {
                     List<Value<?>> list = new ArrayList<>(indexes.size());
                     for (Integer index : indexes) {
                         list.add(l.get(index));
                     }
                     return list;
-                }).toList();
+                });
 
         var targetColumns = indexes.stream().map(contextColumns::get).toList();
 

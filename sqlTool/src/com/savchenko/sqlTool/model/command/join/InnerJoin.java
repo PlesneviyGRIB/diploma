@@ -11,6 +11,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 public class InnerJoin extends Join {
     public InnerJoin(List<Command> commands, Expression expression, JoinStrategy strategy) {
@@ -20,7 +21,7 @@ public class InnerJoin extends Join {
     @Override
     public Pair<Table, Integer> run(Table table,
                                     Table joinedTable,
-                                    Supplier<Triple<List<List<Value<?>>>, Set<Integer>, Set<Integer>>> strategyExecutionResultSupplier
+                                    Supplier<Triple<Stream<List<Value<?>>>, Set<Integer>, Set<Integer>>> strategyExecutionResultSupplier
     ) {
 
         var result = strategyExecutionResultSupplier.get();

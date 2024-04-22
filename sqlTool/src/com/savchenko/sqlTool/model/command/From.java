@@ -22,7 +22,7 @@ public class From implements SimpleCommand, Lazy {
         var resolvedTable = projection.getByName(tableName);
 
         return new CommandResult(
-                new Table(resolvedTable.name(), resolvedTable.columns(), resolvedTable.data(), table.externalRow()),
+                new Table(resolvedTable.name(), resolvedTable.columns(), resolvedTable.dataStream(), table.externalRow()),
                 new SimpleEntry(this)
         );
     }

@@ -23,6 +23,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public enum JoinStrategy {
     HASH, MERGE, LOOP;
@@ -30,17 +31,20 @@ public enum JoinStrategy {
     public Integer getStrategyComplexity(Table table, Table joinedTable) {
         switch (this) {
             case HASH:
-                return table.data().size() + joinedTable.data().size();
+                //return table.data().size() + joinedTable.data().size();
+                return 0;
             case MERGE:
-                return table.data().size() + joinedTable.data().size();
+                //return table.data().size() + joinedTable.data().size();
+                return 0;
             case LOOP:
-                return table.data().size() * joinedTable.data().size();
+                //return table.data().size() * joinedTable.data().size();
+                return 0;
             default:
                 return null;
         }
     }
 
-    public Triple<List<List<Value<?>>>, Set<Integer>, Set<Integer>> run(Table table, Table joinedTable, Expression expression, Resolver resolver) {
+    public Triple<Stream<List<Value<?>>>, Set<Integer>, Set<Integer>> run(Table table, Table joinedTable, Expression expression, Resolver resolver) {
         return switch (this) {
             case HASH -> hashImpl(table, joinedTable, expression, resolver);
             case MERGE -> mergeImpl(table, joinedTable, expression, resolver);
@@ -48,7 +52,7 @@ public enum JoinStrategy {
         };
     }
 
-    private Triple<List<List<Value<?>>>, Set<Integer>, Set<Integer>> hashImpl(Table table, Table joinedTable, Expression expression, Resolver resolver) {
+    private Triple<Stream<List<Value<?>>>, Set<Integer>, Set<Integer>> hashImpl(Table table, Table joinedTable, Expression expression, Resolver resolver) {
         if (expression instanceof BinaryOperation op && op.operator().equals(Operator.EQ)) {
             var leftExpression = op.left();
             var rightExpression = op.right();
@@ -80,14 +84,14 @@ public enum JoinStrategy {
                         .accept(new ExpressionCalculator(resolver, externalRow));
             });
 
-            var hashTable = ModelUtils.getIndexedData(table.data()).stream()
+            var hashTable = ModelUtils.getIndexedData(table.dataStream())
                     .filter(pair -> !ExpressionUtils.columnsContainsNulls(new Row(table.columns(), pair.getRight()), table.externalRow(), tableExpression.get()))
                     .collect(Collectors.toMap(pair -> tableKeyMapper.apply(pair.getRight()), Function.identity()));
 
             var leftJoinedRowIndexes = new HashSet<Integer>();
             var rightJoinedRowIndexes = new HashSet<Integer>();
 
-            var data = ModelUtils.getIndexedData(joinedTable.data()).stream()
+            var dataStream = ModelUtils.getIndexedData(joinedTable.dataStream())
                     .filter(pair -> !ExpressionUtils.columnsContainsNulls(new Row(joinedTable.columns(), pair.getRight()), joinedTable.externalRow(), joinedTableExpression.get()))
                     .map(pair2 -> {
                         var key = joinedTableKeyMapper.apply(pair2.getRight());
@@ -99,35 +103,35 @@ public enum JoinStrategy {
                             return ListUtils.union(pair1.getRight(), pair2.getRight());
                         }
                         return null;
-                    }).filter(Objects::nonNull).toList();
+                    }).filter(Objects::nonNull);
 
-            return Triple.of(data, leftJoinedRowIndexes, rightJoinedRowIndexes);
+            return Triple.of(dataStream, leftJoinedRowIndexes, rightJoinedRowIndexes);
         }
         throw new UnexpectedException("Hash/Merge join expects EQUALITY operation, but found '%s'", expression.stringify());
     }
 
-    private Triple<List<List<Value<?>>>, Set<Integer>, Set<Integer>> mergeImpl(Table table, Table joinedTable, Expression expression, Resolver resolver) {
+    private Triple<Stream<List<Value<?>>>, Set<Integer>, Set<Integer>> mergeImpl(Table table, Table joinedTable, Expression expression, Resolver resolver) {
         return hashImpl(table, joinedTable, expression, resolver);
     }
 
-    private Triple<List<List<Value<?>>>, Set<Integer>, Set<Integer>> loopImpl(Table table, Table joinedTable, Expression expression, Resolver resolver) {
+    private Triple<Stream<List<Value<?>>>, Set<Integer>, Set<Integer>> loopImpl(Table table, Table joinedTable, Expression expression, Resolver resolver) {
         var columns = ListUtils.union(table.columns(), joinedTable.columns());
 
         var leftJoinedRowIndexes = new HashSet<Integer>();
-        var leftIndexedData = ModelUtils.getIndexedData(table.data());
+        var leftIndexedData = ModelUtils.getIndexedData(table.dataStream());
 
         var rightJoinedRowIndexes = new HashSet<Integer>();
-        var rightIndexedData = ModelUtils.getIndexedData(joinedTable.data());
+        var rightIndexedData = ModelUtils.getIndexedData(joinedTable.dataStream());
 
         var isContextSensitiveExpression = expression.accept(new ContextSensitiveExpressionQualifier(table.columns()));
 
         Optional<Value<?>> valueProvider = isContextSensitiveExpression ?
                 Optional.empty() : Optional.of(expression.accept(new ExpressionCalculator(resolver, ExternalRow.empty())));
 
-        var data = leftIndexedData.stream()
+        var dataStream = leftIndexedData
                 .flatMap(pair1 -> {
                     var row1 = pair1.getRight();
-                    return rightIndexedData.stream()
+                    return rightIndexedData
                             .map(pair2 -> {
                                 var row2 = pair2.getRight();
                                 var row = ListUtils.union(row1, row2);
@@ -153,9 +157,9 @@ public enum JoinStrategy {
                                 }
                                 throw new UnexpectedExpressionException(value);
                             }).filter(Objects::nonNull);
-                }).toList();
+                });
 
-        return Triple.of(data, leftJoinedRowIndexes, rightJoinedRowIndexes);
+        return Triple.of(dataStream, leftJoinedRowIndexes, rightJoinedRowIndexes);
     }
 
 }

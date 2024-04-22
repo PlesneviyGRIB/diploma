@@ -23,6 +23,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static com.savchenko.sqlTool.model.operator.Operator.*;
 import static org.junit.Assert.assertEquals;
@@ -146,7 +147,7 @@ public class CommandTest extends TestBase {
                         .fullJoin(new Query().from("content_descriptor"), new BooleanValue(true), JoinStrategy.LOOP)
         ).table();
 
-        var emtyTable = new Table("", List.of(), List.of(), ExternalRow.empty());
+        var emtyTable = new Table("", List.of(), Stream.of(), ExternalRow.empty());
 
         var mathElementsTable = new From("content").run(emtyTable, projection);
         var finalAnswersTable = new From("content_descriptor").run(emtyTable, projection);
@@ -284,6 +285,6 @@ public class CommandTest extends TestBase {
     }
 
     private void expectRowsCount(Query query, int count) {
-        assertEquals(count, resolver.resolve(query).table().data().size());
+        assertEquals(count, resolver.resolve(query).table().dataStream().toList().size());
     }
 }

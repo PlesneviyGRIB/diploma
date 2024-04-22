@@ -35,9 +35,9 @@ public class Where extends ComplexCalculedCommand implements Lazy {
         Optional<Value<?>> valueProvider = isContextSensitiveExpression ?
                 Optional.empty() : Optional.of(expression.accept(new ExpressionCalculator(resolver, ExternalRow.empty())));
 
-        var calculatedExpressionEntry = expression.accept(new ExpressionComplexityCalculator(resolver, ModelUtils.getFullCopyExternalRow(table))).normalize();
+        var calculatedExpressionEntry = expression.accept(new ExpressionComplexityCalculator(resolver, table.externalRow())).normalize();
 
-        var data = table.data().stream()
+        var dataStream = table.dataStream()
                 .filter(row -> {
 
                     var value = valueProvider.orElseGet(() -> {
@@ -52,12 +52,11 @@ public class Where extends ComplexCalculedCommand implements Lazy {
                     }
 
                     throw new UnsupportedTypeException();
-                })
-                .toList();
+                });
 
         return new CommandResult(
-                new Table(table.name(), table.columns(), data, table.externalRow()),
-                new ComplexCalculatorEntry(this, calculatedExpressionEntry, table.data().size(), isContextSensitiveExpression)
+                new Table(table.name(), table.columns(), dataStream, table.externalRow()),
+                new ComplexCalculatorEntry(this, calculatedExpressionEntry, 0, isContextSensitiveExpression)
         );
     }
 

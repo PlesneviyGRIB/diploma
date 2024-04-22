@@ -25,6 +25,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
@@ -42,7 +43,7 @@ public abstract class Join extends ComplexCalculedCommand implements Lazy {
 
     abstract Pair<Table, Integer> run(Table table,
                                       Table joinedTable,
-                                      Supplier<Triple<List<List<Value<?>>>, Set<Integer>, Set<Integer>>> strategyExecutionResultSupplier);
+                                      Supplier<Triple<Stream<List<Value<?>>>, Set<Integer>, Set<Integer>>> strategyExecutionResultSupplier);
 
     @Override
     public CommandResult run(Table table, Projection projection, Resolver resolver) {
@@ -58,12 +59,12 @@ public abstract class Join extends ComplexCalculedCommand implements Lazy {
 
         expression.accept(new ExpressionValidator(mergedColumns, table.externalRow()));
 
-        Supplier<Triple<List<List<Value<?>>>, Set<Integer>, Set<Integer>>> strategyExecutionResultSupplier = () -> strategy.run(table, joinedTable, expression, resolver);
+        Supplier<Triple<Stream<List<Value<?>>>, Set<Integer>, Set<Integer>>> strategyExecutionResultSupplier = () -> strategy.run(table, joinedTable, expression, resolver);
 
         Function<Integer, ExecutedCalculatorEntry> toCalculatorEntry = remainderSize -> {
 
             var operationsCount = strategy.getStrategyComplexity(table, joinedTable);
-            var calculedExpressionEntry = expression.accept(new ExpressionComplexityCalculator(resolver, ModelUtils.getFullCopyExternalRow(table))).normalize();
+            var calculedExpressionEntry = expression.accept(new ExpressionComplexityCalculator(resolver, table.externalRow())).normalize();
             var isContextSensitiveExpression = expression.accept(new ContextSensitiveExpressionQualifier(table.columns()));
 
             return new JoinCalculatorEntry(this, resolverResult.calculator(), remainderSize, calculedExpressionEntry, operationsCount, isContextSensitiveExpression);

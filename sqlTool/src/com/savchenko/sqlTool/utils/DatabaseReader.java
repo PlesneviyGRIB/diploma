@@ -68,7 +68,7 @@ public class DatabaseReader {
                 data.add(list);
             }
 
-            return new Table(tableName, columns, data, ExternalRow.empty());
+            return new Table(tableName, columns, data.stream(), ExternalRow.empty());
         }
     }
 

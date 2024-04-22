@@ -5,7 +5,6 @@ import com.savchenko.sqlTool.exception.UnexpectedException;
 import com.savchenko.sqlTool.exception.UnsupportedTypeException;
 import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.domain.Column;
-import com.savchenko.sqlTool.model.domain.ExternalRow;
 import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.expression.*;
 import com.savchenko.sqlTool.model.operator.Operator;
@@ -18,6 +17,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static com.savchenko.sqlTool.model.operator.Operator.*;
 import static java.lang.String.format;
@@ -40,7 +40,7 @@ public class ModelUtils {
                     }
                     return new Column(identifier, tableName, column.type());
                 }).toList();
-        return new Table(tableName, targetColumns, table.data(), table.externalRow());
+        return new Table(tableName, targetColumns, table.dataStream(), table.externalRow());
     }
 
     public static List<Value<?>> emptyRow(Table table) {
@@ -50,11 +50,11 @@ public class ModelUtils {
         return row;
     }
 
-    public static List<Pair<Integer, List<Value<?>>>> getIndexedData(List<List<Value<?>>> data) {
+    public static Stream<Pair<Integer, List<Value<?>>>> getIndexedData(Stream<List<Value<?>>> dataStream) {
         var o = new Object() {
             public int index;
         };
-        return data.stream().map(row -> Pair.of(o.index++, row)).toList();
+        return dataStream.map(row -> Pair.of(o.index++, row));
     }
 
     public static Value<?> readEntry(String object, Class<? extends Value<?>> targetClass) {
@@ -191,11 +191,6 @@ public class ModelUtils {
                             "Ambiguity found: Column name for sub table and parent table is the same '%s'. Try to rename sub or parent table",
                             c.stringify());
                 });
-    }
-
-    public static ExternalRow getFullCopyExternalRow(Table table) {
-        var externalRow = table.data().isEmpty() ? ExternalRow.empty() : new ExternalRow(table.columns(), table.data().get(0));
-        return table.externalRow().merge(externalRow).deepCopy();
     }
 
     public static String sqlPatternToJavaPattern(String pattern) {

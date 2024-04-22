@@ -48,7 +48,7 @@ public class ExpressionTest extends TestBase {
                         .select(Q.column("courses", "id"))
         ).table();
 
-        Assert.assertEquals(13, res.data().size());
+        Assert.assertEquals(13, res.dataStream().toList().size());
 
         Assert.assertEquals(
                 List.of(101L, 1L, 153L, 154L, 155L, 151L, 156L, 157L, 158L, 159L, 160L, 2L, 3L),
@@ -77,7 +77,7 @@ public class ExpressionTest extends TestBase {
                         .select(Q.column("courses", "id"))
         ).table();
 
-        Assert.assertEquals(1, res.data().size());
+        Assert.assertEquals(1, res.dataStream().toList().size());
 
         Assert.assertEquals(List.of(152L), retrieveIds(res));
     }
@@ -104,7 +104,7 @@ public class ExpressionTest extends TestBase {
                         .select(Q.column("ex", "id"))
         ).table();
 
-        Assert.assertEquals(550, res.data().size());
+        Assert.assertEquals(550, res.dataStream().toList().size());
 
     }
 
@@ -116,10 +116,10 @@ public class ExpressionTest extends TestBase {
                         .where(Q.op(LIKE, Q.column("actions", "parameters"), new StringValue(pattern)))
         ).table();
 
-        Assert.assertEquals(435, resultProvider.apply("%final%").data().size());
-        Assert.assertEquals(418, resultProvider.apply("\\{\\}").data().size());
-        Assert.assertEquals(409, resultProvider.apply("%finalAnswerPlaceholderId%").data().size());
-        Assert.assertEquals(50, resultProvider.apply("%c5666703-4b9f-40f6-9268-8f92619d1199%").data().size());
+        Assert.assertEquals(435, resultProvider.apply("%final%").dataStream().toList().size());
+        Assert.assertEquals(418, resultProvider.apply("\\{\\}").dataStream().toList().size());
+        Assert.assertEquals(409, resultProvider.apply("%finalAnswerPlaceholderId%").dataStream().toList().size());
+        Assert.assertEquals(50, resultProvider.apply("%c5666703-4b9f-40f6-9268-8f92619d1199%").dataStream().toList().size());
     }
 
 }

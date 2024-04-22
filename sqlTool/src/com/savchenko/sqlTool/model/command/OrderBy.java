@@ -64,9 +64,8 @@ public class OrderBy implements SimpleCalculedCommand, LazyConcealer {
             return 0;
         };
 
-        var data = table.data().stream().sorted(rowsComparator).toList();
         return new CommandResult(
-                new Table(table.name(), table.columns(), data, table.externalRow()),
+                new Table(table.name(), table.columns(), table.dataStream().sorted(rowsComparator), table.externalRow()),
                 new SimpleCalculatorEntry(this, complexityCollector.complexity)
         );
     }

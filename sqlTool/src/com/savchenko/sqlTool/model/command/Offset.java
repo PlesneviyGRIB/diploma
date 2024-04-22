@@ -9,6 +9,7 @@ import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.resolver.CommandResult;
 
 import java.util.Objects;
+import java.util.stream.Stream;
 
 public class Offset implements SimpleCommand, ClauseReducer {
     private final Integer offset;
@@ -23,10 +24,9 @@ public class Offset implements SimpleCommand, ClauseReducer {
         if (offset < 0) {
             throw new ValidationException("Offset can not be less than 0! Current value is '%s'", offset);
         }
-        var data = table.data();
 
         return new CommandResult(
-                new Table(table.name(), table.columns(), data.subList(Math.min(offset, data.size()), data.size()), table.externalRow()),
+                new Table(table.name(), table.columns(), table.dataStream().skip(offset), table.externalRow()),
                 new SimpleEntry(this)
         );
     }
