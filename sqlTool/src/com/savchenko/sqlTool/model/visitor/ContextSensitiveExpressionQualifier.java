@@ -1,19 +1,22 @@
 package com.savchenko.sqlTool.model.visitor;
 
+import com.savchenko.sqlTool.model.command.domain.Command;
+import com.savchenko.sqlTool.model.command.domain.ComplexCalculedCommand;
+import com.savchenko.sqlTool.model.command.domain.SimpleCalculedCommand;
+import com.savchenko.sqlTool.model.command.domain.SimpleCommand;
 import com.savchenko.sqlTool.model.domain.Column;
 import com.savchenko.sqlTool.model.domain.ExternalRow;
 import com.savchenko.sqlTool.model.expression.*;
 import com.savchenko.sqlTool.model.resolver.Resolver;
 
+import java.util.List;
+
 public class ContextSensitiveExpressionQualifier implements Expression.Visitor<Boolean> {
 
-    private final Resolver resolver;
+    private final List<Column> columns;
 
-    private final ExternalRow externalRow;
-
-    public ContextSensitiveExpressionQualifier(Resolver resolver, ExternalRow externalRow) {
-        this.resolver = resolver;
-        this.externalRow = externalRow;
+    public ContextSensitiveExpressionQualifier(List<Column> columns) {
+        this.columns = columns;
     }
 
     @Override
@@ -23,13 +26,28 @@ public class ContextSensitiveExpressionQualifier implements Expression.Visitor<B
 
     @Override
     public Boolean visit(SubTable table) {
-        resolver.resolve(table.commands(), externalRow);
-        return externalRow.isUsed();
+        return table.commands().stream()
+                .anyMatch(command -> command.accept(new Command.Visitor<>() {
+                    @Override
+                    public Boolean visit(SimpleCommand command) {
+                        return false;
+                    }
+
+                    @Override
+                    public Boolean visit(SimpleCalculedCommand command) {
+                        return false;
+                    }
+
+                    @Override
+                    public Boolean visit(ComplexCalculedCommand command) {
+                        return command.getExpression().accept(ContextSensitiveExpressionQualifier.this);
+                    }
+                }));
     }
 
     @Override
     public Boolean visit(Column column) {
-        return true;
+        return columns.stream().anyMatch(c -> c.equals(column));
     }
 
     @Override

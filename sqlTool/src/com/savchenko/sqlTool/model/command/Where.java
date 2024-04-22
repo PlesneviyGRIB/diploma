@@ -30,7 +30,7 @@ public class Where extends ComplexCalculedCommand implements Lazy {
         expression.accept(new ExpressionValidator(table.columns(), table.externalRow()));
 
         var isContextSensitiveExpression = expression
-                .accept(new ContextSensitiveExpressionQualifier(resolver.utilityInstance(), ModelUtils.getFullCopyExternalRow(table)));
+                .accept(new ContextSensitiveExpressionQualifier(table.columns()));
 
         Optional<Value<?>> valueProvider = isContextSensitiveExpression ?
                 Optional.empty() : Optional.of(expression.accept(new ExpressionCalculator(resolver, ExternalRow.empty())));

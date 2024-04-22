@@ -35,5 +35,9 @@ public abstract class ComplexCalculedCommand implements Command {
     public int hashCode() {
         return Objects.hashCode(expression);
     }
+
+    public Expression getExpression() {
+        return expression;
+    }
 }
 

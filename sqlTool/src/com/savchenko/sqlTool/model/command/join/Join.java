@@ -64,7 +64,7 @@ public abstract class Join extends ComplexCalculedCommand implements Lazy {
 
             var operationsCount = strategy.getStrategyComplexity(table, joinedTable);
             var calculedExpressionEntry = expression.accept(new ExpressionComplexityCalculator(resolver, ModelUtils.getFullCopyExternalRow(table))).normalize();
-            var isContextSensitiveExpression = expression.accept(new ContextSensitiveExpressionQualifier(resolver, ModelUtils.getFullCopyExternalRow(table)));
+            var isContextSensitiveExpression = expression.accept(new ContextSensitiveExpressionQualifier(table.columns()));
 
             return new JoinCalculatorEntry(this, resolverResult.calculator(), remainderSize, calculedExpressionEntry, operationsCount, isContextSensitiveExpression);
         };
