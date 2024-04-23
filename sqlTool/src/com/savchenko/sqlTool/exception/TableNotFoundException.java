@@ -1,7 +1,8 @@
 package com.savchenko.sqlTool.exception;
 
-import com.savchenko.sqlTool.model.domain.Table;
+import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.domain.Projection;
+import com.savchenko.sqlTool.model.domain.Table;
 
 import java.util.stream.Collectors;
 

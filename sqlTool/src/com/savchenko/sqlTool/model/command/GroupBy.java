@@ -1,22 +1,14 @@
 package com.savchenko.sqlTool.model.command;
 
-import com.savchenko.sqlTool.exception.UnexpectedException;
 import com.savchenko.sqlTool.model.command.domain.SimpleCalculedCommand;
 import com.savchenko.sqlTool.model.command.function.AggregationFunction;
-import com.savchenko.sqlTool.model.command.function.Identity;
-import com.savchenko.sqlTool.model.complexity.SimpleCalculatorEntry;
 import com.savchenko.sqlTool.model.complexity.laziness.LazyConcealer;
 import com.savchenko.sqlTool.model.domain.Column;
 import com.savchenko.sqlTool.model.domain.Projection;
-import com.savchenko.sqlTool.model.domain.Table;
-import com.savchenko.sqlTool.model.expression.ExpressionList;
-import com.savchenko.sqlTool.model.expression.Value;
+import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.resolver.CommandResult;
-import com.savchenko.sqlTool.utils.ModelUtils;
 
 import java.util.*;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.groupingBy;
@@ -30,7 +22,7 @@ public class GroupBy implements SimpleCalculedCommand, LazyConcealer {
     }
 
     @Override
-    public CommandResult run(Table table, Projection projection) {
+    public CommandResult run(LazyTable lazyTable, Projection projection) {
 
 //        table.columns().stream()
 //                .filter(c -> !columnMapperMap.containsKey(c))

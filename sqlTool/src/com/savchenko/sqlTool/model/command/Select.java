@@ -4,15 +4,16 @@ import com.savchenko.sqlTool.model.command.domain.SimpleCommand;
 import com.savchenko.sqlTool.model.complexity.SimpleEntry;
 import com.savchenko.sqlTool.model.complexity.laziness.LazinessIndependent;
 import com.savchenko.sqlTool.model.domain.Column;
+import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.domain.Projection;
-import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.expression.Value;
 import com.savchenko.sqlTool.model.resolver.CommandResult;
 import com.savchenko.sqlTool.utils.ModelUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class Select implements SimpleCommand, LazinessIndependent {
 
@@ -23,23 +24,16 @@ public class Select implements SimpleCommand, LazinessIndependent {
     }
 
     @Override
-    public CommandResult run(Table table, Projection projection) {
+    public CommandResult run(LazyTable lazyTable, Projection projection) {
 
-        var contextColumns = table.columns();
-        var indexes = columns.stream().map(c -> ModelUtils.resolveColumnIndex(contextColumns, c)).toList();
-        var data = table.dataStream()
-                .map(l -> {
-                    List<Value<?>> list = new ArrayList<>(indexes.size());
-                    for (Integer index : indexes) {
-                        list.add(l.get(index));
-                    }
-                    return list;
-                });
+        var contextColumns = lazyTable.columns();
+        var columnIndexes = columns.stream().map(c -> ModelUtils.resolveColumnIndex(contextColumns, c)).toList();
+        var targetColumns = columnIndexes.stream().map(contextColumns::get).toList();
 
-        var targetColumns = indexes.stream().map(contextColumns::get).toList();
+        Function<List<Value<?>>, List<Value<?>>> mapper = row -> columnIndexes.stream().map(row::get).collect(Collectors.toList());
 
         return new CommandResult(
-                new Table(table.name(), targetColumns, data, table.externalRow()),
+                new LazyTable(lazyTable.name(), targetColumns, lazyTable.dataStream().map(mapper), lazyTable.externalRow()),
                 new SimpleEntry(this)
         );
     }

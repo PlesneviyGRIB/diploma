@@ -2,7 +2,7 @@ package tests;
 
 import com.savchenko.sqlTool.exception.ComputedTypeException;
 import com.savchenko.sqlTool.model.domain.ExternalRow;
-import com.savchenko.sqlTool.model.domain.Table;
+import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.expression.*;
 import com.savchenko.sqlTool.model.visitor.ExpressionValidator;
 import com.savchenko.sqlTool.query.Q;
@@ -46,7 +46,7 @@ public class ExpressionTest extends TestBase {
                                 subTable
                         ))
                         .select(Q.column("courses", "id"))
-        ).table();
+        ).lazyTable();
 
         Assert.assertEquals(13, res.dataStream().toList().size());
 
@@ -75,7 +75,7 @@ public class ExpressionTest extends TestBase {
                                 )
                         ))
                         .select(Q.column("courses", "id"))
-        ).table();
+        ).lazyTable();
 
         Assert.assertEquals(1, res.dataStream().toList().size());
 
@@ -102,7 +102,7 @@ public class ExpressionTest extends TestBase {
                                 )
                         ))
                         .select(Q.column("ex", "id"))
-        ).table();
+        ).lazyTable();
 
         Assert.assertEquals(550, res.dataStream().toList().size());
 
@@ -110,11 +110,11 @@ public class ExpressionTest extends TestBase {
 
     @Test
     public void like() {
-        Function<String, Table> resultProvider = pattern -> resolver.resolve(
+        Function<String, LazyTable> resultProvider = pattern -> resolver.resolve(
                 new Query()
                         .from("actions")
                         .where(Q.op(LIKE, Q.column("actions", "parameters"), new StringValue(pattern)))
-        ).table();
+        ).lazyTable();
 
         Assert.assertEquals(435, resultProvider.apply("%final%").dataStream().toList().size());
         Assert.assertEquals(418, resultProvider.apply("\\{\\}").dataStream().toList().size());

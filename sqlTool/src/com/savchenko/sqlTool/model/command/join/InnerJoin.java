@@ -1,7 +1,7 @@
 package com.savchenko.sqlTool.model.command.join;
 
 import com.savchenko.sqlTool.model.command.domain.Command;
-import com.savchenko.sqlTool.model.domain.Table;
+import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.expression.Expression;
 import com.savchenko.sqlTool.model.expression.Value;
 import org.apache.commons.collections4.ListUtils;
@@ -19,16 +19,16 @@ public class InnerJoin extends Join {
     }
 
     @Override
-    public Pair<Table, Integer> run(Table table,
-                                    Table joinedTable,
-                                    Supplier<Triple<Stream<List<Value<?>>>, Set<Integer>, Set<Integer>>> strategyExecutionResultSupplier
+    public Pair<LazyTable, Integer> run(LazyTable lazyTable,
+                                        LazyTable joinedLazyTable,
+                                        Supplier<Triple<Stream<List<Value<?>>>, Set<Integer>, Set<Integer>>> strategyExecutionResultSupplier
     ) {
 
         var result = strategyExecutionResultSupplier.get();
 
-        var columns = ListUtils.union(table.columns(), joinedTable.columns());
+        var columns = ListUtils.union(lazyTable.columns(), joinedLazyTable.columns());
 
-        return Pair.of(new Table(null, columns, result.getLeft(), table.externalRow()), 0);
+        return Pair.of(new LazyTable(null, columns, result.getLeft(), lazyTable.externalRow()), 0);
     }
 
 }

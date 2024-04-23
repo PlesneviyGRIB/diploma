@@ -4,7 +4,7 @@ import com.savchenko.sqlTool.model.command.domain.SimpleCommand;
 import com.savchenko.sqlTool.model.complexity.SimpleEntry;
 import com.savchenko.sqlTool.model.complexity.laziness.Lazy;
 import com.savchenko.sqlTool.model.domain.Projection;
-import com.savchenko.sqlTool.model.domain.Table;
+import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.resolver.CommandResult;
 
 import java.util.Objects;
@@ -17,12 +17,12 @@ public class From implements SimpleCommand, Lazy {
     }
 
     @Override
-    public CommandResult run(Table table, Projection projection) {
+    public CommandResult run(LazyTable lazyTable, Projection projection) {
 
-        var resolvedTable = projection.getByName(tableName);
+        var table = projection.getByName(tableName);
 
         return new CommandResult(
-                new Table(resolvedTable.name(), resolvedTable.columns(), resolvedTable.dataStream(), table.externalRow()),
+                new LazyTable(table.name(), table.columns(), table.data().stream(), lazyTable.externalRow()),
                 new SimpleEntry(this)
         );
     }

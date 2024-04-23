@@ -6,8 +6,8 @@ import com.savchenko.sqlTool.model.command.domain.ComplexCalculedCommand;
 import com.savchenko.sqlTool.model.complexity.ExecutedCalculatorEntry;
 import com.savchenko.sqlTool.model.complexity.JoinCalculatorEntry;
 import com.savchenko.sqlTool.model.complexity.laziness.Lazy;
+import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.domain.Projection;
-import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.expression.Expression;
 import com.savchenko.sqlTool.model.expression.Value;
 import com.savchenko.sqlTool.model.resolver.CommandResult;
@@ -41,37 +41,37 @@ public abstract class Join extends ComplexCalculedCommand implements Lazy {
         this.strategy = strategy;
     }
 
-    abstract Pair<Table, Integer> run(Table table,
-                                      Table joinedTable,
-                                      Supplier<Triple<Stream<List<Value<?>>>, Set<Integer>, Set<Integer>>> strategyExecutionResultSupplier);
+    abstract Pair<LazyTable, Integer> run(LazyTable lazyTable,
+                                          LazyTable joinedLazyTable,
+                                          Supplier<Triple<Stream<List<Value<?>>>, Set<Integer>, Set<Integer>>> strategyExecutionResultSupplier);
 
     @Override
-    public CommandResult run(Table table, Projection projection, Resolver resolver) {
+    public CommandResult run(LazyTable lazyTable, Projection projection, Resolver resolver) {
 
-        var resolverResult = resolver.resolve(commands, table.externalRow());
-        var joinedTable = resolverResult.table();
+        var resolverResult = resolver.resolve(commands, lazyTable.externalRow());
+        var joinedTable = resolverResult.lazyTable();
 
-        if (table.name().equals(joinedTable.name())) {
-            throw new ValidationException("There are two tables with the same name '%s' in context. Use alias to resolve the conflict.", table.name());
+        if (lazyTable.name().equals(joinedTable.name())) {
+            throw new ValidationException("There are two tables with the same name '%s' in context. Use alias to resolve the conflict.", lazyTable.name());
         }
 
-        var mergedColumns = ListUtils.union(table.columns(), joinedTable.columns());
+        var mergedColumns = ListUtils.union(lazyTable.columns(), joinedTable.columns());
 
-        expression.accept(new ExpressionValidator(mergedColumns, table.externalRow()));
+        expression.accept(new ExpressionValidator(mergedColumns, lazyTable.externalRow()));
 
-        Supplier<Triple<Stream<List<Value<?>>>, Set<Integer>, Set<Integer>>> strategyExecutionResultSupplier = () -> strategy.run(table, joinedTable, expression, resolver);
+        Supplier<Triple<Stream<List<Value<?>>>, Set<Integer>, Set<Integer>>> strategyExecutionResultSupplier = () -> strategy.run(lazyTable, joinedTable, expression, resolver);
 
         Function<Integer, ExecutedCalculatorEntry> toCalculatorEntry = remainderSize -> {
 
-            var operationsCount = strategy.getStrategyComplexity(table, joinedTable);
-            var calculedExpressionEntry = expression.accept(new ExpressionComplexityCalculator(resolver, table.externalRow())).normalize();
-            var isContextSensitiveExpression = expression.accept(new ContextSensitiveExpressionQualifier(table.columns()));
+            var operationsCount = strategy.getStrategyComplexity(lazyTable, joinedTable);
+            var calculedExpressionEntry = expression.accept(new ExpressionComplexityCalculator(resolver, lazyTable.externalRow())).normalize();
+            var isContextSensitiveExpression = expression.accept(new ContextSensitiveExpressionQualifier(lazyTable.columns()));
 
             return new JoinCalculatorEntry(this, resolverResult.calculator(), remainderSize, calculedExpressionEntry, operationsCount, isContextSensitiveExpression);
         };
 
-        var pair = run(table, joinedTable, strategyExecutionResultSupplier);
-        var tableName = format("%s_%s", table.name(), joinedTable.name());
+        var pair = run(lazyTable, joinedTable, strategyExecutionResultSupplier);
+        var tableName = format("%s_%s", lazyTable.name(), joinedTable.name());
 
         return new CommandResult(
                 ModelUtils.renameTable(pair.getLeft(), tableName),

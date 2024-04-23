@@ -4,8 +4,8 @@ import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.command.domain.SimpleCalculedCommand;
 import com.savchenko.sqlTool.model.complexity.SimpleCalculatorEntry;
 import com.savchenko.sqlTool.model.complexity.laziness.LazyConcealer;
+import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.domain.Projection;
-import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.expression.StringValue;
 import com.savchenko.sqlTool.model.expression.Value;
 import com.savchenko.sqlTool.model.resolver.CommandResult;
@@ -26,7 +26,7 @@ public class OrderBy implements SimpleCalculedCommand, LazyConcealer {
     }
 
     @Override
-    public CommandResult run(Table table, Projection projection) {
+    public CommandResult run(LazyTable lazyTable, Projection projection) {
 
         orders.stream()
                 .collect(Collectors.groupingBy(Order::column, Collectors.counting()))
@@ -38,7 +38,7 @@ public class OrderBy implements SimpleCalculedCommand, LazyConcealer {
                 });
 
         var indexes = orders.stream()
-                .map(o -> ModelUtils.resolveColumnIndex(table.columns(), o.column()))
+                .map(o -> ModelUtils.resolveColumnIndex(lazyTable.columns(), o.column()))
                 .toList();
 
         var complexityCollector = new Object() {
@@ -51,7 +51,7 @@ public class OrderBy implements SimpleCalculedCommand, LazyConcealer {
                 var elem1 = row1.get(idx);
                 var elem2 = row2.get(idx);
 
-                var res = ModelUtils.compareValues(elem1, elem2, table.columns().get(idx).type());
+                var res = ModelUtils.compareValues(elem1, elem2, lazyTable.columns().get(idx).type());
                 complexityCollector.complexity += getComparisonComplexity(elem1, elem2);
 
                 if (orders.get(i).reverse()) {
@@ -65,7 +65,7 @@ public class OrderBy implements SimpleCalculedCommand, LazyConcealer {
         };
 
         return new CommandResult(
-                new Table(table.name(), table.columns(), table.dataStream().sorted(rowsComparator), table.externalRow()),
+                new LazyTable(lazyTable.name(), lazyTable.columns(), lazyTable.dataStream().sorted(rowsComparator), lazyTable.externalRow()),
                 new SimpleCalculatorEntry(this, complexityCollector.complexity)
         );
     }

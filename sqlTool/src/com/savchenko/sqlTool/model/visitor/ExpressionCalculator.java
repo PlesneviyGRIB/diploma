@@ -2,10 +2,10 @@ package com.savchenko.sqlTool.model.visitor;
 
 import com.savchenko.sqlTool.exception.UnexpectedException;
 import com.savchenko.sqlTool.exception.UnexpectedExpressionException;
+import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.resolver.Resolver;
 import com.savchenko.sqlTool.model.domain.Column;
 import com.savchenko.sqlTool.model.domain.ExternalRow;
-import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.expression.*;
 import com.savchenko.sqlTool.utils.ModelUtils;
 
@@ -179,7 +179,7 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
         if (operation.operator() == EXISTS) {
 
             if (operation.expression() instanceof SubTable subTable) {
-                var table = resolver.resolve(subTable.commands(), externalRow).table();
+                var table = resolver.resolve(subTable.commands(), externalRow).lazyTable();
                 return Optional.of(new BooleanValue(table.dataStream().findAny().isPresent()));
             }
 
@@ -197,7 +197,7 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
             }
 
             if (operation.right() instanceof SubTable subTable) {
-                var table = resolver.resolve(subTable.commands(), externalRow).table();
+                var table = resolver.resolve(subTable.commands(), externalRow).lazyTable();
                 return Optional.of(processInTableOperation(operation.left().accept(this), table));
             }
         }
@@ -205,18 +205,18 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
         return Optional.empty();
     }
 
-    private BooleanValue processInTableOperation(Value<?> value, Table table) {
-        var columnsCount = table.columns().size();
+    private BooleanValue processInTableOperation(Value<?> value, LazyTable lazyTable) {
+        var columnsCount = lazyTable.columns().size();
 
         if (columnsCount != 1) {
-            throw new UnexpectedException("Expected exactly one column in table '%s'", table.name());
+            throw new UnexpectedException("Expected exactly one column in table '%s'", lazyTable.name());
         }
 
-        var columnData = table.dataStream()
+        var columnData = lazyTable.dataStream()
                 .map(row -> (Value<?>) row.get(0))
                 .toList();
 
-        var type = table.columns().get(0).type();
+        var type = lazyTable.columns().get(0).type();
 
         return processInListOperation(value, new ExpressionList(columnData, type));
     }

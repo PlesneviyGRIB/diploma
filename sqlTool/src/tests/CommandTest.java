@@ -7,7 +7,7 @@ import com.savchenko.sqlTool.model.command.function.Identity;
 import com.savchenko.sqlTool.model.command.join.JoinStrategy;
 import com.savchenko.sqlTool.model.domain.Column;
 import com.savchenko.sqlTool.model.domain.ExternalRow;
-import com.savchenko.sqlTool.model.domain.Table;
+import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.expression.*;
 import com.savchenko.sqlTool.query.Q;
 import com.savchenko.sqlTool.query.Query;
@@ -53,13 +53,13 @@ public class CommandTest extends TestBase {
 
     @Test
     public void columnsCountTest() {
-        assertEquals(resolver.resolve(new Query().from("actions")).table().columns().size(), 9);
-        assertEquals(resolver.resolve(new Query().from("actions").innerJoin(new Query().from("actions").as("a"), new BooleanValue(true), JoinStrategy.LOOP)).table().columns().size(), 18);
+        assertEquals(resolver.resolve(new Query().from("actions")).lazyTable().columns().size(), 9);
+        assertEquals(resolver.resolve(new Query().from("actions").innerJoin(new Query().from("actions").as("a"), new BooleanValue(true), JoinStrategy.LOOP)).lazyTable().columns().size(), 18);
         assertEquals(resolver.resolve(new Query().from("actions")
                 .innerJoin(new Query().from("activities"), new BooleanValue(true), JoinStrategy.LOOP)
                 .innerJoin(new Query().from("auth_sources"), new BooleanValue(true), JoinStrategy.LOOP)
-        ).table().columns().size(), 24);
-        assertEquals(resolver.resolve(new Query().from("actions").select(Q.column("actions", "id"))).table().columns().size(), 1);
+        ).lazyTable().columns().size(), 24);
+        assertEquals(resolver.resolve(new Query().from("actions").select(Q.column("actions", "id"))).lazyTable().columns().size(), 1);
     }
 
     @Test
@@ -145,14 +145,14 @@ public class CommandTest extends TestBase {
                 new Query()
                         .from("content")
                         .fullJoin(new Query().from("content_descriptor"), new BooleanValue(true), JoinStrategy.LOOP)
-        ).table();
+        ).lazyTable();
 
-        var emtyTable = new Table("", List.of(), Stream.of(), ExternalRow.empty());
+        var emtyTable = new LazyTable("", List.of(), Stream.of(), ExternalRow.empty());
 
         var mathElementsTable = new From("content").run(emtyTable, projection);
         var finalAnswersTable = new From("content_descriptor").run(emtyTable, projection);
 
-        var cartesianProduct = cartesianProduct(mathElementsTable.table(), finalAnswersTable.table());
+        var cartesianProduct = cartesianProduct(mathElementsTable.lazyTable(), finalAnswersTable.lazyTable());
         Assert.assertEquals(
                 ModelUtils.renameTable(cartesianProduct, "res"),
                 ModelUtils.renameTable(resTable, "res")
@@ -205,17 +205,17 @@ public class CommandTest extends TestBase {
 
     @Test
     public void aliasTest() {
-        BiConsumer<Table, List<String>> check = (table, columnNames) -> IntStream.range(0, columnNames.size())
+        BiConsumer<LazyTable, List<String>> check = (table, columnNames) -> IntStream.range(0, columnNames.size())
                 .forEach(index -> Assert.assertEquals(columnNames.get(index), table.columns().get(index).toString()));
 
-        var table1 = resolver.resolve(new Query().from("wikis").as("w")).table();
+        var table1 = resolver.resolve(new Query().from("wikis").as("w")).lazyTable();
         check.accept(table1, List.of("w.id", "w.text"));
 
-        var table2 = resolver.resolve(new Query().from("wikis").innerJoin(new Query().from("tag"), new BooleanValue(true), JoinStrategy.LOOP)).table();
+        var table2 = resolver.resolve(new Query().from("wikis").innerJoin(new Query().from("tag"), new BooleanValue(true), JoinStrategy.LOOP)).lazyTable();
         check.accept(table2, List.of("wikis_tag.wikis.id", "wikis_tag.text", "wikis_tag.tag.id", "wikis_tag.label",
                 "wikis_tag.discriminator", "wikis_tag.math_id", "wikis_tag.relevancy", "wikis_tag.type"));
 
-        var table3 = resolver.resolve(new Query().from("wikis").innerJoin(new Query().from("tag"), new BooleanValue(true), JoinStrategy.LOOP).as("w")).table();
+        var table3 = resolver.resolve(new Query().from("wikis").innerJoin(new Query().from("tag"), new BooleanValue(true), JoinStrategy.LOOP).as("w")).lazyTable();
         check.accept(table3, List.of("w.wikis.id", "w.text", "w.tag.id", "w.label", "w.discriminator", "w.math_id", "w.relevancy", "w.type"));
 
         expectError(
@@ -223,10 +223,10 @@ public class CommandTest extends TestBase {
                 ValidationException.class
         );
 
-        var table4 = resolver.resolve(new Query().from("wikis").as("w1").innerJoin(new Query().from("wikis").as("w2"), new BooleanValue(true), JoinStrategy.LOOP)).table();
+        var table4 = resolver.resolve(new Query().from("wikis").as("w1").innerJoin(new Query().from("wikis").as("w2"), new BooleanValue(true), JoinStrategy.LOOP)).lazyTable();
         check.accept(table4, List.of("w1_w2.w1.id", "w1_w2.w1.text", "w1_w2.w2.id", "w1_w2.w2.text"));
 
-        var table5 = resolver.resolve(new Query().from("wikis").as("w1").innerJoin(new Query().from("wikis").as("w2"), new BooleanValue(true), JoinStrategy.LOOP).as("res")).table();
+        var table5 = resolver.resolve(new Query().from("wikis").as("w1").innerJoin(new Query().from("wikis").as("w2"), new BooleanValue(true), JoinStrategy.LOOP).as("res")).lazyTable();
         check.accept(table5, List.of("res.w1.id", "res.w1.text", "res.w2.id", "res.w2.text"));
     }
 
@@ -278,13 +278,13 @@ public class CommandTest extends TestBase {
                 .select(Q.column("c", "id"));
 
         var resolverResult = resolver.resolve(query);
-        var ids = retrieveIds(resolverResult.table());
+        var ids = retrieveIds(resolverResult.lazyTable());
 
         Assert.assertEquals(List.of(153L, 154L, 155L, 156L, 157L, 158L), ids);
 
     }
 
     private void expectRowsCount(Query query, int count) {
-        assertEquals(count, resolver.resolve(query).table().dataStream().toList().size());
+        assertEquals(count, resolver.resolve(query).lazyTable().dataStream().toList().size());
     }
 }

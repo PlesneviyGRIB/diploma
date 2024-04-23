@@ -12,8 +12,8 @@ import com.savchenko.sqlTool.model.command.domain.SimpleCommand;
 import com.savchenko.sqlTool.model.complexity.CachedCalculatorEntry;
 import com.savchenko.sqlTool.model.complexity.Calculator;
 import com.savchenko.sqlTool.model.domain.ExternalRow;
+import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.domain.Projection;
-import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.query.Query;
 
 import java.util.List;
@@ -46,7 +46,7 @@ public class Resolver {
             }
         }
 
-        var table = new Table(null, null, null, externalRow);
+        var table = new LazyTable(null, null, null, externalRow);
         var calculator = new Calculator();
 
         for (int i = 0; i < commands.size(); i++) {
@@ -60,12 +60,12 @@ public class Resolver {
             if (Objects.nonNull(cachedCommandResult)) {
 
                 var cachedCalculatorEntry = cachedCommandResult.calculatorEntry();
-                var cachedTable = cachedCommandResult.table();
+                var cachedTable = cachedCommandResult.lazyTable();
 
                 calculator.log(new CachedCalculatorEntry(cachedCalculatorEntry));
 
                 if (Objects.nonNull(cachedTable)) {
-                    table = cachedCommandResult.table();
+                    table = cachedCommandResult.lazyTable();
                     continue;
                 }
             }
@@ -77,29 +77,29 @@ public class Resolver {
             if (Objects.isNull(cachedCommandResult)) {
                 calculator.log(commandResult.calculatorEntry());
             }
-            table = commandResult.table();
+            table = commandResult.lazyTable();
 
         }
 
         return new ResolverResult(table, calculator);
     }
 
-    private CommandResult run(Command command, Table table) {
+    private CommandResult run(Command command, LazyTable lazyTable) {
         return command.accept(new Command.Visitor<>() {
 
             @Override
             public CommandResult visit(SimpleCommand command) {
-                return command.run(table, projection);
+                return command.run(lazyTable, projection);
             }
 
             @Override
             public CommandResult visit(SimpleCalculedCommand command) {
-                return command.run(table, projection);
+                return command.run(lazyTable, projection);
             }
 
             @Override
             public CommandResult visit(ComplexCalculedCommand command) {
-                return command.run(table, projection, Resolver.this);
+                return command.run(lazyTable, projection, Resolver.this);
             }
 
         });

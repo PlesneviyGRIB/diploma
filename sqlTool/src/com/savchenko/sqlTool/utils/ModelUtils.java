@@ -5,9 +5,11 @@ import com.savchenko.sqlTool.exception.UnexpectedException;
 import com.savchenko.sqlTool.exception.UnsupportedTypeException;
 import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.domain.Column;
-import com.savchenko.sqlTool.model.domain.Table;
+import com.savchenko.sqlTool.model.domain.ExternalRow;
+import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.expression.*;
 import com.savchenko.sqlTool.model.operator.Operator;
+import com.savchenko.sqlTool.model.visitor.ExpressionValidator;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -23,16 +25,16 @@ import static com.savchenko.sqlTool.model.operator.Operator.*;
 import static java.lang.String.format;
 
 public class ModelUtils {
-    public static Table renameTable(Table table, String tableName) {
+    public static LazyTable renameTable(LazyTable lazyTable, String tableName) {
         Function<Column, String> columnIdentifier = column -> {
             var tokens = Arrays.asList(column.toString().split("\\."));
             return String.join(".", tokens.subList(1, tokens.size()));
         };
 
-        var identityMap = table.columns().stream()
+        var identityMap = lazyTable.columns().stream()
                 .collect(Collectors.toMap(columnIdentifier, c -> 1, Integer::sum));
 
-        var targetColumns = table.columns().stream()
+        var targetColumns = lazyTable.columns().stream()
                 .map(column -> {
                     var identifier = columnIdentifier.apply(column);
                     if (identityMap.get(identifier) != 1) {
@@ -40,11 +42,11 @@ public class ModelUtils {
                     }
                     return new Column(identifier, tableName, column.type());
                 }).toList();
-        return new Table(tableName, targetColumns, table.dataStream(), table.externalRow());
+        return new LazyTable(tableName, targetColumns, lazyTable.dataStream(), lazyTable.externalRow());
     }
 
-    public static List<Value<?>> emptyRow(Table table) {
-        var size = table.columns().size();
+    public static List<Value<?>> emptyRow(LazyTable lazyTable) {
+        var size = lazyTable.columns().size();
         var row = new ArrayList<Value<?>>(size);
         IntStream.range(0, size).forEach(index -> row.add(index, new NullValue()));
         return row;

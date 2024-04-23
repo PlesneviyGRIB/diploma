@@ -3,8 +3,8 @@ package com.savchenko.sqlTool.model.command.join;
 import com.savchenko.sqlTool.exception.UnexpectedException;
 import com.savchenko.sqlTool.exception.UnexpectedExpressionException;
 import com.savchenko.sqlTool.model.domain.ExternalRow;
+import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.domain.Row;
-import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.expression.BinaryOperation;
 import com.savchenko.sqlTool.model.expression.BooleanValue;
 import com.savchenko.sqlTool.model.expression.Expression;
@@ -28,7 +28,7 @@ import java.util.stream.Stream;
 public enum JoinStrategy {
     HASH, MERGE, LOOP;
 
-    public Integer getStrategyComplexity(Table table, Table joinedTable) {
+    public Integer getStrategyComplexity(LazyTable lazyTable, LazyTable joinedLazyTable) {
         switch (this) {
             case HASH:
                 //return table.data().size() + joinedTable.data().size();
@@ -44,25 +44,25 @@ public enum JoinStrategy {
         }
     }
 
-    public Triple<Stream<List<Value<?>>>, Set<Integer>, Set<Integer>> run(Table table, Table joinedTable, Expression expression, Resolver resolver) {
+    public Triple<Stream<List<Value<?>>>, Set<Integer>, Set<Integer>> run(LazyTable lazyTable, LazyTable joinedLazyTable, Expression expression, Resolver resolver) {
         return switch (this) {
-            case HASH -> hashImpl(table, joinedTable, expression, resolver);
-            case MERGE -> mergeImpl(table, joinedTable, expression, resolver);
-            case LOOP -> loopImpl(table, joinedTable, expression, resolver);
+            case HASH -> hashImpl(lazyTable, joinedLazyTable, expression, resolver);
+            case MERGE -> mergeImpl(lazyTable, joinedLazyTable, expression, resolver);
+            case LOOP -> loopImpl(lazyTable, joinedLazyTable, expression, resolver);
         };
     }
 
-    private Triple<Stream<List<Value<?>>>, Set<Integer>, Set<Integer>> hashImpl(Table table, Table joinedTable, Expression expression, Resolver resolver) {
+    private Triple<Stream<List<Value<?>>>, Set<Integer>, Set<Integer>> hashImpl(LazyTable lazyTable, LazyTable joinedLazyTable, Expression expression, Resolver resolver) {
         if (expression instanceof BinaryOperation op && op.operator().equals(Operator.EQ)) {
             var leftExpression = op.left();
             var rightExpression = op.right();
 
-            var forwardOrder = ExpressionUtils.relatedToTable(table.columns(), leftExpression, table.externalRow());
+            var forwardOrder = ExpressionUtils.relatedToTable(lazyTable.columns(), leftExpression, lazyTable.externalRow());
 
             Supplier<Expression> tableExpression = () -> forwardOrder ? leftExpression : rightExpression;
             Supplier<Expression> joinedTableExpression = () -> forwardOrder ? rightExpression : leftExpression;
 
-            var isContextSensitiveExpression = expression.accept(new ContextSensitiveExpressionQualifier(table.columns()));
+            var isContextSensitiveExpression = expression.accept(new ContextSensitiveExpressionQualifier(lazyTable.columns()));
 
             Optional<Value<?>> tableValueProvider = isContextSensitiveExpression ?
                     Optional.empty() : Optional.of(tableExpression.get().accept(new ExpressionCalculator(resolver, ExternalRow.empty())));
@@ -71,28 +71,28 @@ public enum JoinStrategy {
                     Optional.empty() : Optional.of(joinedTableExpression.get().accept(new ExpressionCalculator(resolver, ExternalRow.empty())));
 
             Function<List<Value<?>>, Value<?>> tableKeyMapper = values -> tableValueProvider.orElseGet(() -> {
-                var externalRow = table.externalRow().merge(new ExternalRow(table.columns(), values));
+                var externalRow = lazyTable.externalRow().merge(new ExternalRow(lazyTable.columns(), values));
                 return tableExpression.get()
-                        .accept(new ValueInjector(new Row(table.columns(), values), table.externalRow()))
+                        .accept(new ValueInjector(new Row(lazyTable.columns(), values), lazyTable.externalRow()))
                         .accept(new ExpressionCalculator(resolver, externalRow));
             });
 
             Function<List<Value<?>>, Value<?>> joinedTableKeyMapper = values -> joinedTableValueProvider.orElseGet(() -> {
-                var externalRow = table.externalRow().merge(new ExternalRow(joinedTable.columns(), values));
+                var externalRow = lazyTable.externalRow().merge(new ExternalRow(joinedLazyTable.columns(), values));
                 return joinedTableExpression.get()
-                        .accept(new ValueInjector(new Row(joinedTable.columns(), values), joinedTable.externalRow()))
+                        .accept(new ValueInjector(new Row(joinedLazyTable.columns(), values), joinedLazyTable.externalRow()))
                         .accept(new ExpressionCalculator(resolver, externalRow));
             });
 
-            var hashTable = ModelUtils.getIndexedData(table.dataStream())
-                    .filter(pair -> !ExpressionUtils.columnsContainsNulls(new Row(table.columns(), pair.getRight()), table.externalRow(), tableExpression.get()))
+            var hashTable = ModelUtils.getIndexedData(lazyTable.dataStream())
+                    .filter(pair -> !ExpressionUtils.columnsContainsNulls(new Row(lazyTable.columns(), pair.getRight()), lazyTable.externalRow(), tableExpression.get()))
                     .collect(Collectors.toMap(pair -> tableKeyMapper.apply(pair.getRight()), Function.identity()));
 
             var leftJoinedRowIndexes = new HashSet<Integer>();
             var rightJoinedRowIndexes = new HashSet<Integer>();
 
-            var dataStream = ModelUtils.getIndexedData(joinedTable.dataStream())
-                    .filter(pair -> !ExpressionUtils.columnsContainsNulls(new Row(joinedTable.columns(), pair.getRight()), joinedTable.externalRow(), joinedTableExpression.get()))
+            var dataStream = ModelUtils.getIndexedData(joinedLazyTable.dataStream())
+                    .filter(pair -> !ExpressionUtils.columnsContainsNulls(new Row(joinedLazyTable.columns(), pair.getRight()), joinedLazyTable.externalRow(), joinedTableExpression.get()))
                     .map(pair2 -> {
                         var key = joinedTableKeyMapper.apply(pair2.getRight());
                         var pair1 = hashTable.get(key);
@@ -110,20 +110,20 @@ public enum JoinStrategy {
         throw new UnexpectedException("Hash/Merge join expects EQUALITY operation, but found '%s'", expression.stringify());
     }
 
-    private Triple<Stream<List<Value<?>>>, Set<Integer>, Set<Integer>> mergeImpl(Table table, Table joinedTable, Expression expression, Resolver resolver) {
-        return hashImpl(table, joinedTable, expression, resolver);
+    private Triple<Stream<List<Value<?>>>, Set<Integer>, Set<Integer>> mergeImpl(LazyTable lazyTable, LazyTable joinedLazyTable, Expression expression, Resolver resolver) {
+        return hashImpl(lazyTable, joinedLazyTable, expression, resolver);
     }
 
-    private Triple<Stream<List<Value<?>>>, Set<Integer>, Set<Integer>> loopImpl(Table table, Table joinedTable, Expression expression, Resolver resolver) {
-        var columns = ListUtils.union(table.columns(), joinedTable.columns());
+    private Triple<Stream<List<Value<?>>>, Set<Integer>, Set<Integer>> loopImpl(LazyTable lazyTable, LazyTable joinedLazyTable, Expression expression, Resolver resolver) {
+        var columns = ListUtils.union(lazyTable.columns(), joinedLazyTable.columns());
 
         var leftJoinedRowIndexes = new HashSet<Integer>();
-        var leftIndexedData = ModelUtils.getIndexedData(table.dataStream());
+        var leftIndexedData = ModelUtils.getIndexedData(lazyTable.dataStream());
 
         var rightJoinedRowIndexes = new HashSet<Integer>();
-        var rightIndexedData = ModelUtils.getIndexedData(joinedTable.dataStream());
+        var rightIndexedData = ModelUtils.getIndexedData(joinedLazyTable.dataStream());
 
-        var isContextSensitiveExpression = expression.accept(new ContextSensitiveExpressionQualifier(table.columns()));
+        var isContextSensitiveExpression = expression.accept(new ContextSensitiveExpressionQualifier(lazyTable.columns()));
 
         Optional<Value<?>> valueProvider = isContextSensitiveExpression ?
                 Optional.empty() : Optional.of(expression.accept(new ExpressionCalculator(resolver, ExternalRow.empty())));
@@ -135,7 +135,7 @@ public enum JoinStrategy {
                             .map(pair2 -> {
                                 var row2 = pair2.getRight();
                                 var row = ListUtils.union(row1, row2);
-                                var externalRow = table.externalRow().merge(new ExternalRow(columns, row));
+                                var externalRow = lazyTable.externalRow().merge(new ExternalRow(columns, row));
                                 var tableRow = new Row(columns, row);
 
                                 if (ExpressionUtils.columnsContainsNulls(tableRow, externalRow, expression)) {
@@ -143,7 +143,7 @@ public enum JoinStrategy {
                                 }
 
                                 var value = valueProvider.orElseGet(() -> expression
-                                        .accept(new ValueInjector(tableRow, table.externalRow()))
+                                        .accept(new ValueInjector(tableRow, lazyTable.externalRow()))
                                         .accept(new ExpressionCalculator(resolver, externalRow))
                                 );
 

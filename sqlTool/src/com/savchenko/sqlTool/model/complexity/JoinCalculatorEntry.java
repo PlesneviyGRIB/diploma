@@ -31,7 +31,7 @@ public class JoinCalculatorEntry extends ComplexCalculatorEntry {
                         %s[%s] %s
                         %s
                             Expression: %s
-                            %s (joined table complexity) + %s (expression complexity) %s %s (number of calculations) = %s (total)"""
+                            %s (joined lazyTable complexity) + %s (expression complexity) %s %s (number of calculations) = %s (total)"""
                         .formatted(
                                 stringifyCommand(), ((Join) command).getStrategy(), getTotalComplexity(),
                                 new CalculatorPrinter(calculator, "    | ", JOIN).stringify(),

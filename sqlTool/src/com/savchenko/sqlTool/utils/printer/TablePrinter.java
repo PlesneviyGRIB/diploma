@@ -1,11 +1,13 @@
 package com.savchenko.sqlTool.utils.printer;
 
 import com.savchenko.sqlTool.model.domain.Column;
+import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.expression.StringValue;
 import com.savchenko.sqlTool.model.expression.Value;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.IntStream;
 
 import static java.lang.String.format;
@@ -57,7 +59,7 @@ public class TablePrinter extends Printer<Table> {
     }
 
     private void appendRows() {
-        var array = domain.dataStream().toList();
+        var array = new ArrayList<>(domain.data());
         for (int i = 0; i < Math.min(rowsCount(), PRINTED_ROWS_MAX_COUNT); i++) {
             var row = array.get(i);
             sb.append("|");
@@ -91,7 +93,7 @@ public class TablePrinter extends Printer<Table> {
     }
 
     private Integer rowsCount() {
-        return domain.dataStream().toList().size();
+        return domain.data().size();
     }
 
     private Integer columnsCount() {

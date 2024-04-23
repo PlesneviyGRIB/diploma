@@ -3,8 +3,8 @@ package tests;
 import com.savchenko.sqlTool.model.cache.CacheContext;
 import com.savchenko.sqlTool.model.cache.CacheStrategy;
 import com.savchenko.sqlTool.model.domain.ExternalRow;
+import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.domain.Projection;
-import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.expression.LongNumber;
 import com.savchenko.sqlTool.model.resolver.Resolver;
 import com.savchenko.sqlTool.utils.DatabaseReader;
@@ -45,15 +45,15 @@ public class TestBase {
         }
     }
 
-    protected Table cartesianProduct(Table table1, Table table2) {
-        var data1 = table1.dataStream();
-        var data2 = table2.dataStream();
+    protected LazyTable cartesianProduct(LazyTable lazyTable1, LazyTable lazyTable2) {
+        var data1 = lazyTable1.dataStream();
+        var data2 = lazyTable2.dataStream();
         var data = data1.flatMap(prefix -> data2.map(postfix -> ListUtils.union(prefix, postfix)));
-        return new Table(format("%s_%s", table1.name(), table2.name()), ListUtils.union(table1.columns(), table2.columns()), data, ExternalRow.empty());
+        return new LazyTable(format("%s_%s", lazyTable1.name(), lazyTable2.name()), ListUtils.union(lazyTable1.columns(), lazyTable2.columns()), data, ExternalRow.empty());
     }
 
-    protected List<Long> retrieveIds(Table table) {
-        return table.dataStream()
+    protected List<Long> retrieveIds(LazyTable lazyTable) {
+        return lazyTable.dataStream()
                 .map(row -> row.get(0))
                 .filter(value -> value instanceof LongNumber)
                 .map(ln -> ((LongNumber) ln).value())

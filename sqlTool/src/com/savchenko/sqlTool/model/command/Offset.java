@@ -4,12 +4,11 @@ import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.command.domain.SimpleCommand;
 import com.savchenko.sqlTool.model.complexity.SimpleEntry;
 import com.savchenko.sqlTool.model.complexity.laziness.ClauseReducer;
+import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.domain.Projection;
-import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.resolver.CommandResult;
 
 import java.util.Objects;
-import java.util.stream.Stream;
 
 public class Offset implements SimpleCommand, ClauseReducer {
     private final Integer offset;
@@ -19,14 +18,14 @@ public class Offset implements SimpleCommand, ClauseReducer {
     }
 
     @Override
-    public CommandResult run(Table table, Projection projection) {
+    public CommandResult run(LazyTable lazyTable, Projection projection) {
 
         if (offset < 0) {
             throw new ValidationException("Offset can not be less than 0! Current value is '%s'", offset);
         }
 
         return new CommandResult(
-                new Table(table.name(), table.columns(), table.dataStream().skip(offset), table.externalRow()),
+                new LazyTable(lazyTable.name(), lazyTable.columns(), lazyTable.dataStream().skip(offset), lazyTable.externalRow()),
                 new SimpleEntry(this)
         );
     }

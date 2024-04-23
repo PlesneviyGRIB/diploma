@@ -4,8 +4,8 @@ import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.command.domain.SimpleCommand;
 import com.savchenko.sqlTool.model.complexity.SimpleEntry;
 import com.savchenko.sqlTool.model.complexity.laziness.LazinessIndependent;
+import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.domain.Projection;
-import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.resolver.CommandResult;
 import com.savchenko.sqlTool.utils.ModelUtils;
 
@@ -20,7 +20,7 @@ public class Alias implements SimpleCommand, LazinessIndependent {
     }
 
     @Override
-    public CommandResult run(Table table, Projection projection) {
+    public CommandResult run(LazyTable lazyTable, Projection projection) {
 
         projection.tables().stream()
                 .filter(t -> t.name().equals(alias))
@@ -30,7 +30,7 @@ public class Alias implements SimpleCommand, LazinessIndependent {
                 });
 
         return new CommandResult(
-                ModelUtils.renameTable(table, alias),
+                ModelUtils.renameTable(lazyTable, alias),
                 new SimpleEntry(this)
         );
     }
