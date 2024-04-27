@@ -3,11 +3,8 @@ package com.savchenko.sqlTool;
 import com.savchenko.sqlTool.model.cache.CacheContext;
 import com.savchenko.sqlTool.model.cache.CacheStrategy;
 import com.savchenko.sqlTool.model.command.join.JoinStrategy;
-import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.expression.BooleanValue;
-import com.savchenko.sqlTool.model.expression.LongNumber;
 import com.savchenko.sqlTool.model.resolver.Resolver;
-import com.savchenko.sqlTool.query.Q;
 import com.savchenko.sqlTool.query.Query;
 import com.savchenko.sqlTool.utils.DatabaseReader;
 import com.savchenko.sqlTool.utils.printer.CalculatorPrinter;
@@ -17,7 +14,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 import static com.savchenko.sqlTool.config.Constants.*;
-import static com.savchenko.sqlTool.model.operator.Operator.*;
 
 public class Main {
 
@@ -30,7 +26,7 @@ public class Main {
                 .fullJoin(new Query().from("content_descriptor"), new BooleanValue(true), JoinStrategy.LOOP);
 
 
-        var cacheContext = new CacheContext(CacheStrategy.PROPER);
+        var cacheContext = new CacheContext(CacheStrategy.NONE);
         var resolverResult = new Resolver(projection, cacheContext).resolve(query);
         var table = resolverResult.lazyTable().fetch();
         var tableStr = new TablePrinter(table).stringify();
