@@ -2,18 +2,15 @@ package com.savchenko.sqlTool.model.command;
 
 import com.savchenko.sqlTool.model.command.domain.SimpleCalculedCommand;
 import com.savchenko.sqlTool.model.command.function.AggregationFunction;
-import com.savchenko.sqlTool.model.complexity.laziness.LazyConcealer;
 import com.savchenko.sqlTool.model.domain.Column;
-import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.LazyTable;
+import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.resolver.CommandResult;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Objects;
 
-import static java.lang.String.format;
-import static java.util.stream.Collectors.groupingBy;
-
-public class GroupBy implements SimpleCalculedCommand, LazyConcealer {
+public class GroupBy implements SimpleCalculedCommand {
 
     private final Map<Column, AggregationFunction> columnMapperMap;
 

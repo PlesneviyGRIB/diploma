@@ -2,7 +2,6 @@ package com.savchenko.sqlTool.model.command;
 
 import com.savchenko.sqlTool.model.command.domain.SimpleCommand;
 import com.savchenko.sqlTool.model.complexity.SimpleEntry;
-import com.savchenko.sqlTool.model.complexity.laziness.LazinessIndependent;
 import com.savchenko.sqlTool.model.domain.Column;
 import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.domain.Projection;
@@ -15,7 +14,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class Select implements SimpleCommand, LazinessIndependent {
+public class Select implements SimpleCommand {
 
     private final List<Column> columns;
 

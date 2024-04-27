@@ -2,14 +2,14 @@ package com.savchenko.sqlTool.model.command;
 
 import com.savchenko.sqlTool.model.command.domain.SimpleCommand;
 import com.savchenko.sqlTool.model.complexity.SimpleEntry;
-import com.savchenko.sqlTool.model.complexity.laziness.Lazy;
-import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.LazyTable;
+import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.resolver.CommandResult;
 
 import java.util.Objects;
 
-public class From implements SimpleCommand, Lazy {
+public class From implements SimpleCommand {
+
     private final String tableName;
 
     public From(String tableName) {

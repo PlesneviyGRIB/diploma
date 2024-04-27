@@ -3,7 +3,6 @@ package com.savchenko.sqlTool.model.command;
 import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.command.domain.SimpleCalculedCommand;
 import com.savchenko.sqlTool.model.complexity.SimpleCalculatorEntry;
-import com.savchenko.sqlTool.model.complexity.laziness.LazyConcealer;
 import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.expression.StringValue;
@@ -17,7 +16,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class OrderBy implements SimpleCalculedCommand, LazyConcealer {
+public class OrderBy implements SimpleCalculedCommand {
 
     private final List<Order> orders;
 

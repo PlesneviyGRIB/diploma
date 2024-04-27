@@ -2,14 +2,13 @@ package com.savchenko.sqlTool.model.command;
 
 import com.savchenko.sqlTool.model.command.domain.SimpleCalculedCommand;
 import com.savchenko.sqlTool.model.complexity.SimpleCalculatorEntry;
-import com.savchenko.sqlTool.model.complexity.laziness.Lazy;
 import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.resolver.CommandResult;
 
 import java.util.Objects;
 
-public class Distinct implements SimpleCalculedCommand, Lazy {
+public class Distinct implements SimpleCalculedCommand {
 
     @Override
     public CommandResult run(LazyTable lazyTable, Projection projection) {

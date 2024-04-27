@@ -3,14 +3,13 @@ package com.savchenko.sqlTool.model.command;
 import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.command.domain.SimpleCommand;
 import com.savchenko.sqlTool.model.complexity.SimpleEntry;
-import com.savchenko.sqlTool.model.complexity.laziness.ClauseReducer;
 import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.resolver.CommandResult;
 
 import java.util.Objects;
 
-public class Offset implements SimpleCommand, ClauseReducer {
+public class Offset implements SimpleCommand {
     private final Integer offset;
 
     public Offset(Integer offset) {

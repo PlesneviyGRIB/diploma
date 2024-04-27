@@ -3,7 +3,6 @@ package com.savchenko.sqlTool.model.command;
 import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.command.domain.SimpleCommand;
 import com.savchenko.sqlTool.model.complexity.SimpleEntry;
-import com.savchenko.sqlTool.model.complexity.laziness.LazinessIndependent;
 import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.resolver.CommandResult;
@@ -11,7 +10,7 @@ import com.savchenko.sqlTool.utils.ModelUtils;
 
 import java.util.Objects;
 
-public class Alias implements SimpleCommand, LazinessIndependent {
+public class Alias implements SimpleCommand {
 
     private final String alias;
 

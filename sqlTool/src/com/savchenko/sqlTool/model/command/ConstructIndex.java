@@ -2,7 +2,6 @@ package com.savchenko.sqlTool.model.command;
 
 import com.savchenko.sqlTool.model.command.domain.SimpleCalculedCommand;
 import com.savchenko.sqlTool.model.complexity.SimpleCalculatorEntry;
-import com.savchenko.sqlTool.model.complexity.laziness.LazinessIndependent;
 import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.index.Index;
@@ -11,7 +10,7 @@ import com.savchenko.sqlTool.utils.ModelUtils;
 
 import java.util.Objects;
 
-public class ConstructIndex implements SimpleCalculedCommand, LazinessIndependent {
+public class ConstructIndex implements SimpleCalculedCommand {
 
     private final Index index;
 
