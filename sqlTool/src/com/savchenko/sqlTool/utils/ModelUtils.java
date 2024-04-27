@@ -25,6 +25,7 @@ import static java.lang.String.format;
 
 public class ModelUtils {
     public static LazyTable renameTable(LazyTable lazyTable, String tableName) {
+
         Function<Column, String> columnIdentifier = column -> {
             var tokens = Arrays.asList(column.toString().split("\\."));
             return String.join(".", tokens.subList(1, tokens.size()));
@@ -41,6 +42,7 @@ public class ModelUtils {
                     }
                     return new Column(identifier, tableName, column.type());
                 }).toList();
+
         return new LazyTable(tableName, targetColumns, lazyTable.dataStream(), lazyTable.externalRow());
     }
 

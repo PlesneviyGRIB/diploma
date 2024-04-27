@@ -3,6 +3,7 @@ package com.savchenko.sqlTool.model.visitor;
 import com.savchenko.sqlTool.exception.UnexpectedException;
 import com.savchenko.sqlTool.exception.UnexpectedExpressionException;
 import com.savchenko.sqlTool.model.domain.ExternalHeaderRow;
+import com.savchenko.sqlTool.model.domain.HeaderRow;
 import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.resolver.Resolver;
 import com.savchenko.sqlTool.model.domain.Column;
@@ -18,11 +19,11 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
 
     private final Resolver resolver;
 
-    private final ExternalHeaderRow externalRow;
+    private final ExternalHeaderRow mergedExternalHeaderRow;
 
-    public ExpressionCalculator(Resolver resolver, ExternalHeaderRow externalRow) {
+    public ExpressionCalculator(Resolver resolver, HeaderRow headerRow, ExternalHeaderRow externalRow) {
         this.resolver = resolver;
-        this.externalRow = externalRow;
+        this.mergedExternalHeaderRow = externalRow.merge(new ExternalHeaderRow(headerRow.getColumns(), headerRow.getRow()));
     }
 
     @Override
@@ -179,7 +180,7 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
         if (operation.operator() == EXISTS) {
 
             if (operation.expression() instanceof SubTable subTable) {
-                var table = resolver.resolve(subTable.commands(), externalRow).lazyTable();
+                var table = resolver.resolve(subTable.commands(), mergedExternalHeaderRow).lazyTable();
                 return Optional.of(new BooleanValue(table.dataStream().findAny().isPresent()));
             }
 
@@ -197,7 +198,7 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
             }
 
             if (operation.right() instanceof SubTable subTable) {
-                var table = resolver.resolve(subTable.commands(), externalRow).lazyTable();
+                var table = resolver.resolve(subTable.commands(), mergedExternalHeaderRow).lazyTable();
                 return Optional.of(processInTableOperation(operation.left().accept(this), table));
             }
         }

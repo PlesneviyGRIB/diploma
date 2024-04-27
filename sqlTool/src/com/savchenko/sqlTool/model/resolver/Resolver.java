@@ -105,7 +105,4 @@ public class Resolver {
         });
     }
 
-    public Resolver utilityInstance() {
-        return new Resolver(projection, new CacheContext(CacheStrategy.NONE));
-    }
 }

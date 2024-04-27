@@ -13,7 +13,7 @@ import java.util.stream.IntStream;
 import static java.lang.String.format;
 
 public class TablePrinter extends Printer<Table> {
-    private static final Integer COLUMN_WIDTH = 12;
+    private static final Integer COLUMN_WIDTH = 10;
     private static final Integer PRINTED_ROWS_MAX_COUNT = 200;
 
     public TablePrinter(Table table) {

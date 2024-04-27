@@ -9,15 +9,34 @@ import java.util.Optional;
 import java.util.stream.IntStream;
 
 public class HeaderRow {
+
     protected final Map<Column, Value<?>> columnValueMap;
 
-    public HeaderRow(List<Column> columns, List<Value<?>> values) {
+    private final List<Column> columns;
+
+    private final Row row;
+
+    public List<Column> getColumns() {
+        return columns;
+    }
+
+    public Row getRow() {
+        return row;
+    }
+
+    public HeaderRow(List<Column> columns, Row row) {
         this.columnValueMap = new HashMap<>();
-        IntStream.range(0, columns.size()).forEach(i -> columnValueMap.put(columns.get(i), values.get(i)));
+        IntStream.range(0, columns.size()).forEach(i -> columnValueMap.put(columns.get(i), row.values().get(i)));
+        this.columns = columns;
+        this.row = row;
     }
 
     public Optional<Value<?>> getValue(Column column) {
         return Optional.ofNullable(columnValueMap.get(column));
+    }
+
+    public static HeaderRow empty() {
+        return new HeaderRow(List.of(), new Row());
     }
 
 }

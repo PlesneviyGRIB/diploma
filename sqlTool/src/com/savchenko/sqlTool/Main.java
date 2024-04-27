@@ -2,7 +2,9 @@ package com.savchenko.sqlTool;
 
 import com.savchenko.sqlTool.model.cache.CacheContext;
 import com.savchenko.sqlTool.model.cache.CacheStrategy;
+import com.savchenko.sqlTool.model.command.join.JoinStrategy;
 import com.savchenko.sqlTool.model.domain.Table;
+import com.savchenko.sqlTool.model.expression.BooleanValue;
 import com.savchenko.sqlTool.model.expression.LongNumber;
 import com.savchenko.sqlTool.model.resolver.Resolver;
 import com.savchenko.sqlTool.query.Q;
@@ -24,16 +26,14 @@ public class Main {
         var projection = new DatabaseReader(connection).read();
 
         var query = new Query()
-                .from("math_elements")
-                .where(Q.op(GREATER, Q.column("math_elements", "id"), new LongNumber(10L)))
-                .limit(10);
+                .from("content")
+                .fullJoin(new Query().from("content_descriptor"), new BooleanValue(true), JoinStrategy.LOOP);
 
 
         var cacheContext = new CacheContext(CacheStrategy.PROPER);
         var resolverResult = new Resolver(projection, cacheContext).resolve(query);
-        var resultLazyTable = resolverResult.lazyTable();
-        var resultTable = new Table(resultLazyTable.name(), resultLazyTable.columns(), resultLazyTable.dataStream().toList());
-        var tableStr = new TablePrinter(resultTable).stringify();
+        var table = resolverResult.lazyTable().fetch();
+        var tableStr = new TablePrinter(table).stringify();
         var calculatorStr = new CalculatorPrinter(resolverResult.calculator()).stringify();
 
         System.out.println(tableStr);

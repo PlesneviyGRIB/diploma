@@ -11,6 +11,7 @@ import com.savchenko.sqlTool.model.expression.Expression;
 import com.savchenko.sqlTool.model.resolver.CommandResult;
 import com.savchenko.sqlTool.model.resolver.Resolver;
 import com.savchenko.sqlTool.support.JoinStreams;
+import com.savchenko.sqlTool.utils.ModelUtils;
 import com.savchenko.sqlTool.utils.ValidationUtils;
 import org.apache.commons.collections4.ListUtils;
 
@@ -46,9 +47,10 @@ public abstract class Join extends ComplexCalculedCommand {
 
         var tableName = format("%s_%s", lazyTable.name(), joinedTable.name());
         var targetDataStream = run(strategy.run(lazyTable, joinedTable, expression, resolver));
+        var targetTable = new LazyTable(tableName, mergedColumns, targetDataStream, lazyTable.externalRow());
 
         return new CommandResult(
-                new LazyTable(tableName, mergedColumns, targetDataStream, lazyTable.externalRow()),
+                ModelUtils.renameTable(targetTable, tableName),
                 new SimpleCalculatorEntry(this, 0)
         );
     }

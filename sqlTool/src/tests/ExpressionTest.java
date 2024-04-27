@@ -48,11 +48,13 @@ public class ExpressionTest extends TestBase {
                         .select(Q.column("courses", "id"))
         ).lazyTable();
 
-        Assert.assertEquals(13, res.dataStream().toList().size());
+        var data = res.dataStream().toList();
+
+        Assert.assertEquals(13, data.size());
 
         Assert.assertEquals(
                 List.of(101L, 1L, 153L, 154L, 155L, 151L, 156L, 157L, 158L, 159L, 160L, 2L, 3L),
-                retrieveIds(res)
+                retrieveIds(data)
         );
     }
 
@@ -77,9 +79,11 @@ public class ExpressionTest extends TestBase {
                         .select(Q.column("courses", "id"))
         ).lazyTable();
 
-        Assert.assertEquals(1, res.dataStream().toList().size());
+        var data = res.dataStream().toList();
 
-        Assert.assertEquals(List.of(152L), retrieveIds(res));
+        Assert.assertEquals(1, data.size());
+
+         Assert.assertEquals(List.of(152L), retrieveIds(data));
     }
 
     @Test

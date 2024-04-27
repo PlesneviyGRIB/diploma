@@ -2,7 +2,10 @@ package com.savchenko.sqlTool.model.command;
 
 import com.savchenko.sqlTool.model.command.domain.ComplexCalculedCommand;
 import com.savchenko.sqlTool.model.complexity.ComplexCalculatorEntry;
-import com.savchenko.sqlTool.model.domain.*;
+import com.savchenko.sqlTool.model.domain.HeaderRow;
+import com.savchenko.sqlTool.model.domain.LazyTable;
+import com.savchenko.sqlTool.model.domain.Projection;
+import com.savchenko.sqlTool.model.domain.Row;
 import com.savchenko.sqlTool.model.expression.BooleanValue;
 import com.savchenko.sqlTool.model.expression.Expression;
 import com.savchenko.sqlTool.model.resolver.CommandResult;
@@ -25,25 +28,32 @@ public class Where extends ComplexCalculedCommand {
     @Override
     public CommandResult run(LazyTable lazyTable, Projection projection, Resolver resolver) {
 
-        ValidationUtils.expectBooleanValueAsResolvedType(expression, lazyTable.columns(), lazyTable.externalRow());
+        var externalRow = lazyTable.externalRow();
+        var columns = lazyTable.columns();
 
-        var isContextSensitiveExpression = expression.accept(new ContextSensitiveExpressionQualifier(lazyTable.columns()));
+        ValidationUtils.expectBooleanValueAsResolvedType(expression, columns, externalRow);
+
+        var isContextSensitiveExpression = expression.accept(new ContextSensitiveExpressionQualifier(columns));
 
         var valueProvider = isContextSensitiveExpression ?
                 Optional.<BooleanValue>empty() :
-                Optional.of((BooleanValue) expression.accept(new ExpressionCalculator(resolver, ExternalHeaderRow.empty())));
+                Optional.of((BooleanValue) expression.accept(new ExpressionCalculator(resolver, HeaderRow.empty(), externalRow)));
 
-        var calculatedExpressionEntry = expression.accept(new ExpressionComplexityCalculator(resolver, lazyTable.externalRow())).normalize();
+        var calculatedExpressionEntry = expression
+                .accept(new ExpressionComplexityCalculator(resolver, lazyTable.phonyHeaderRow(), externalRow))
+                .normalize();
 
-        Predicate<Row> predicate = row -> valueProvider.orElseGet(() -> {
-            var externalRow = lazyTable.externalRow().merge(new ExternalHeaderRow(lazyTable.columns(), row.values()));
-            return (BooleanValue) expression
-                    .accept(new ValueInjector(new HeaderRow(lazyTable.columns(), row.values()), lazyTable.externalRow()))
-                    .accept(new ExpressionCalculator(resolver, externalRow));
-        }).value();
+        Predicate<Row> predicate = row -> {
+            var headerRow = new HeaderRow(columns, row);
+            return valueProvider.orElseGet(
+                    () -> (BooleanValue) expression
+                            .accept(new ValueInjector(headerRow, externalRow))
+                            .accept(new ExpressionCalculator(resolver, headerRow, externalRow))
+            ).value();
+        };
 
         return new CommandResult(
-                new LazyTable(lazyTable.name(), lazyTable.columns(), lazyTable.dataStream().filter(predicate), lazyTable.externalRow()),
+                new LazyTable(lazyTable.name(), columns, lazyTable.dataStream().filter(predicate), externalRow),
                 new ComplexCalculatorEntry(this, calculatedExpressionEntry, 0, isContextSensitiveExpression)
         );
     }

@@ -14,14 +14,14 @@ public class ExternalHeaderRow extends HeaderRow {
 
     private final ExternalHeaderRow externalRow2;
 
-    public ExternalHeaderRow(List<Column> columns, List<Value<?>> values) {
-        super(columns, values);
+    public ExternalHeaderRow(List<Column> columns, Row row) {
+        super(columns, row);
         this.externalRow1 = null;
         this.externalRow2 = null;
     }
 
     public ExternalHeaderRow(ExternalHeaderRow externalRow1, ExternalHeaderRow externalRow2) {
-        super(List.of(), List.of());
+        super(List.of(), new Row());
         this.externalRow1 = externalRow1;
         this.externalRow2 = externalRow2;
     }
@@ -54,7 +54,7 @@ public class ExternalHeaderRow extends HeaderRow {
     }
 
     public static ExternalHeaderRow empty() {
-        return new ExternalHeaderRow(List.of(), List.of());
+        return new ExternalHeaderRow(List.of(), new Row(List.of()));
     }
 
     public ExternalHeaderRow merge(ExternalHeaderRow row) {

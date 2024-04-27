@@ -3,6 +3,7 @@ package com.savchenko.sqlTool.model.visitor;
 import com.savchenko.sqlTool.model.complexity.CalculatedExpressionResult;
 import com.savchenko.sqlTool.model.domain.Column;
 import com.savchenko.sqlTool.model.domain.ExternalHeaderRow;
+import com.savchenko.sqlTool.model.domain.HeaderRow;
 import com.savchenko.sqlTool.model.expression.*;
 import com.savchenko.sqlTool.model.resolver.Resolver;
 import org.apache.commons.collections4.ListUtils;
@@ -15,11 +16,17 @@ public class ExpressionComplexityCalculator implements Expression.Visitor<Calcul
 
     private final Resolver resolver;
 
+    private final HeaderRow headerRow;
+
     private final ExternalHeaderRow externalRow;
 
-    public ExpressionComplexityCalculator(Resolver resolver, ExternalHeaderRow externalRow) {
+    private final ExternalHeaderRow mergedExternalRow;
+
+    public ExpressionComplexityCalculator(Resolver resolver, HeaderRow headerRow, ExternalHeaderRow externalRow) {
         this.resolver = resolver;
+        this.headerRow = headerRow;
         this.externalRow = externalRow;
+        this.mergedExternalRow = externalRow.merge(new ExternalHeaderRow(headerRow.getColumns(), headerRow.getRow()));
     }
 
     @Override
@@ -29,7 +36,7 @@ public class ExpressionComplexityCalculator implements Expression.Visitor<Calcul
 
     @Override
     public CalculatedExpressionResult visit(SubTable table) {
-        var result = resolver.resolve(table.commands(), externalRow);
+        var result = resolver.resolve(table.commands(), mergedExternalRow);
         return new CalculatedExpressionResult(result.calculator().getTotalComplexity(), List.of(result.calculator()), table);
     }
 
@@ -58,7 +65,7 @@ public class ExpressionComplexityCalculator implements Expression.Visitor<Calcul
             }
 
             if (right.expression() instanceof SubTable subTable) {
-                var result = resolver.resolve(subTable.commands(), externalRow);
+                var result = resolver.resolve(subTable.commands(), mergedExternalRow);
                 additionalComplexity = 0;
             }
         }
@@ -75,10 +82,10 @@ public class ExpressionComplexityCalculator implements Expression.Visitor<Calcul
 
         Integer additionalComplexity = 0;
 
-        var calculatedSecond = second.expression().accept(new ExpressionCalculator(resolver, externalRow));
+        var calculatedSecond = second.expression().accept(new ExpressionCalculator(resolver, headerRow, externalRow));
 
         if (calculatedSecond instanceof StringValue secondStringValue) {
-            var thirdStringValue = (StringValue) third.expression().accept(new ExpressionCalculator(resolver, externalRow));
+            var thirdStringValue = (StringValue) third.expression().accept(new ExpressionCalculator(resolver, headerRow, externalRow));
 
             additionalComplexity += secondStringValue.value().length() + thirdStringValue.value().length();
         }

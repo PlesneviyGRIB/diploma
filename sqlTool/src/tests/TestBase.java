@@ -8,6 +8,7 @@ import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.Row;
 import com.savchenko.sqlTool.model.expression.LongNumber;
 import com.savchenko.sqlTool.model.resolver.Resolver;
+import com.savchenko.sqlTool.support.WrappedStream;
 import com.savchenko.sqlTool.utils.DatabaseReader;
 import org.apache.commons.collections4.ListUtils;
 import org.junit.Assert;
@@ -48,13 +49,15 @@ public class TestBase {
 
     protected LazyTable cartesianProduct(LazyTable lazyTable1, LazyTable lazyTable2) {
         var data1 = lazyTable1.dataStream();
-        var data2 = lazyTable2.dataStream();
-        var data = data1.flatMap(prefix -> data2.map(postfix -> Row.merge(prefix, postfix)));
-        return new LazyTable(format("%s_%s", lazyTable1.name(), lazyTable2.name()), ListUtils.union(lazyTable1.columns(), lazyTable2.columns()), data, ExternalHeaderRow.empty());
+        var data2 = new WrappedStream<>(lazyTable2.dataStream());
+        var data = data1.flatMap(prefix -> data2.getStream().map(postfix -> Row.merge(prefix, postfix)));
+        var tableName = format("%s_%s", lazyTable1.name(), lazyTable2.name());
+        var columns = ListUtils.union(lazyTable1.columns(), lazyTable2.columns());
+        return new LazyTable(tableName, columns, data, ExternalHeaderRow.empty());
     }
 
-    protected List<Long> retrieveIds(LazyTable lazyTable) {
-        return lazyTable.dataStream()
+    protected List<Long> retrieveIds(List<Row> data) {
+        return data.stream()
                 .map(row -> row.values().get(0))
                 .filter(value -> value instanceof LongNumber)
                 .map(ln -> ((LongNumber) ln).value())

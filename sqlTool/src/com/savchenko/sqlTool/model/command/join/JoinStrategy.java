@@ -115,7 +115,7 @@ public enum JoinStrategy {
                 .accept(new ContextSensitiveExpressionQualifier(lazyTable.columns()));
 
         Optional<Value<?>> valueProvider = isContextSensitiveExpression ?
-                Optional.empty() : Optional.of(expression.accept(new ExpressionCalculator(resolver, ExternalHeaderRow.empty())));
+                Optional.empty() : Optional.of(expression.accept(new ExpressionCalculator(resolver, HeaderRow.empty(), ExternalHeaderRow.empty())));
 
         var usedLeft = new HashSet<Integer>();
         var usedRight = new HashSet<Integer>();
@@ -123,8 +123,8 @@ public enum JoinStrategy {
         var notUsedLeft = new LinkedBlockingQueue<IndexedData<Row>>();
         var notUsedRight = new LinkedBlockingQueue<IndexedData<Row>>();
 
-        var notUsedLeftSet = new HashSet<>();
-        var notUsedRightSet = new HashSet<>();
+        var notUsedLeftSet = new HashSet<Integer>();
+        var notUsedRightSet = new HashSet<Integer>();
 
         var indexedTableDataStream = IndexedData.indexed(lazyTable.dataStream());
         var indexedJoinedTableDataStream = IndexedData.indexed(joinedLazyTable.dataStream());
@@ -135,15 +135,15 @@ public enum JoinStrategy {
                 .flatMap(row1 -> joinedTableWrappedDataStream.getStream().map(row2 -> Pair.of(row1, row2)))
                 .filter(pair -> {
                     var leftIndexedRow = pair.getLeft();
-                    var rightIndexedRow = pair.getLeft();
+                    var rightIndexedRow = pair.getRight();
                     var row = Row.merge(leftIndexedRow.data(), rightIndexedRow.data());
-                    var externalRow = lazyTable.externalRow().merge(new ExternalHeaderRow(columns, row.values()));
-                    var tableRow = new HeaderRow(columns, row.values());
+                    var headerRow = new HeaderRow(columns, row);
+                    var externalRow = lazyTable.externalRow();
 
-                    var joined = ExpressionUtils.columnsContainsNulls(tableRow, externalRow, expression) &&
+                    var joined = !ExpressionUtils.columnsContainsNulls(headerRow, externalRow, expression) &&
                             ((BooleanValue) valueProvider.orElseGet(() -> expression
-                                    .accept(new ValueInjector(tableRow, lazyTable.externalRow()))
-                                    .accept(new ExpressionCalculator(resolver, externalRow))
+                                    .accept(new ValueInjector(headerRow, externalRow))
+                                    .accept(new ExpressionCalculator(resolver, headerRow, externalRow))
                             )).value();
 
                     if (joined) {

@@ -13,6 +13,7 @@ import org.apache.commons.collections4.ListUtils;
 import java.util.List;
 
 public class ExpressionValidator implements Expression.Visitor<Class<? extends Value<?>>> {
+
     private final List<Column> columns;
 
     public ExpressionValidator(List<Column> columns, ExternalHeaderRow externalRow) {
