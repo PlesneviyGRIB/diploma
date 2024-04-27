@@ -2,6 +2,7 @@ package com.savchenko.sqlTool.model.command;
 
 import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.command.domain.SimpleCalculedCommand;
+import com.savchenko.sqlTool.model.complexity.CalculatorEntry;
 import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.Row;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class OrderBy implements SimpleCalculedCommand {
 
@@ -24,7 +26,7 @@ public class OrderBy implements SimpleCalculedCommand {
     }
 
     @Override
-    public LazyTable run(LazyTable lazyTable, Projection projection) {
+    public LazyTable run(LazyTable lazyTable, Projection projection, CalculatorEntry calculatorEntry) {
 
         orders.stream()
                 .collect(Collectors.groupingBy(Order::column, Collectors.counting()))
@@ -61,6 +63,8 @@ public class OrderBy implements SimpleCalculedCommand {
             }
             return 0;
         };
+
+        IntStream.range(0, complexityCollector.complexity).forEach(calculatorEntry::count);
 
         return new LazyTable(lazyTable.name(), lazyTable.columns(), lazyTable.dataStream().sorted(rowsComparator), lazyTable.externalRow());
     }

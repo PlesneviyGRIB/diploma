@@ -1,22 +1,24 @@
 package com.savchenko.sqlTool.model.resolver;
 
-import com.savchenko.sqlTool.exception.ValidationException;
+import com.savchenko.sqlTool.exception.UnexpectedException;
 import com.savchenko.sqlTool.model.cache.CacheContext;
-import com.savchenko.sqlTool.model.cache.CacheKey;
-import com.savchenko.sqlTool.model.command.From;
+import com.savchenko.sqlTool.model.cache.CacheStrategy;
+import com.savchenko.sqlTool.model.command.Where;
 import com.savchenko.sqlTool.model.command.domain.Command;
 import com.savchenko.sqlTool.model.command.domain.ComplexCalculedCommand;
 import com.savchenko.sqlTool.model.command.domain.SimpleCalculedCommand;
 import com.savchenko.sqlTool.model.command.domain.SimpleCommand;
-import com.savchenko.sqlTool.model.complexity.CachedCalculatorEntry;
-import com.savchenko.sqlTool.model.complexity.Calculator;
+import com.savchenko.sqlTool.model.command.join.Join;
+import com.savchenko.sqlTool.model.complexity.*;
 import com.savchenko.sqlTool.model.domain.ExternalHeaderRow;
 import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.domain.Projection;
+import com.savchenko.sqlTool.model.visitor.ContextSensitiveExpressionQualifier;
+import com.savchenko.sqlTool.model.visitor.ExpressionComplexityCalculator;
 import com.savchenko.sqlTool.query.Query;
 
 import java.util.List;
-import java.util.Objects;
+import java.util.stream.Stream;
 
 public class Resolver {
 
@@ -35,30 +37,27 @@ public class Resolver {
 
     public ResolverResult resolve(List<Command> commands, ExternalHeaderRow externalRow) {
 
-        if (!commands.isEmpty()) {
-            if (!(commands.get(0) instanceof From)) {
-                throw new ValidationException("Query have to start with FROM statement!");
-            }
-        }
-
-        var table = new LazyTable(null, null, null, externalRow);
         var calculator = new Calculator();
 
-        for(Command command: commands) {
+        var targetTable = commands.stream().reduce(
+                new LazyTable(null, List.of(), Stream.of(), externalRow),
+                (table, command) -> {
 
+                    var calculatorEntry = getCalculatorEntry(command, table, externalRow);
+                    var resultTable = runCommand(command, table, calculatorEntry);
 
+                    calculator.log(calculatorEntry);
 
-            //execution
-            var lazyTable = run(command, table);
+                    return resultTable;
+                },
+                (t1, t2) -> t2
+        );
 
-            table = lazyTable;
-
-        }
-
-        return new ResolverResult(table, calculator);
+        return new ResolverResult(targetTable, calculator);
     }
 
-    private LazyTable run(Command command, LazyTable lazyTable) {
+    private LazyTable runCommand(Command command, LazyTable lazyTable, CalculatorEntry calculatorEntry) {
+
         return command.accept(new Command.Visitor<>() {
 
             @Override
@@ -68,15 +67,58 @@ public class Resolver {
 
             @Override
             public LazyTable visit(SimpleCalculedCommand command) {
-                return command.run(lazyTable, projection);
+                return command.run(lazyTable, projection, calculatorEntry);
             }
 
             @Override
             public LazyTable visit(ComplexCalculedCommand command) {
-                return command.run(lazyTable, projection, Resolver.this);
+                return command.run(lazyTable, projection, Resolver.this, calculatorEntry);
             }
 
         });
+    }
+
+    private CalculatorEntry getCalculatorEntry(Command command, LazyTable lazyTable, ExternalHeaderRow externalRow) {
+
+        return command.accept(new Command.Visitor<>() {
+
+            @Override
+            public CalculatorEntry visit(SimpleCommand command) {
+                return new SimpleEntry(command);
+            }
+
+            @Override
+            public CalculatorEntry visit(SimpleCalculedCommand command) {
+                return new SimpleCalculatorEntry(command);
+            }
+
+            @Override
+            public CalculatorEntry visit(ComplexCalculedCommand command) {
+
+                var expressionIsContextSensitive = command.getExpression()
+                        .accept(new ContextSensitiveExpressionQualifier(lazyTable.columns()));
+
+                var calculatedExpressionEntry = command.getExpression()
+                        .accept(new ExpressionComplexityCalculator(utilityInstance(), lazyTable.phonyHeaderRow(), externalRow))
+                        .normalize();
+
+                if (command instanceof Where where) {
+                    return new ComplexCalculatorEntry(where, calculatedExpressionEntry, expressionIsContextSensitive);
+                }
+
+                if (command instanceof Join join) {
+                    var resolverResult = utilityInstance().resolve(join.getCommands(), externalRow);
+                    return new JoinCalculatorEntry(join, resolverResult.calculator(), calculatedExpressionEntry, expressionIsContextSensitive);
+                }
+
+                throw new UnexpectedException();
+            }
+
+        });
+    }
+
+    private Resolver utilityInstance() {
+        return new Resolver(projection, new CacheContext(CacheStrategy.NONE));
     }
 
 }

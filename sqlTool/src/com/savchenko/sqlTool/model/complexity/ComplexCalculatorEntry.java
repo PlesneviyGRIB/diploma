@@ -6,6 +6,7 @@ import com.savchenko.sqlTool.utils.printer.CalculatorPrinter;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.savchenko.sqlTool.utils.printer.CalculatorPrinter.TableType.INNER;
@@ -15,14 +16,11 @@ public class ComplexCalculatorEntry extends ExecutedCalculatorEntry implements T
 
     protected final CalculatedExpressionResult calculatedExpressionResult;
 
-    protected final Integer count;
-
     protected final boolean isContextSensitive;
 
-    public ComplexCalculatorEntry(ComplexCalculedCommand command, CalculatedExpressionResult calculatedExpressionResult, Integer count, boolean isContextSensitive) {
+    public ComplexCalculatorEntry(ComplexCalculedCommand command, CalculatedExpressionResult calculatedExpressionResult, boolean isContextSensitive) {
         super(command);
         this.calculatedExpressionResult = calculatedExpressionResult;
-        this.count = count;
         this.isContextSensitive = isContextSensitive;
     }
 
@@ -36,7 +34,7 @@ public class ComplexCalculatorEntry extends ExecutedCalculatorEntry implements T
                         .formatted(
                                 stringifyCommand(), getTotalComplexity(),
                                 calculatedExpressionResult.expression().accept(new ExpressionPrinter()),
-                                calculatedExpressionResult.complexity(), getSign(), count, getTotalComplexity()
+                                calculatedExpressionResult.complexity(), getSign(), counter.get(), getTotalComplexity()
                         );
 
         var text = Arrays.stream(template.split("\n"))
@@ -58,8 +56,8 @@ public class ComplexCalculatorEntry extends ExecutedCalculatorEntry implements T
     @Override
     public Integer getTotalComplexity() {
         return isContextSensitive ?
-                calculatedExpressionResult.complexity() * count :
-                calculatedExpressionResult.complexity() + count;
+                calculatedExpressionResult.complexity() * counter.get() :
+                calculatedExpressionResult.complexity() + counter.get();
     }
 
     @Override
@@ -69,8 +67,8 @@ public class ComplexCalculatorEntry extends ExecutedCalculatorEntry implements T
                 .reduce(0, Integer::sum) + calculatedExpressionResult.complexity();
 
         return isContextSensitive ?
-                expressionComplexity * count :
-                expressionComplexity + count;
+                expressionComplexity * counter.get() :
+                expressionComplexity + counter.get();
     }
 
     protected String getSign() {

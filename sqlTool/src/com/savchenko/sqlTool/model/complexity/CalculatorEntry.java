@@ -10,4 +10,6 @@ public interface CalculatorEntry extends TotalCalculated {
         return format(format("%s", prefix) + template, values);
     }
 
+    void count(Object object);
+
 }

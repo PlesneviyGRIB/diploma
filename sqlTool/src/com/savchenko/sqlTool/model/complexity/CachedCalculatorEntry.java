@@ -8,6 +8,10 @@ public record CachedCalculatorEntry(ExecutedCalculatorEntry calculatorEntry) imp
     }
 
     @Override
+    public void count(Object object) {
+    }
+
+    @Override
     public Integer getTotalComplexity() {
         return 0;
     }

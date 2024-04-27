@@ -1,6 +1,7 @@
 package com.savchenko.sqlTool.model.command.join;
 
 import com.savchenko.sqlTool.exception.UnexpectedException;
+import com.savchenko.sqlTool.model.complexity.CalculatorEntry;
 import com.savchenko.sqlTool.model.domain.ExternalHeaderRow;
 import com.savchenko.sqlTool.model.domain.HeaderRow;
 import com.savchenko.sqlTool.model.domain.LazyTable;
@@ -31,21 +32,21 @@ public enum JoinStrategy {
 
     HASH, MERGE, LOOP;
 
-    public JoinStreams run(LazyTable lazyTable, LazyTable joinedLazyTable, Expression expression, Resolver resolver) {
+    public JoinStreams run(LazyTable lazyTable, LazyTable joinedLazyTable, Expression expression, Resolver resolver, CalculatorEntry calculatorEntry) {
 
         var columns = ListUtils.union(lazyTable.columns(), joinedLazyTable.columns());
         ValidationUtils.expectBooleanValueAsResolvedType(expression, columns, joinedLazyTable.externalRow());
 
         return switch (this) {
-            case HASH -> hashImpl(lazyTable, joinedLazyTable, expression, resolver);
-            case MERGE -> mergeImpl(lazyTable, joinedLazyTable, expression, resolver);
-            case LOOP -> loopImpl(lazyTable, joinedLazyTable, expression, resolver);
+            case HASH -> hashImpl(lazyTable, joinedLazyTable, expression, resolver, calculatorEntry);
+            case MERGE -> mergeImpl(lazyTable, joinedLazyTable, expression, resolver, calculatorEntry);
+            case LOOP -> loopImpl(lazyTable, joinedLazyTable, expression, resolver, calculatorEntry);
         };
     }
 
-    private JoinStreams hashImpl(LazyTable lazyTable, LazyTable joinedLazyTable, Expression expression, Resolver resolver) {
+    private JoinStreams hashImpl(LazyTable lazyTable, LazyTable joinedLazyTable, Expression expression, Resolver resolver, CalculatorEntry calculatorEntry) {
         if (expression instanceof BinaryOperation op && op.operator().equals(Operator.EQ)) {
-            return loopImpl(lazyTable, joinedLazyTable, expression, resolver);
+            return loopImpl(lazyTable, joinedLazyTable, expression, resolver, calculatorEntry);
         }
         throw new UnexpectedException("Hash/Merge join expects EQUALITY operation, but found '%s'", expression.stringify());
 //            var leftExpression = op.left();
@@ -103,11 +104,11 @@ public enum JoinStrategy {
 //        }
     }
 
-    private JoinStreams mergeImpl(LazyTable lazyTable, LazyTable joinedLazyTable, Expression expression, Resolver resolver) {
-        return hashImpl(lazyTable, joinedLazyTable, expression, resolver);
+    private JoinStreams mergeImpl(LazyTable lazyTable, LazyTable joinedLazyTable, Expression expression, Resolver resolver, CalculatorEntry calculatorEntry) {
+        return hashImpl(lazyTable, joinedLazyTable, expression, resolver, calculatorEntry);
     }
 
-    private JoinStreams loopImpl(LazyTable lazyTable, LazyTable joinedLazyTable, Expression expression, Resolver resolver) {
+    private JoinStreams loopImpl(LazyTable lazyTable, LazyTable joinedLazyTable, Expression expression, Resolver resolver, CalculatorEntry calculatorEntry) {
 
         var columns = ListUtils.union(lazyTable.columns(), joinedLazyTable.columns());
 
@@ -133,6 +134,7 @@ public enum JoinStrategy {
 
         var inner = indexedTableDataStream
                 .flatMap(row1 -> joinedTableWrappedDataStream.getStream().map(row2 -> Pair.of(row1, row2)))
+                .peek(calculatorEntry::count)
                 .filter(pair -> {
                     var leftIndexedRow = pair.getLeft();
                     var rightIndexedRow = pair.getRight();

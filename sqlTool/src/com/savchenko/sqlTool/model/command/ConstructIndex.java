@@ -1,6 +1,7 @@
 package com.savchenko.sqlTool.model.command;
 
 import com.savchenko.sqlTool.model.command.domain.SimpleCalculedCommand;
+import com.savchenko.sqlTool.model.complexity.CalculatorEntry;
 import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.index.Index;
@@ -17,7 +18,7 @@ public class ConstructIndex implements SimpleCalculedCommand {
     }
 
     @Override
-    public LazyTable run(LazyTable lazyTable, Projection projection) {
+    public LazyTable run(LazyTable lazyTable, Projection projection, CalculatorEntry calculatorEntry) {
 
         index.getColumns().forEach(column -> ModelUtils.resolveColumn(lazyTable.columns(), column));
 

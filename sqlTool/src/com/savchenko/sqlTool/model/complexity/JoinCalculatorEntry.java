@@ -6,6 +6,7 @@ import com.savchenko.sqlTool.utils.printer.CalculatorPrinter;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.savchenko.sqlTool.utils.printer.CalculatorPrinter.TableType.INNER;
@@ -16,12 +17,9 @@ public class JoinCalculatorEntry extends ComplexCalculatorEntry {
 
     private final Calculator calculator;
 
-    private final Integer remainderSize;
-
-    public JoinCalculatorEntry(Join command, Calculator calculator, Integer remainderSize, CalculatedExpressionResult calculatedExpressionResult, Integer count, boolean isContextSensitive) {
-        super(command, calculatedExpressionResult, count, isContextSensitive);
+    public JoinCalculatorEntry(Join command, Calculator calculator, CalculatedExpressionResult calculatedExpressionResult, boolean isContextSensitive) {
+        super(command, calculatedExpressionResult, isContextSensitive);
         this.calculator = calculator;
-        this.remainderSize = remainderSize;
     }
 
     @Override
@@ -36,7 +34,7 @@ public class JoinCalculatorEntry extends ComplexCalculatorEntry {
                                 stringifyCommand(), ((Join) command).getStrategy(), getTotalComplexity(),
                                 new CalculatorPrinter(calculator, "    | ", JOIN).stringify(),
                                 calculatedExpressionResult.expression().accept(new ExpressionPrinter()),
-                                calculator.getTotalComplexity(), calculatedExpressionResult.complexity(), getSign(), count, super.getTotalComplexity()
+                                calculator.getTotalComplexity(), calculatedExpressionResult.complexity(), getSign(), counter.get(), super.getTotalComplexity()
                         );
 
         var text = Arrays.stream(template.split("\n"))
@@ -57,10 +55,10 @@ public class JoinCalculatorEntry extends ComplexCalculatorEntry {
 
     @Override
     public Integer getTotalComplexity() {
-        return calculator.getTotalComplexity() + remainderSize +
+        return calculator.getTotalComplexity() +
                 (isContextSensitive ?
-                        calculatedExpressionResult.complexity() * count :
-                        calculatedExpressionResult.complexity() + count);
+                        calculatedExpressionResult.complexity() * counter.get() :
+                        calculatedExpressionResult.complexity() + counter.get());
     }
 
     @Override
@@ -69,10 +67,10 @@ public class JoinCalculatorEntry extends ComplexCalculatorEntry {
                 .map(c -> c.getFullComplexity() - c.getTotalComplexity())
                 .reduce(0, Integer::sum) + calculatedExpressionResult.complexity();
 
-        return remainderSize + calculator.getTotalComplexity() +
+        return calculator.getTotalComplexity() +
                 (isContextSensitive ?
-                        expressionComplexity * count :
-                        expressionComplexity + count);
+                        expressionComplexity * counter.get() :
+                        expressionComplexity + counter.get());
     }
 
 }

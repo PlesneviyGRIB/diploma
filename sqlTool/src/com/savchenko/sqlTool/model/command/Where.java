@@ -1,6 +1,7 @@
 package com.savchenko.sqlTool.model.command;
 
 import com.savchenko.sqlTool.model.command.domain.ComplexCalculedCommand;
+import com.savchenko.sqlTool.model.complexity.CalculatorEntry;
 import com.savchenko.sqlTool.model.domain.HeaderRow;
 import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.domain.Projection;
@@ -10,7 +11,6 @@ import com.savchenko.sqlTool.model.expression.Expression;
 import com.savchenko.sqlTool.model.resolver.Resolver;
 import com.savchenko.sqlTool.model.visitor.ContextSensitiveExpressionQualifier;
 import com.savchenko.sqlTool.model.visitor.ExpressionCalculator;
-import com.savchenko.sqlTool.model.visitor.ExpressionComplexityCalculator;
 import com.savchenko.sqlTool.model.visitor.ValueInjector;
 import com.savchenko.sqlTool.utils.ValidationUtils;
 
@@ -24,7 +24,7 @@ public class Where extends ComplexCalculedCommand {
     }
 
     @Override
-    public LazyTable run(LazyTable lazyTable, Projection projection, Resolver resolver) {
+    public LazyTable run(LazyTable lazyTable, Projection projection, Resolver resolver, CalculatorEntry calculatorEntry) {
 
         var externalRow = lazyTable.externalRow();
         var columns = lazyTable.columns();
@@ -37,10 +37,6 @@ public class Where extends ComplexCalculedCommand {
                 Optional.<BooleanValue>empty() :
                 Optional.of((BooleanValue) expression.accept(new ExpressionCalculator(resolver, HeaderRow.empty(), externalRow)));
 
-        var calculatedExpressionEntry = expression
-                .accept(new ExpressionComplexityCalculator(resolver, lazyTable.phonyHeaderRow(), externalRow))
-                .normalize();
-
         Predicate<Row> predicate = row -> {
             var headerRow = new HeaderRow(columns, row);
             return valueProvider.orElseGet(
@@ -50,7 +46,7 @@ public class Where extends ComplexCalculedCommand {
             ).value();
         };
 
-        return new LazyTable(lazyTable.name(), columns, lazyTable.dataStream().filter(predicate), externalRow);
+        return new LazyTable(lazyTable.name(), columns, lazyTable.dataStream().peek(calculatorEntry::count).filter(predicate), externalRow);
     }
 
 }

@@ -4,25 +4,22 @@ import com.savchenko.sqlTool.model.command.domain.Command;
 
 public class SimpleCalculatorEntry extends ExecutedCalculatorEntry {
 
-    private final Integer value;
-
-    public SimpleCalculatorEntry(Command command, Integer value) {
+    public SimpleCalculatorEntry(Command command) {
         super(command);
-        this.value = value;
     }
 
     @Override
     public String stringify(String prefix) {
-        return toRow(prefix, "%s %d", stringifyCommand(), value);
+        return toRow(prefix, "%s %d", stringifyCommand(), counter.get());
     }
 
     @Override
     public Integer getTotalComplexity() {
-        return value;
+        return counter.get();
     }
 
     @Override
     public Integer getFullComplexity() {
-        return value;
+        return counter.get();
     }
 }

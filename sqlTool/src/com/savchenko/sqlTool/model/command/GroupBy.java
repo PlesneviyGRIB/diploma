@@ -2,6 +2,7 @@ package com.savchenko.sqlTool.model.command;
 
 import com.savchenko.sqlTool.model.command.domain.SimpleCalculedCommand;
 import com.savchenko.sqlTool.model.command.function.AggregationFunction;
+import com.savchenko.sqlTool.model.complexity.CalculatorEntry;
 import com.savchenko.sqlTool.model.domain.Column;
 import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.domain.Projection;
@@ -19,7 +20,7 @@ public class GroupBy implements SimpleCalculedCommand {
     }
 
     @Override
-    public LazyTable run(LazyTable lazyTable, Projection projection) {
+    public LazyTable run(LazyTable lazyTable, Projection projection, CalculatorEntry calculatorEntry) {
 
 //        table.columns().stream()
 //                .filter(c -> !columnMapperMap.containsKey(c))

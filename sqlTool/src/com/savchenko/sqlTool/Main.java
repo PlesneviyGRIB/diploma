@@ -4,7 +4,9 @@ import com.savchenko.sqlTool.model.cache.CacheContext;
 import com.savchenko.sqlTool.model.cache.CacheStrategy;
 import com.savchenko.sqlTool.model.command.join.JoinStrategy;
 import com.savchenko.sqlTool.model.expression.BooleanValue;
+import com.savchenko.sqlTool.model.operator.Operator;
 import com.savchenko.sqlTool.model.resolver.Resolver;
+import com.savchenko.sqlTool.query.Q;
 import com.savchenko.sqlTool.query.Query;
 import com.savchenko.sqlTool.utils.DatabaseReader;
 import com.savchenko.sqlTool.utils.printer.CalculatorPrinter;
@@ -14,6 +16,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 import static com.savchenko.sqlTool.config.Constants.*;
+import static com.savchenko.sqlTool.model.operator.Operator.EQ;
 
 public class Main {
 
@@ -22,8 +25,12 @@ public class Main {
         var projection = new DatabaseReader(connection).read();
 
         var query = Query
-                .from("content")
-                .fullJoin(Query.from("content_descriptor"), new BooleanValue(true), JoinStrategy.LOOP);
+                .from("content").as("c")
+                .fullJoin(
+                        Query.from("content_descriptor").as("cd"),
+                        Q.op(EQ, Q.column("c", "descriptor_id"), Q.column("cd", "id")),
+                        JoinStrategy.LOOP
+                );
 
 
         var cacheContext = new CacheContext(CacheStrategy.NONE);

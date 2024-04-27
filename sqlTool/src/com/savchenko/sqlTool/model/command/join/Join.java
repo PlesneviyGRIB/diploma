@@ -3,6 +3,7 @@ package com.savchenko.sqlTool.model.command.join;
 import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.command.domain.Command;
 import com.savchenko.sqlTool.model.command.domain.ComplexCalculedCommand;
+import com.savchenko.sqlTool.model.complexity.CalculatorEntry;
 import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.Row;
@@ -34,7 +35,7 @@ public abstract class Join extends ComplexCalculedCommand {
     abstract Stream<Row> run(JoinStreams joinStreams);
 
     @Override
-    public LazyTable run(LazyTable lazyTable, Projection projection, Resolver resolver) {
+    public LazyTable run(LazyTable lazyTable, Projection projection, Resolver resolver, CalculatorEntry calculatorEntry) {
 
         var resolverResult = resolver.resolve(commands, lazyTable.externalRow());
         var joinedTable = resolverResult.lazyTable();
@@ -44,7 +45,7 @@ public abstract class Join extends ComplexCalculedCommand {
         ValidationUtils.expectBooleanValueAsResolvedType(expression, mergedColumns, lazyTable.externalRow());
 
         var tableName = format("%s_%s", lazyTable.name(), joinedTable.name());
-        var targetDataStream = run(strategy.run(lazyTable, joinedTable, expression, resolver));
+        var targetDataStream = run(strategy.run(lazyTable, joinedTable, expression, resolver, calculatorEntry));
         var targetTable = new LazyTable(tableName, mergedColumns, targetDataStream, lazyTable.externalRow());
 
         return ModelUtils.renameTable(targetTable, tableName);
@@ -71,5 +72,9 @@ public abstract class Join extends ComplexCalculedCommand {
         if (table.name().equals(joinedTable.name())) {
             throw new ValidationException("There are two tables with the same name '%s' in context. Use alias to resolve the conflict.", table.name());
         }
+    }
+
+    public List<Command> getCommands() {
+        return commands;
     }
 }
