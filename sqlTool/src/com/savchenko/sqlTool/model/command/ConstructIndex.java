@@ -1,11 +1,9 @@
 package com.savchenko.sqlTool.model.command;
 
 import com.savchenko.sqlTool.model.command.domain.SimpleCalculedCommand;
-import com.savchenko.sqlTool.model.complexity.SimpleCalculatorEntry;
 import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.index.Index;
-import com.savchenko.sqlTool.model.resolver.CommandResult;
 import com.savchenko.sqlTool.utils.ModelUtils;
 
 import java.util.Objects;
@@ -19,14 +17,11 @@ public class ConstructIndex implements SimpleCalculedCommand {
     }
 
     @Override
-    public CommandResult run(LazyTable lazyTable, Projection projection) {
+    public LazyTable run(LazyTable lazyTable, Projection projection) {
 
         index.getColumns().forEach(column -> ModelUtils.resolveColumn(lazyTable.columns(), column));
 
-        return new CommandResult(
-                lazyTable,
-                new SimpleCalculatorEntry(this, 0)
-        );
+        return lazyTable;
     }
 
     @Override

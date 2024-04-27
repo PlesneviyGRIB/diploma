@@ -1,9 +1,8 @@
 package com.savchenko.sqlTool.model.command.domain;
 
-import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.LazyTable;
+import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.expression.Expression;
-import com.savchenko.sqlTool.model.resolver.CommandResult;
 import com.savchenko.sqlTool.model.resolver.Resolver;
 
 import java.util.Objects;
@@ -16,7 +15,7 @@ public abstract class ComplexCalculedCommand implements Command {
         this.expression = expression;
     }
 
-    public abstract CommandResult run(LazyTable lazyTable, Projection projection, Resolver resolver);
+    public abstract LazyTable run(LazyTable lazyTable, Projection projection, Resolver resolver);
 
     @Override
     public <T> T accept(Visitor<T> visitor) {

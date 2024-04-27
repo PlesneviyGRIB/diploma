@@ -21,9 +21,9 @@ public class Main {
         var connection = DriverManager.getConnection(String.format("jdbc:%s://localhost:%s/%s", DB_DRIVER, DB_PORT, DB_NAME), DB_USER, DB_PASSWORD);
         var projection = new DatabaseReader(connection).read();
 
-        var query = new Query()
+        var query = Query
                 .from("content")
-                .fullJoin(new Query().from("content_descriptor"), new BooleanValue(true), JoinStrategy.LOOP);
+                .fullJoin(Query.from("content_descriptor"), new BooleanValue(true), JoinStrategy.LOOP);
 
 
         var cacheContext = new CacheContext(CacheStrategy.NONE);

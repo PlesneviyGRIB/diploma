@@ -32,14 +32,14 @@ public class ExpressionTest extends TestBase {
 
     @Test
     public void inSubTable() {
-        var subTable = new SubTable(new Query()
+        var subTable = new SubTable(Query
                 .from("course_users")
                 .select(Q.column("course_users", "course_id"))
                 .build()
         );
 
         var res = resolver.resolve(
-                new Query()
+                Query
                         .from("courses")
                         .where(Q.op(IN,
                                 Q.column("courses", "id"),
@@ -60,14 +60,14 @@ public class ExpressionTest extends TestBase {
 
     @Test
     public void notInSubTable() {
-        var subTable = new SubTable(new Query()
+        var subTable = new SubTable(Query
                 .from("course_users")
                 .select(Q.column("course_users", "course_id"))
                 .build()
         );
 
         var res = resolver.resolve(
-                new Query()
+                Query
                         .from("courses")
                         .where(Q.op(
                                 NOT,
@@ -89,11 +89,11 @@ public class ExpressionTest extends TestBase {
     @Test
     public void existsInSubTable() {
         var res = resolver.resolve(
-                new Query()
+                Query
                         .from("expression")
                         .as("ex")
                         .where(Q.op(EXISTS,
-                                new SubTable(new Query()
+                                new SubTable(Query
                                         .from("expression")
                                         .select(Q.column("expression", "id"))
                                         .where(Q.op(EQ,
@@ -115,7 +115,7 @@ public class ExpressionTest extends TestBase {
     @Test
     public void like() {
         Function<String, LazyTable> resultProvider = pattern -> resolver.resolve(
-                new Query()
+                Query
                         .from("actions")
                         .where(Q.op(LIKE, Q.column("actions", "parameters"), new StringValue(pattern)))
         ).lazyTable();

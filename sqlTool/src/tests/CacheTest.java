@@ -19,16 +19,16 @@ import static com.savchenko.sqlTool.model.operator.Operator.*;
 public class CacheTest extends TestBase {
 
     private final List<Query> testQueries = List.of(
-            new Query()
+            Query
                     .from("courses")
                     .as("c")
                     .where(Q.op(EXISTS, new SubTable(
-                            new Query()
+                            Query
                                     .from("courses")
                                     .as("c1")
                                     .where(Q.op(OR, Q.op(OR,
                                                             Q.op(EXISTS, new SubTable(
-                                                                    new Query()
+                                                                    Query
                                                                             .from("courses")
                                                                             .as("c2")
                                                                             .where(Q.op(GREATER, Q.column("c2", "id"), new LongNumber(152L)))
@@ -39,7 +39,7 @@ public class CacheTest extends TestBase {
                                                                             .build())),
                                                             Q.op(NOT,
                                                                     Q.op(EXISTS, new SubTable(
-                                                                            new Query()
+                                                                            Query
                                                                                     .from("courses")
                                                                                     .as("c2")
                                                                                     .where(Q.op(GREATER, Q.column("c2", "id"), new LongNumber(152L)))
@@ -51,7 +51,7 @@ public class CacheTest extends TestBase {
                                                             )
                                                     ),
                                                     Q.op(EXISTS, new SubTable(
-                                                            new Query()
+                                                            Query
                                                                     .from("courses")
                                                                     .as("c2")
                                                                     .where(Q.op(GREATER, Q.column("c2", "id"), new LongNumber(152L)))
@@ -66,10 +66,10 @@ public class CacheTest extends TestBase {
                     )
                     .orderBy(List.of(Pair.of(Q.column("c", "id"), false)))
                     .select(Q.column("c", "id")),
-            new Query()
+            Query
                     .from("math_elements")
                     .fullJoin(
-                            new Query().from("expression"),
+                            Query.from("expression"),
                             Q.op(EQ, Q.column("math_elements", "id"), Q.column("expression", "id")),
                             JoinStrategy.LOOP
                     )

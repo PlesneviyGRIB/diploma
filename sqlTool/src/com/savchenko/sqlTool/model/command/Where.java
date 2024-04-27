@@ -1,14 +1,12 @@
 package com.savchenko.sqlTool.model.command;
 
 import com.savchenko.sqlTool.model.command.domain.ComplexCalculedCommand;
-import com.savchenko.sqlTool.model.complexity.ComplexCalculatorEntry;
 import com.savchenko.sqlTool.model.domain.HeaderRow;
 import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.Row;
 import com.savchenko.sqlTool.model.expression.BooleanValue;
 import com.savchenko.sqlTool.model.expression.Expression;
-import com.savchenko.sqlTool.model.resolver.CommandResult;
 import com.savchenko.sqlTool.model.resolver.Resolver;
 import com.savchenko.sqlTool.model.visitor.ContextSensitiveExpressionQualifier;
 import com.savchenko.sqlTool.model.visitor.ExpressionCalculator;
@@ -26,7 +24,7 @@ public class Where extends ComplexCalculedCommand {
     }
 
     @Override
-    public CommandResult run(LazyTable lazyTable, Projection projection, Resolver resolver) {
+    public LazyTable run(LazyTable lazyTable, Projection projection, Resolver resolver) {
 
         var externalRow = lazyTable.externalRow();
         var columns = lazyTable.columns();
@@ -52,10 +50,7 @@ public class Where extends ComplexCalculedCommand {
             ).value();
         };
 
-        return new CommandResult(
-                new LazyTable(lazyTable.name(), columns, lazyTable.dataStream().filter(predicate), externalRow),
-                new ComplexCalculatorEntry(this, calculatedExpressionEntry, 0, isContextSensitiveExpression)
-        );
+        return new LazyTable(lazyTable.name(), columns, lazyTable.dataStream().filter(predicate), externalRow);
     }
 
 }

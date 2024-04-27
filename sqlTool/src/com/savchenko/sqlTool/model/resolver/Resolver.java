@@ -3,7 +3,6 @@ package com.savchenko.sqlTool.model.resolver;
 import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.cache.CacheContext;
 import com.savchenko.sqlTool.model.cache.CacheKey;
-import com.savchenko.sqlTool.model.cache.CacheStrategy;
 import com.savchenko.sqlTool.model.command.From;
 import com.savchenko.sqlTool.model.command.domain.Command;
 import com.savchenko.sqlTool.model.command.domain.ComplexCalculedCommand;
@@ -31,11 +30,7 @@ public class Resolver {
     }
 
     public ResolverResult resolve(Query query) {
-        return resolve(query.build());
-    }
-
-    public ResolverResult resolve(List<Command> commands) {
-        return resolve(commands, ExternalHeaderRow.empty());
+        return resolve(query.build(), ExternalHeaderRow.empty());
     }
 
     public ResolverResult resolve(List<Command> commands, ExternalHeaderRow externalRow) {
@@ -49,56 +44,35 @@ public class Resolver {
         var table = new LazyTable(null, null, null, externalRow);
         var calculator = new Calculator();
 
-        for (int i = 0; i < commands.size(); i++) {
+        for(Command command: commands) {
 
-            var command = commands.get(i);
-            var commandSequence = commands.subList(0, i + 1);
-            var cacheKey = new CacheKey(commandSequence, externalRow);
 
-            //cache
-            var cachedCommandResult = cacheContext.get(cacheKey).orElse(null);
-            if (Objects.nonNull(cachedCommandResult)) {
-
-                var cachedCalculatorEntry = cachedCommandResult.calculatorEntry();
-                var cachedTable = cachedCommandResult.lazyTable();
-
-                calculator.log(new CachedCalculatorEntry(cachedCalculatorEntry));
-
-                if (Objects.nonNull(cachedTable)) {
-                    table = cachedCommandResult.lazyTable();
-                    continue;
-                }
-            }
 
             //execution
-            var commandResult = run(command, table);
+            var lazyTable = run(command, table);
 
-            cacheContext.put(cacheKey, commandResult);
-            if (Objects.isNull(cachedCommandResult)) {
-                calculator.log(commandResult.calculatorEntry());
-            }
-            table = commandResult.lazyTable();
+            table = lazyTable;
 
         }
 
         return new ResolverResult(table, calculator);
     }
 
-    private CommandResult run(Command command, LazyTable lazyTable) {
+    private LazyTable run(Command command, LazyTable lazyTable) {
         return command.accept(new Command.Visitor<>() {
 
             @Override
-            public CommandResult visit(SimpleCommand command) {
+            public LazyTable visit(SimpleCommand command) {
                 return command.run(lazyTable, projection);
             }
 
             @Override
-            public CommandResult visit(SimpleCalculedCommand command) {
+            public LazyTable visit(SimpleCalculedCommand command) {
                 return command.run(lazyTable, projection);
             }
 
             @Override
-            public CommandResult visit(ComplexCalculedCommand command) {
+            public LazyTable visit(ComplexCalculedCommand command) {
                 return command.run(lazyTable, projection, Resolver.this);
             }
 

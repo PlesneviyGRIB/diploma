@@ -3,12 +3,10 @@ package com.savchenko.sqlTool.model.command.join;
 import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.command.domain.Command;
 import com.savchenko.sqlTool.model.command.domain.ComplexCalculedCommand;
-import com.savchenko.sqlTool.model.complexity.SimpleCalculatorEntry;
 import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.Row;
 import com.savchenko.sqlTool.model.expression.Expression;
-import com.savchenko.sqlTool.model.resolver.CommandResult;
 import com.savchenko.sqlTool.model.resolver.Resolver;
 import com.savchenko.sqlTool.support.JoinStreams;
 import com.savchenko.sqlTool.utils.ModelUtils;
@@ -36,7 +34,7 @@ public abstract class Join extends ComplexCalculedCommand {
     abstract Stream<Row> run(JoinStreams joinStreams);
 
     @Override
-    public CommandResult run(LazyTable lazyTable, Projection projection, Resolver resolver) {
+    public LazyTable run(LazyTable lazyTable, Projection projection, Resolver resolver) {
 
         var resolverResult = resolver.resolve(commands, lazyTable.externalRow());
         var joinedTable = resolverResult.lazyTable();
@@ -49,10 +47,7 @@ public abstract class Join extends ComplexCalculedCommand {
         var targetDataStream = run(strategy.run(lazyTable, joinedTable, expression, resolver));
         var targetTable = new LazyTable(tableName, mergedColumns, targetDataStream, lazyTable.externalRow());
 
-        return new CommandResult(
-                ModelUtils.renameTable(targetTable, tableName),
-                new SimpleCalculatorEntry(this, 0)
-        );
+        return ModelUtils.renameTable(targetTable, tableName);
     }
 
     @Override

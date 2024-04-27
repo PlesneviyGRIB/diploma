@@ -2,10 +2,8 @@ package com.savchenko.sqlTool.model.command;
 
 import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.command.domain.SimpleCommand;
-import com.savchenko.sqlTool.model.complexity.SimpleEntry;
 import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.domain.Projection;
-import com.savchenko.sqlTool.model.resolver.CommandResult;
 import com.savchenko.sqlTool.utils.ModelUtils;
 
 import java.util.Objects;
@@ -19,7 +17,7 @@ public class Alias implements SimpleCommand {
     }
 
     @Override
-    public CommandResult run(LazyTable lazyTable, Projection projection) {
+    public LazyTable run(LazyTable lazyTable, Projection projection) {
 
         projection.tables().stream()
                 .filter(t -> t.name().equals(alias))
@@ -28,10 +26,7 @@ public class Alias implements SimpleCommand {
                     throw new ValidationException("Wrong alias '%s'. There are table with such name in database.", alias);
                 });
 
-        return new CommandResult(
-                ModelUtils.renameTable(lazyTable, alias),
-                new SimpleEntry(this)
-        );
+        return ModelUtils.renameTable(lazyTable, alias);
     }
 
     @Override

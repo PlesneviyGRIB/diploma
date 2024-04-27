@@ -2,10 +2,8 @@ package com.savchenko.sqlTool.model.command;
 
 import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.command.domain.SimpleCommand;
-import com.savchenko.sqlTool.model.complexity.SimpleEntry;
 import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.domain.Projection;
-import com.savchenko.sqlTool.model.resolver.CommandResult;
 
 import java.util.Objects;
 
@@ -18,16 +16,13 @@ public class Limit implements SimpleCommand {
     }
 
     @Override
-    public CommandResult run(LazyTable lazyTable, Projection projection) {
+    public LazyTable run(LazyTable lazyTable, Projection projection) {
 
         if (limit < 0) {
             throw new ValidationException("Limit can not be less than 0! Current value is '%s'", limit);
         }
 
-        return new CommandResult(
-                new LazyTable(lazyTable.name(), lazyTable.columns(), lazyTable.dataStream().limit(limit), lazyTable.externalRow()),
-                new SimpleEntry(this)
-        );
+        return new LazyTable(lazyTable.name(), lazyTable.columns(), lazyTable.dataStream().limit(limit), lazyTable.externalRow());
     }
 
     @Override

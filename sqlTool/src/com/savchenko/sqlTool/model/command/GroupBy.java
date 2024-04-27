@@ -19,7 +19,7 @@ public class GroupBy implements SimpleCalculedCommand {
     }
 
     @Override
-    public CommandResult run(LazyTable lazyTable, Projection projection) {
+    public LazyTable run(LazyTable lazyTable, Projection projection) {
 
 //        table.columns().stream()
 //                .filter(c -> !columnMapperMap.containsKey(c))

@@ -1,12 +1,11 @@
 package com.savchenko.sqlTool.model.command.domain;
 
-import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.domain.LazyTable;
-import com.savchenko.sqlTool.model.resolver.CommandResult;
+import com.savchenko.sqlTool.model.domain.Projection;
 
 public interface SimpleCommand extends Command {
 
-    CommandResult run(LazyTable lazyTable, Projection projection);
+    LazyTable run(LazyTable lazyTable, Projection projection);
 
     @Override
     default <T> T accept(Visitor<T> visitor) {

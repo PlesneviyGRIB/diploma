@@ -19,6 +19,14 @@ public class Query implements Builder<List<Command>> {
 
     private final List<Command> commands = new LinkedList<>();
 
+    private Query(From from) {
+        commands.add(from);
+    }
+
+    public static Query from(String table) {
+        return new Query(new From(table));
+    }
+
     public Query select(Column... columns) {
         commands.add(new Select(Arrays.stream(columns).toList()));
         return this;
@@ -26,11 +34,6 @@ public class Query implements Builder<List<Command>> {
 
     public Query distinct() {
         commands.add(new Distinct());
-        return this;
-    }
-
-    public Query from(String table) {
-        commands.add(new From(table));
         return this;
     }
 
