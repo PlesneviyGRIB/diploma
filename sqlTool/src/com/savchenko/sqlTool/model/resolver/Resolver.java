@@ -11,7 +11,7 @@ import com.savchenko.sqlTool.model.command.domain.SimpleCalculedCommand;
 import com.savchenko.sqlTool.model.command.domain.SimpleCommand;
 import com.savchenko.sqlTool.model.complexity.CachedCalculatorEntry;
 import com.savchenko.sqlTool.model.complexity.Calculator;
-import com.savchenko.sqlTool.model.domain.ExternalRow;
+import com.savchenko.sqlTool.model.domain.ExternalHeaderRow;
 import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.query.Query;
@@ -35,10 +35,10 @@ public class Resolver {
     }
 
     public ResolverResult resolve(List<Command> commands) {
-        return resolve(commands, ExternalRow.empty());
+        return resolve(commands, ExternalHeaderRow.empty());
     }
 
-    public ResolverResult resolve(List<Command> commands, ExternalRow externalRow) {
+    public ResolverResult resolve(List<Command> commands, ExternalHeaderRow externalRow) {
 
         if (!commands.isEmpty()) {
             if (!(commands.get(0) instanceof From)) {

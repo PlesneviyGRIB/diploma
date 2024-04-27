@@ -92,5 +92,5 @@
 | Additional     | Usage                                                                                    | Description                                                                      |
 |----------------|------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
 | Column         | Column(`orders`, `id`)                                                                   | Reference to the value of the current context                                    |
-| SubTable       | new Query(projection).from("orders").where(Q.op(EXISTS, Q.column("orders", "date")))     | Internal query. If it depends on the context, it will be calculated for each row |
+| SubTable       | new Query(projection).from("orders").where(Q.op(EXISTS, Q.column("orders", "date")))     | Internal query. If it depends on the context, it will be calculated for each HeaderRow |
 | ExpressionList | ExpressionList(`LongNumber(1L)`, `LongNumber(2L)`, `LongNumber(3L)`, `LongNumber.class`) | Used for internal type casting. Сan also be used directly as a list of `value`   |

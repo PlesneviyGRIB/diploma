@@ -5,6 +5,7 @@ import com.savchenko.sqlTool.model.complexity.SimpleEntry;
 import com.savchenko.sqlTool.model.domain.Column;
 import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.domain.Projection;
+import com.savchenko.sqlTool.model.domain.Row;
 import com.savchenko.sqlTool.model.expression.Value;
 import com.savchenko.sqlTool.model.resolver.CommandResult;
 import com.savchenko.sqlTool.utils.ModelUtils;
@@ -29,7 +30,9 @@ public class Select implements SimpleCommand {
         var columnIndexes = columns.stream().map(c -> ModelUtils.resolveColumnIndex(contextColumns, c)).toList();
         var targetColumns = columnIndexes.stream().map(contextColumns::get).toList();
 
-        Function<List<Value<?>>, List<Value<?>>> mapper = row -> columnIndexes.stream().map(row::get).collect(Collectors.toList());
+        Function<Row, Row> mapper = row -> columnIndexes.stream()
+                .map(index -> row.values().get(index))
+                .collect(Collectors.collectingAndThen(Collectors.<Value<?>>toList(), Row::new));
 
         return new CommandResult(
                 new LazyTable(lazyTable.name(), targetColumns, lazyTable.dataStream().map(mapper), lazyTable.externalRow()),

@@ -1,9 +1,8 @@
 package com.savchenko.sqlTool.support;
 
-import com.savchenko.sqlTool.model.expression.Value;
+import com.savchenko.sqlTool.model.domain.Row;
 
-import java.util.List;
 import java.util.stream.Stream;
 
-public record JoinStreams(Stream<List<Value<?>>> inner, Stream<List<Value<?>>> leftRemainder, Stream<List<Value<?>>> rightRemainder) {
+public record JoinStreams(Stream<Row> inner, Stream<Row> leftRemainder, Stream<Row> rightRemainder) {
 }

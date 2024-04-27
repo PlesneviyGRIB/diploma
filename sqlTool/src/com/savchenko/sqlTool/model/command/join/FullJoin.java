@@ -1,8 +1,8 @@
 package com.savchenko.sqlTool.model.command.join;
 
 import com.savchenko.sqlTool.model.command.domain.Command;
+import com.savchenko.sqlTool.model.domain.Row;
 import com.savchenko.sqlTool.model.expression.Expression;
-import com.savchenko.sqlTool.model.expression.Value;
 import com.savchenko.sqlTool.support.JoinStreams;
 
 import java.util.List;
@@ -15,7 +15,7 @@ public class FullJoin extends Join {
     }
 
     @Override
-    public Stream<List<Value<?>>> run(JoinStreams joinStreams) {
+    public Stream<Row> run(JoinStreams joinStreams) {
         return Stream.concat(joinStreams.inner(), Stream.concat(joinStreams.leftRemainder(), joinStreams.rightRemainder()));
     }
 

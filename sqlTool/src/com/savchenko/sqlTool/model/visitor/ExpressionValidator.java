@@ -4,7 +4,7 @@ import com.savchenko.sqlTool.exception.ComputedTypeException;
 import com.savchenko.sqlTool.exception.IncorrectOperatorUsageException;
 import com.savchenko.sqlTool.exception.UnsupportedTypeException;
 import com.savchenko.sqlTool.model.domain.Column;
-import com.savchenko.sqlTool.model.domain.ExternalRow;
+import com.savchenko.sqlTool.model.domain.ExternalHeaderRow;
 import com.savchenko.sqlTool.model.expression.*;
 import com.savchenko.sqlTool.model.operator.Operator;
 import com.savchenko.sqlTool.utils.ModelUtils;
@@ -15,7 +15,7 @@ import java.util.List;
 public class ExpressionValidator implements Expression.Visitor<Class<? extends Value<?>>> {
     private final List<Column> columns;
 
-    public ExpressionValidator(List<Column> columns, ExternalRow externalRow) {
+    public ExpressionValidator(List<Column> columns, ExternalHeaderRow externalRow) {
         ModelUtils.assertDifferentColumns(columns, externalRow.getColumns());
         this.columns = ListUtils.union(columns, externalRow.getColumns());
     }

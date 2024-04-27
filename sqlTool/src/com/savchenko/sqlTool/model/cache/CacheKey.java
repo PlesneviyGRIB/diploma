@@ -1,12 +1,12 @@
 package com.savchenko.sqlTool.model.cache;
 
 import com.savchenko.sqlTool.model.command.domain.Command;
-import com.savchenko.sqlTool.model.domain.ExternalRow;
+import com.savchenko.sqlTool.model.domain.ExternalHeaderRow;
 
 import java.util.List;
 import java.util.Objects;
 
-public record CacheKey(List<Command> commands, ExternalRow externalRow) {
+public record CacheKey(List<Command> commands, ExternalHeaderRow externalRow) {
 
     @Override
     public boolean equals(Object o) {

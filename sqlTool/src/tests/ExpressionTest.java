@@ -1,7 +1,7 @@
 package tests;
 
 import com.savchenko.sqlTool.exception.ComputedTypeException;
-import com.savchenko.sqlTool.model.domain.ExternalRow;
+import com.savchenko.sqlTool.model.domain.ExternalHeaderRow;
 import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.expression.*;
 import com.savchenko.sqlTool.model.visitor.ExpressionValidator;
@@ -20,7 +20,7 @@ public class ExpressionTest extends TestBase {
 
     @Test
     public void expectSingleTypeInList() {
-        Consumer<ExpressionList> test = list -> Q.op(IN, new IntegerNumber(1), list).accept(new ExpressionValidator(List.of(), ExternalRow.empty()));
+        Consumer<ExpressionList> test = list -> Q.op(IN, new IntegerNumber(1), list).accept(new ExpressionValidator(List.of(), ExternalHeaderRow.empty()));
 
         test.accept(new ExpressionList(List.of(new IntegerNumber(1), new IntegerNumber(2)), IntegerNumber.class));
 

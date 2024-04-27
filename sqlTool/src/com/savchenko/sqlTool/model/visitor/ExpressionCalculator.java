@@ -2,10 +2,10 @@ package com.savchenko.sqlTool.model.visitor;
 
 import com.savchenko.sqlTool.exception.UnexpectedException;
 import com.savchenko.sqlTool.exception.UnexpectedExpressionException;
+import com.savchenko.sqlTool.model.domain.ExternalHeaderRow;
 import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.resolver.Resolver;
 import com.savchenko.sqlTool.model.domain.Column;
-import com.savchenko.sqlTool.model.domain.ExternalRow;
 import com.savchenko.sqlTool.model.expression.*;
 import com.savchenko.sqlTool.utils.ModelUtils;
 
@@ -18,9 +18,9 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
 
     private final Resolver resolver;
 
-    private final ExternalRow externalRow;
+    private final ExternalHeaderRow externalRow;
 
-    public ExpressionCalculator(Resolver resolver, ExternalRow externalRow) {
+    public ExpressionCalculator(Resolver resolver, ExternalHeaderRow externalRow) {
         this.resolver = resolver;
         this.externalRow = externalRow;
     }
@@ -213,7 +213,7 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
         }
 
         var columnData = lazyTable.dataStream()
-                .map(row -> (Value<?>) row.get(0))
+                .map(row -> (Value<?>) row.values().get(0))
                 .toList();
 
         var type = lazyTable.columns().get(0).type();

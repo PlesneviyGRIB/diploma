@@ -1,7 +1,8 @@
 package com.savchenko.sqlTool.model.command.join;
 
 import com.savchenko.sqlTool.exception.UnexpectedException;
-import com.savchenko.sqlTool.model.domain.ExternalRow;
+import com.savchenko.sqlTool.model.domain.ExternalHeaderRow;
+import com.savchenko.sqlTool.model.domain.HeaderRow;
 import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.domain.Row;
 import com.savchenko.sqlTool.model.expression.BinaryOperation;
@@ -23,7 +24,6 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -115,13 +115,13 @@ public enum JoinStrategy {
                 .accept(new ContextSensitiveExpressionQualifier(lazyTable.columns()));
 
         Optional<Value<?>> valueProvider = isContextSensitiveExpression ?
-                Optional.empty() : Optional.of(expression.accept(new ExpressionCalculator(resolver, ExternalRow.empty())));
+                Optional.empty() : Optional.of(expression.accept(new ExpressionCalculator(resolver, ExternalHeaderRow.empty())));
 
         var usedLeft = new HashSet<Integer>();
         var usedRight = new HashSet<Integer>();
 
-        var notUsedLeft = new LinkedBlockingQueue<IndexedData<List<Value<?>>>>();
-        var notUsedRight = new LinkedBlockingQueue<IndexedData<List<Value<?>>>>();
+        var notUsedLeft = new LinkedBlockingQueue<IndexedData<Row>>();
+        var notUsedRight = new LinkedBlockingQueue<IndexedData<Row>>();
 
         var notUsedLeftSet = new HashSet<>();
         var notUsedRightSet = new HashSet<>();
@@ -136,9 +136,9 @@ public enum JoinStrategy {
                 .filter(pair -> {
                     var leftIndexedRow = pair.getLeft();
                     var rightIndexedRow = pair.getLeft();
-                    var row = ListUtils.union(leftIndexedRow.data(), rightIndexedRow.data());
-                    var externalRow = lazyTable.externalRow().merge(new ExternalRow(columns, row));
-                    var tableRow = new Row(columns, row);
+                    var row = Row.merge(leftIndexedRow.data(), rightIndexedRow.data());
+                    var externalRow = lazyTable.externalRow().merge(new ExternalHeaderRow(columns, row.values()));
+                    var tableRow = new HeaderRow(columns, row.values());
 
                     var joined = ExpressionUtils.columnsContainsNulls(tableRow, externalRow, expression) &&
                             ((BooleanValue) valueProvider.orElseGet(() -> expression
@@ -161,15 +161,17 @@ public enum JoinStrategy {
                     }
                     return joined;
                 })
-                .map(pair -> ListUtils.union(pair.getLeft().data(), pair.getRight().data()));
+                .map(pair -> Row.merge(pair.getLeft().data(), pair.getRight().data()));
 
         var leftRemainder = notUsedLeft.stream()
                 .filter(indexedRow -> !usedLeft.contains(indexedRow.index()))
-                .map(indexedRow -> ListUtils.union(indexedRow.data(), ModelUtils.emptyRow(joinedLazyTable)));
+                .map(IndexedData::data)
+                .map(row -> Row.merge(row, ModelUtils.emptyRow(joinedLazyTable)));
 
         var rightRemainder = notUsedRight.stream()
                 .filter(indexedRow -> !usedRight.contains(indexedRow.index()))
-                .map(indexedRow -> ListUtils.union(ModelUtils.emptyRow(lazyTable), indexedRow.data()));
+                .map(IndexedData::data)
+                .map(row -> Row.merge(ModelUtils.emptyRow(lazyTable), row));
 
         return new JoinStreams(inner, leftRemainder, rightRemainder);
     }

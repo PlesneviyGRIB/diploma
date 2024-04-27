@@ -6,8 +6,8 @@ import com.savchenko.sqlTool.model.command.domain.ComplexCalculedCommand;
 import com.savchenko.sqlTool.model.complexity.SimpleCalculatorEntry;
 import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.domain.Projection;
+import com.savchenko.sqlTool.model.domain.Row;
 import com.savchenko.sqlTool.model.expression.Expression;
-import com.savchenko.sqlTool.model.expression.Value;
 import com.savchenko.sqlTool.model.resolver.CommandResult;
 import com.savchenko.sqlTool.model.resolver.Resolver;
 import com.savchenko.sqlTool.support.JoinStreams;
@@ -32,7 +32,7 @@ public abstract class Join extends ComplexCalculedCommand {
         this.strategy = strategy;
     }
 
-    abstract Stream<List<Value<?>>> run(JoinStreams joinStreams);
+    abstract Stream<Row> run(JoinStreams joinStreams);
 
     @Override
     public CommandResult run(LazyTable lazyTable, Projection projection, Resolver resolver) {

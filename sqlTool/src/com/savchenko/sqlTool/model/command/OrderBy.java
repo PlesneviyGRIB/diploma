@@ -5,6 +5,7 @@ import com.savchenko.sqlTool.model.command.domain.SimpleCalculedCommand;
 import com.savchenko.sqlTool.model.complexity.SimpleCalculatorEntry;
 import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.domain.Projection;
+import com.savchenko.sqlTool.model.domain.Row;
 import com.savchenko.sqlTool.model.expression.StringValue;
 import com.savchenko.sqlTool.model.expression.Value;
 import com.savchenko.sqlTool.model.resolver.CommandResult;
@@ -44,11 +45,11 @@ public class OrderBy implements SimpleCalculedCommand {
             public Integer complexity = 0;
         };
 
-        Comparator<? super List<Value<?>>> rowsComparator = (row1, row2) -> {
+        Comparator<Row> rowsComparator = (row1, row2) -> {
             for (int i = 0; i < indexes.size(); i++) {
                 var idx = indexes.get(i);
-                var elem1 = row1.get(idx);
-                var elem2 = row2.get(idx);
+                var elem1 = row1.values().get(idx);
+                var elem2 = row2.values().get(idx);
 
                 var res = ModelUtils.compareValues(elem1, elem2, lazyTable.columns().get(idx).type());
                 complexityCollector.complexity += getComparisonComplexity(elem1, elem2);

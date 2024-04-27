@@ -3,6 +3,7 @@ package com.savchenko.sqlTool.utils;
 import com.savchenko.sqlTool.config.Constants;
 import com.savchenko.sqlTool.model.domain.Column;
 import com.savchenko.sqlTool.model.domain.Projection;
+import com.savchenko.sqlTool.model.domain.Row;
 import com.savchenko.sqlTool.model.domain.Table;
 import com.savchenko.sqlTool.model.expression.Value;
 import com.savchenko.sqlTool.model.index.BalancedTreeIndex;
@@ -53,18 +54,18 @@ public class DatabaseReader {
 
             var columns = readColumns(tableName, metaData);
             var indices = readIndices(tableName, columns);
-            var data = new LinkedList<List<Value<?>>>();
+            var data = new LinkedList<Row>();
 
             while (resultSet.next()) {
-                var list = new ArrayList<Value<?>>(columnsCount);
+                var row = new Row();
 
                 for (int i = 1; i < columnsCount + 1; i++) {
                     var type = columns.get(i - 1).type();
                     var entry = ModelUtils.readEntry(resultSet.getString(i), type);
-                    list.add(entry);
+                    row.values().add(entry);
                 }
 
-                data.add(list);
+                data.add(row);
             }
 
             return new Table(tableName, columns, data);

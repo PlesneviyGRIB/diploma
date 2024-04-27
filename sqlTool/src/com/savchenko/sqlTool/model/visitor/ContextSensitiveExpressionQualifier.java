@@ -5,9 +5,7 @@ import com.savchenko.sqlTool.model.command.domain.ComplexCalculedCommand;
 import com.savchenko.sqlTool.model.command.domain.SimpleCalculedCommand;
 import com.savchenko.sqlTool.model.command.domain.SimpleCommand;
 import com.savchenko.sqlTool.model.domain.Column;
-import com.savchenko.sqlTool.model.domain.ExternalRow;
 import com.savchenko.sqlTool.model.expression.*;
-import com.savchenko.sqlTool.model.resolver.Resolver;
 
 import java.util.List;
 

@@ -2,8 +2,8 @@ package com.savchenko.sqlTool.utils;
 
 import com.savchenko.sqlTool.exception.ColumnNotFoundException;
 import com.savchenko.sqlTool.model.domain.Column;
-import com.savchenko.sqlTool.model.domain.ExternalRow;
-import com.savchenko.sqlTool.model.domain.Row;
+import com.savchenko.sqlTool.model.domain.ExternalHeaderRow;
+import com.savchenko.sqlTool.model.domain.HeaderRow;
 import com.savchenko.sqlTool.model.expression.Expression;
 import com.savchenko.sqlTool.model.expression.NullValue;
 import com.savchenko.sqlTool.model.visitor.ExpressionTraversal;
@@ -12,7 +12,7 @@ import com.savchenko.sqlTool.model.visitor.ExpressionValidator;
 import java.util.List;
 
 public class ExpressionUtils {
-    public static boolean columnsContainsNulls(Row row, ExternalRow externalRow, Expression expression) {
+    public static boolean columnsContainsNulls(HeaderRow HeaderRow, ExternalHeaderRow externalRow, Expression expression) {
         var o = new Object() {
             public boolean nullPresents;
         };
@@ -20,7 +20,7 @@ public class ExpressionUtils {
         expression.accept(new ExpressionTraversal() {
             @Override
             public Void visit(Column column) {
-                var value = row.getValue(column).or(() -> externalRow.getValue(column)).orElse(null);
+                var value = HeaderRow.getValue(column).or(() -> externalRow.getValue(column)).orElse(null);
                 if (value instanceof NullValue) {
                     o.nullPresents = true;
                 }
@@ -31,7 +31,7 @@ public class ExpressionUtils {
         return o.nullPresents;
     }
 
-    public static boolean relatedToTable(List<Column> columns, Expression expression, ExternalRow externalRow) {
+    public static boolean relatedToTable(List<Column> columns, Expression expression, ExternalHeaderRow externalRow) {
         try {
             expression.accept(new ExpressionValidator(columns, externalRow));
             return true;

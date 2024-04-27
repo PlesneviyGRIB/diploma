@@ -3,7 +3,7 @@ package tests;
 import com.savchenko.sqlTool.exception.ColumnNotFoundException;
 import com.savchenko.sqlTool.exception.ComputedTypeException;
 import com.savchenko.sqlTool.exception.IncorrectOperatorUsageException;
-import com.savchenko.sqlTool.model.domain.ExternalRow;
+import com.savchenko.sqlTool.model.domain.ExternalHeaderRow;
 import com.savchenko.sqlTool.model.expression.*;
 import com.savchenko.sqlTool.model.visitor.ExpressionValidator;
 import com.savchenko.sqlTool.model.domain.Column;
@@ -19,7 +19,7 @@ import static com.savchenko.sqlTool.model.operator.Operator.*;
 public class ExpressionVisitorTest extends TestBase {
     @Test
     public void invalidOperator() {
-        var validator = new ExpressionValidator(List.of(), ExternalRow.empty());
+        var validator = new ExpressionValidator(List.of(), ExternalHeaderRow.empty());
         var num = new IntegerNumber(1);
         expectError(() -> Q.op(EQ, num).accept(validator), IncorrectOperatorUsageException.class);
         expectError(() -> Q.op(EQ, num, Q.op(IN, num)).accept(validator), IncorrectOperatorUsageException.class);
@@ -28,7 +28,7 @@ public class ExpressionVisitorTest extends TestBase {
 
     @Test
     public void invalidColumnReference() {
-        var validator = new ExpressionValidator(List.of(new Column("id", "table", IntegerNumber.class)), ExternalRow.empty());
+        var validator = new ExpressionValidator(List.of(new Column("id", "table", IntegerNumber.class)), ExternalHeaderRow.empty());
         var num = new IntegerNumber(1);
         Q.op(EQ, num, Q.column("table", "id")).accept(validator);
         expectError(() -> Q.op(EQ, num, Q.column("table", "ids")).accept(validator), ColumnNotFoundException.class);
@@ -36,7 +36,7 @@ public class ExpressionVisitorTest extends TestBase {
 
     @Test
     public void invalidOparantType() {
-        var validator = new ExpressionValidator(List.of(new Column("int", "t", IntegerNumber.class), new Column("bool", "t", BooleanValue.class)), ExternalRow.empty());
+        var validator = new ExpressionValidator(List.of(new Column("int", "t", IntegerNumber.class), new Column("bool", "t", BooleanValue.class)), ExternalHeaderRow.empty());
         Q.op(EQ, new IntegerNumber(1), Q.column("t", "int")).accept(validator);
         Q.op(NOT_EQ, new BooleanValue(false), Q.op(EQ, new IntegerNumber(1), Q.column("t", "int"))).accept(validator);
         Q.op(EQ, new IntegerNumber(1), Q.column("t", "int")).accept(validator);

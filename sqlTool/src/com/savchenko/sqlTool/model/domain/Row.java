@@ -1,23 +1,19 @@
 package com.savchenko.sqlTool.model.domain;
 
 import com.savchenko.sqlTool.model.expression.Value;
+import org.apache.commons.collections4.ListUtils;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.IntStream;
 
-public class Row {
-    protected final Map<Column, Value<?>> columnValueMap;
+public record Row(List<Value<?>> values) {
 
-    public Row(List<Column> columns, List<Value<?>> values) {
-        this.columnValueMap = new HashMap<>();
-        IntStream.range(0, columns.size()).forEach(i -> columnValueMap.put(columns.get(i), values.get(i)));
+    public Row() {
+        this(new ArrayList<>());
     }
 
-    public Optional<Value<?>> getValue(Column column) {
-        return Optional.ofNullable(columnValueMap.get(column));
+    public static Row merge(Row row1, Row row2) {
+        return new Row(ListUtils.union(row1.values(), row2.values()));
     }
 
 }

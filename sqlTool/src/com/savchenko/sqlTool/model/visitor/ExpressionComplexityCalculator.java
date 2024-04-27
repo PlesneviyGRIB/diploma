@@ -2,7 +2,7 @@ package com.savchenko.sqlTool.model.visitor;
 
 import com.savchenko.sqlTool.model.complexity.CalculatedExpressionResult;
 import com.savchenko.sqlTool.model.domain.Column;
-import com.savchenko.sqlTool.model.domain.ExternalRow;
+import com.savchenko.sqlTool.model.domain.ExternalHeaderRow;
 import com.savchenko.sqlTool.model.expression.*;
 import com.savchenko.sqlTool.model.resolver.Resolver;
 import org.apache.commons.collections4.ListUtils;
@@ -15,9 +15,9 @@ public class ExpressionComplexityCalculator implements Expression.Visitor<Calcul
 
     private final Resolver resolver;
 
-    private final ExternalRow externalRow;
+    private final ExternalHeaderRow externalRow;
 
-    public ExpressionComplexityCalculator(Resolver resolver, ExternalRow externalRow) {
+    public ExpressionComplexityCalculator(Resolver resolver, ExternalHeaderRow externalRow) {
         this.resolver = resolver;
         this.externalRow = externalRow;
     }

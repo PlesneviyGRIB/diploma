@@ -6,7 +6,7 @@ import com.savchenko.sqlTool.model.command.From;
 import com.savchenko.sqlTool.model.command.function.Identity;
 import com.savchenko.sqlTool.model.command.join.JoinStrategy;
 import com.savchenko.sqlTool.model.domain.Column;
-import com.savchenko.sqlTool.model.domain.ExternalRow;
+import com.savchenko.sqlTool.model.domain.ExternalHeaderRow;
 import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.expression.*;
 import com.savchenko.sqlTool.query.Q;
@@ -147,7 +147,7 @@ public class CommandTest extends TestBase {
                         .fullJoin(new Query().from("content_descriptor"), new BooleanValue(true), JoinStrategy.LOOP)
         ).lazyTable();
 
-        var emtyTable = new LazyTable("", List.of(), Stream.of(), ExternalRow.empty());
+        var emtyTable = new LazyTable("", List.of(), Stream.of(), ExternalHeaderRow.empty());
 
         var mathElementsTable = new From("content").run(emtyTable, projection);
         var finalAnswersTable = new From("content_descriptor").run(emtyTable, projection);

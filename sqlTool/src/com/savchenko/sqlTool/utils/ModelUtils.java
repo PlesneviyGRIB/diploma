@@ -5,11 +5,10 @@ import com.savchenko.sqlTool.exception.UnexpectedException;
 import com.savchenko.sqlTool.exception.UnsupportedTypeException;
 import com.savchenko.sqlTool.exception.ValidationException;
 import com.savchenko.sqlTool.model.domain.Column;
-import com.savchenko.sqlTool.model.domain.ExternalRow;
 import com.savchenko.sqlTool.model.domain.LazyTable;
+import com.savchenko.sqlTool.model.domain.Row;
 import com.savchenko.sqlTool.model.expression.*;
 import com.savchenko.sqlTool.model.operator.Operator;
-import com.savchenko.sqlTool.model.visitor.ExpressionValidator;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -45,11 +44,11 @@ public class ModelUtils {
         return new LazyTable(tableName, targetColumns, lazyTable.dataStream(), lazyTable.externalRow());
     }
 
-    public static List<Value<?>> emptyRow(LazyTable lazyTable) {
+    public static Row emptyRow(LazyTable lazyTable) {
         var size = lazyTable.columns().size();
-        var row = new ArrayList<Value<?>>(size);
-        IntStream.range(0, size).forEach(index -> row.add(index, new NullValue()));
-        return row;
+        var data = new ArrayList<Value<?>>(size);
+        IntStream.range(0, size).forEach(index -> data.add(index, new NullValue()));
+        return new Row(data);
     }
 
     public static Stream<Pair<Integer, List<Value<?>>>> getIndexedData(Stream<List<Value<?>>> dataStream) {

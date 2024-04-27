@@ -2,32 +2,28 @@ package com.savchenko.sqlTool.model.domain;
 
 import com.savchenko.sqlTool.model.expression.Value;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
-public class ExternalRow extends Row {
+public class ExternalHeaderRow extends HeaderRow {
 
-    private final ExternalRow externalRow1;
+    private final ExternalHeaderRow externalRow1;
 
-    private final ExternalRow externalRow2;
+    private final ExternalHeaderRow externalRow2;
 
-    private boolean used;
-
-    public ExternalRow(List<Column> columns, List<Value<?>> values) {
+    public ExternalHeaderRow(List<Column> columns, List<Value<?>> values) {
         super(columns, values);
         this.externalRow1 = null;
         this.externalRow2 = null;
     }
 
-    public ExternalRow(ExternalRow externalRow1, ExternalRow externalRow2) {
+    public ExternalHeaderRow(ExternalHeaderRow externalRow1, ExternalHeaderRow externalRow2) {
         super(List.of(), List.of());
         this.externalRow1 = externalRow1;
         this.externalRow2 = externalRow2;
-    }
-
-    public boolean isUsed() {
-        return used;
     }
 
     public Optional<Value<?>> getValue(Column column) {
@@ -46,44 +42,30 @@ public class ExternalRow extends Row {
             return Optional.empty();
         }
 
-        this.used = true;
-
         return Optional.of(value);
     }
 
     public List<Column> getColumns() {
         return Stream.of(
                 columnValueMap.keySet(),
-                Optional.ofNullable(externalRow1).map(ExternalRow::getColumns).orElse(List.of()),
-                Optional.ofNullable(externalRow2).map(ExternalRow::getColumns).orElse(List.of())
+                Optional.ofNullable(externalRow1).map(ExternalHeaderRow::getColumns).orElse(List.of()),
+                Optional.ofNullable(externalRow2).map(ExternalHeaderRow::getColumns).orElse(List.of())
         ).flatMap(Collection::stream).toList();
     }
 
-    public static ExternalRow empty() {
-        return new ExternalRow(List.of(), List.of());
+    public static ExternalHeaderRow empty() {
+        return new ExternalHeaderRow(List.of(), List.of());
     }
 
-    public ExternalRow merge(ExternalRow row) {
-        return new ExternalRow(this, row);
-    }
-
-    public ExternalRow deepCopy() {
-        if (Objects.nonNull(externalRow1)) {
-            return new ExternalRow(externalRow1.deepCopy(), externalRow2.deepCopy());
-        }
-
-        var entries = columnValueMap.entrySet().stream().toList();
-        var columns = entries.stream().map(Map.Entry::getKey).toList();
-        List<Value<?>> values = entries.stream().map(Map.Entry::getValue).collect(Collectors.toList());
-
-        return new ExternalRow(columns, values);
+    public ExternalHeaderRow merge(ExternalHeaderRow row) {
+        return new ExternalHeaderRow(this, row);
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ExternalRow that = (ExternalRow) o;
+        ExternalHeaderRow that = (ExternalHeaderRow) o;
         return Objects.equals(externalRow1, that.externalRow1)
                 && Objects.equals(externalRow2, that.externalRow2)
                 && Objects.equals(columnValueMap, that.columnValueMap);

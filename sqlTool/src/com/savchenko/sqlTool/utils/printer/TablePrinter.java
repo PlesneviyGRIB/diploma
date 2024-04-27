@@ -63,7 +63,7 @@ public class TablePrinter extends Printer<Table> {
         for (int i = 0; i < Math.min(rowsCount(), PRINTED_ROWS_MAX_COUNT); i++) {
             var row = array.get(i);
             sb.append("|");
-            row.forEach(val -> sb.append(formatCell(val)).append("|"));
+            row.values().forEach(val -> sb.append(formatCell(val)).append("|"));
             sb.append("\n");
         }
     }

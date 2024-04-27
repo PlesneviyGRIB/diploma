@@ -2,20 +2,18 @@ package com.savchenko.sqlTool.model.visitor;
 
 import com.savchenko.sqlTool.exception.UnexpectedException;
 import com.savchenko.sqlTool.model.domain.Column;
-import com.savchenko.sqlTool.model.domain.ExternalRow;
-import com.savchenko.sqlTool.model.domain.Row;
+import com.savchenko.sqlTool.model.domain.ExternalHeaderRow;
+import com.savchenko.sqlTool.model.domain.HeaderRow;
 import com.savchenko.sqlTool.model.expression.*;
-
-import java.util.Map;
 
 public class ValueInjector implements Expression.Visitor<Expression> {
 
-    private final Row row;
+    private final HeaderRow HeaderRow;
 
-    private final ExternalRow externalRow;
+    private final ExternalHeaderRow externalRow;
 
-    public ValueInjector(Row row, ExternalRow externalRow) {
-        this.row = row;
+    public ValueInjector(HeaderRow HeaderRow, ExternalHeaderRow externalRow) {
+        this.HeaderRow = HeaderRow;
         this.externalRow = externalRow;
     }
 
@@ -31,7 +29,7 @@ public class ValueInjector implements Expression.Visitor<Expression> {
 
     @Override
     public Expression visit(Column column) {
-        return row.getValue(column).or(() -> externalRow.getValue(column)).orElseThrow(UnexpectedException::new);
+        return HeaderRow.getValue(column).or(() -> externalRow.getValue(column)).orElseThrow(UnexpectedException::new);
     }
 
     @Override
