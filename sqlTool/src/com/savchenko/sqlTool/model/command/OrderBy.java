@@ -41,10 +41,6 @@ public class OrderBy implements SimpleCalculedCommand {
                 .map(o -> ModelUtils.resolveColumnIndex(lazyTable.columns(), o.column()))
                 .toList();
 
-        var complexityCollector = new Object() {
-            public Integer complexity = 0;
-        };
-
         Comparator<Row> rowsComparator = (row1, row2) -> {
             for (int i = 0; i < indexes.size(); i++) {
                 var idx = indexes.get(i);
@@ -52,7 +48,8 @@ public class OrderBy implements SimpleCalculedCommand {
                 var elem2 = row2.values().get(idx);
 
                 var res = ModelUtils.compareValues(elem1, elem2, lazyTable.columns().get(idx).type());
-                complexityCollector.complexity += getComparisonComplexity(elem1, elem2);
+
+                IntStream.range(0, getComparisonComplexity(elem1, elem2)).forEach(calculatorEntry::count);
 
                 if (orders.get(i).reverse()) {
                     res *= -1;
@@ -63,8 +60,6 @@ public class OrderBy implements SimpleCalculedCommand {
             }
             return 0;
         };
-
-        IntStream.range(0, complexityCollector.complexity).forEach(calculatorEntry::count);
 
         return new LazyTable(lazyTable.name(), lazyTable.columns(), lazyTable.dataStream().sorted(rowsComparator), lazyTable.externalRow());
     }
