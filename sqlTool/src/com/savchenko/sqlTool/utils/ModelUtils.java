@@ -53,11 +53,12 @@ public class ModelUtils {
         return new Row(data);
     }
 
-    public static Stream<Pair<Integer, List<Value<?>>>> getIndexedData(Stream<List<Value<?>>> dataStream) {
-        var o = new Object() {
-            public int index;
-        };
-        return dataStream.map(row -> Pair.of(o.index++, row));
+    public static Row typeSafeEmptyRow(LazyTable lazyTable) {
+        var columns = lazyTable.columns();
+        var size = columns.size();
+        var data = new ArrayList<Value<?>>(size);
+        IntStream.range(0, size).forEach(index -> data.add(index, getDefaultValueByType(columns.get(index).type())));
+        return new Row(data);
     }
 
     public static Value<?> readEntry(String object, Class<? extends Value<?>> targetClass) {
@@ -201,6 +202,27 @@ public class ModelUtils {
                 .replace(".", "\\.")
                 .replace("?", ".")
                 .replace("%", ".*");
+    }
+
+    private static Value<?> getDefaultValueByType(Class<? extends Value<?>> valueClass) {
+        if (valueClass.equals(StringValue.class)) {
+            return new StringValue("");
+        } else if (valueClass.equals(BooleanValue.class)) {
+            return new BooleanValue(false);
+        } else if (valueClass.equals(IntegerNumber.class)) {
+            return new IntegerNumber(0);
+        } else if (valueClass.equals(LongNumber.class)) {
+            return new LongNumber(0L);
+        } else if (valueClass.equals(FloatNumber.class)) {
+            return new FloatNumber(0F);
+        } else if (valueClass.equals(DoubleNumber.class)) {
+            return new DoubleNumber(0D);
+        } else if (valueClass.equals(BigDecimalNumber.class)) {
+            return new BigDecimalNumber(new BigDecimal(0));
+        } else if (valueClass.equals(TimestampValue.class)) {
+            return new TimestampValue(new Timestamp(0));
+        }
+        throw new UnsupportedTypeException("Unable to process value of type '%s'", valueClass.getSimpleName());
     }
 
 }

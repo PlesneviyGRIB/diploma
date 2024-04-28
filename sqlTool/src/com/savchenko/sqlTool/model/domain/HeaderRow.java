@@ -10,7 +10,7 @@ import java.util.stream.IntStream;
 
 public class HeaderRow {
 
-    protected final Map<Column, Value<?>> columnValueMap;
+    private final Map<Column, Value<?>> columnValueMap;
 
     private final List<Column> columns;
 
@@ -36,7 +36,7 @@ public class HeaderRow {
     }
 
     public static HeaderRow empty() {
-        return new HeaderRow(List.of(), new Row());
+        return new HeaderRow(List.of(), Row.empty());
     }
 
 }

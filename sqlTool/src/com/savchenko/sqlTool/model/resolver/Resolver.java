@@ -11,11 +11,13 @@ import com.savchenko.sqlTool.model.command.domain.SimpleCommand;
 import com.savchenko.sqlTool.model.command.join.Join;
 import com.savchenko.sqlTool.model.complexity.*;
 import com.savchenko.sqlTool.model.domain.ExternalHeaderRow;
+import com.savchenko.sqlTool.model.domain.HeaderRow;
 import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.domain.Projection;
 import com.savchenko.sqlTool.model.visitor.ContextSensitiveExpressionQualifier;
 import com.savchenko.sqlTool.model.visitor.ExpressionComplexityCalculator;
 import com.savchenko.sqlTool.query.Query;
+import com.savchenko.sqlTool.utils.ModelUtils;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -98,8 +100,10 @@ public class Resolver {
                 var expressionIsContextSensitive = command.getExpression()
                         .accept(new ContextSensitiveExpressionQualifier(lazyTable.columns()));
 
+                // unsafe due to use `lazyTable.phonyHeaderRow()` that is not actual context row
+                var phonyHeaderRow = new HeaderRow(lazyTable.columns(), ModelUtils.typeSafeEmptyRow(lazyTable));
                 var calculatedExpressionEntry = command.getExpression()
-                        .accept(new ExpressionComplexityCalculator(utilityInstance(), lazyTable.phonyHeaderRow(), externalRow))
+                        .accept(new ExpressionComplexityCalculator(utilityInstance(), phonyHeaderRow, externalRow))
                         .normalize();
 
                 if (command instanceof Where where) {

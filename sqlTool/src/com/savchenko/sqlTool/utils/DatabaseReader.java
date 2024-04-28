@@ -57,15 +57,15 @@ public class DatabaseReader {
             var data = new LinkedList<Row>();
 
             while (resultSet.next()) {
-                var row = new Row();
+                var row = new LinkedList<Value<?>>();
 
                 for (int i = 1; i < columnsCount + 1; i++) {
                     var type = columns.get(i - 1).type();
                     var entry = ModelUtils.readEntry(resultSet.getString(i), type);
-                    row.values().add(entry);
+                    row.add(entry);
                 }
 
-                data.add(row);
+                data.add(new Row(row));
             }
 
             return new Table(tableName, columns, data);

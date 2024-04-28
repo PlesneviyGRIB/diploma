@@ -10,6 +10,7 @@ import org.apache.commons.collections4.ListUtils;
 
 import java.util.List;
 
+import static com.savchenko.sqlTool.model.operator.Operator.EXISTS;
 import static com.savchenko.sqlTool.model.operator.Operator.IN;
 
 public class ExpressionComplexityCalculator implements Expression.Visitor<CalculatedExpressionResult> {
@@ -36,7 +37,16 @@ public class ExpressionComplexityCalculator implements Expression.Visitor<Calcul
 
     @Override
     public CalculatedExpressionResult visit(SubTable table) {
+        return visitSubTable(table, true);
+    }
+
+    private CalculatedExpressionResult visitSubTable(SubTable table, boolean fetchAll) {
         var result = resolver.resolve(table.commands(), mergedExternalRow);
+        if(fetchAll) {
+            result.lazyTable().fetch();
+        } else {
+            result.lazyTable().dataStream().findAny();
+        }
         return new CalculatedExpressionResult(result.calculator().getTotalComplexity(), List.of(result.calculator()), table);
     }
 
@@ -47,6 +57,11 @@ public class ExpressionComplexityCalculator implements Expression.Visitor<Calcul
 
     @Override
     public CalculatedExpressionResult visit(UnaryOperation operation) {
+
+        if(operation.operator() == EXISTS && operation.expression() instanceof SubTable subTable) {
+            return visitSubTable(subTable, false);
+        }
+
         var calculedExpressionEntry = operation.expression().accept(this);
         return new CalculatedExpressionResult(calculedExpressionEntry.complexity() + 1, calculedExpressionEntry.calculators(), operation);
     }

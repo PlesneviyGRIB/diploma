@@ -116,7 +116,11 @@ public enum JoinStrategy {
                 .accept(new ContextSensitiveExpressionQualifier(lazyTable.columns()));
 
         Optional<Value<?>> valueProvider = isContextSensitiveExpression ?
-                Optional.empty() : Optional.of(expression.accept(new ExpressionCalculator(resolver, HeaderRow.empty(), ExternalHeaderRow.empty())));
+                Optional.empty() :
+                Optional.of(expression
+                        .accept(new ValueInjector(HeaderRow.empty(), lazyTable.externalRow()))
+                        .accept(new ExpressionCalculator(resolver, HeaderRow.empty(), lazyTable.externalRow()))
+                );
 
         var usedLeft = new HashSet<Integer>();
         var usedRight = new HashSet<Integer>();

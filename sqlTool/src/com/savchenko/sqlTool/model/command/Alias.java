@@ -41,4 +41,9 @@ public class Alias implements SimpleCommand {
     public int hashCode() {
         return Objects.hashCode(alias);
     }
+
+    public String getAlias() {
+        return alias;
+    }
+
 }

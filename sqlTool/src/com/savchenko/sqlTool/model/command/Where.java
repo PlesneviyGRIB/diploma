@@ -35,7 +35,9 @@ public class Where extends ComplexCalculedCommand {
 
         var valueProvider = isContextSensitiveExpression ?
                 Optional.<BooleanValue>empty() :
-                Optional.of((BooleanValue) expression.accept(new ExpressionCalculator(resolver, HeaderRow.empty(), externalRow)));
+                Optional.of((BooleanValue) expression
+                        .accept(new ValueInjector(HeaderRow.empty(), externalRow))
+                        .accept(new ExpressionCalculator(resolver, HeaderRow.empty(), externalRow)));
 
         Predicate<Row> predicate = row -> {
             var headerRow = new HeaderRow(columns, row);

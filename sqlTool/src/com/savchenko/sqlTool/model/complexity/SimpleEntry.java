@@ -1,5 +1,6 @@
 package com.savchenko.sqlTool.model.complexity;
 
+import com.savchenko.sqlTool.model.command.Alias;
 import com.savchenko.sqlTool.model.command.From;
 import com.savchenko.sqlTool.model.command.domain.SimpleCommand;
 
@@ -13,6 +14,9 @@ public class SimpleEntry extends ExecutedCalculatorEntry {
     public String stringify(String prefix) {
         if (getCommand() instanceof From from) {
             return toRow(prefix, "%s[%s] -", stringifyCommand(), from.getTableName());
+        }
+        if (getCommand() instanceof Alias alias) {
+            return toRow(prefix, "%s[%s] -", stringifyCommand(), alias.getAlias());
         }
         return toRow(prefix, "%s -", stringifyCommand());
     }
