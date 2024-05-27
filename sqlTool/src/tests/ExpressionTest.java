@@ -2,8 +2,10 @@ package tests;
 
 import com.savchenko.sqlTool.exception.ComputedTypeException;
 import com.savchenko.sqlTool.model.domain.ExternalHeaderRow;
+import com.savchenko.sqlTool.model.domain.HeaderRow;
 import com.savchenko.sqlTool.model.domain.LazyTable;
 import com.savchenko.sqlTool.model.expression.*;
+import com.savchenko.sqlTool.model.visitor.ExpressionComplexityCalculator;
 import com.savchenko.sqlTool.model.visitor.ExpressionValidator;
 import com.savchenko.sqlTool.query.Q;
 import com.savchenko.sqlTool.query.Query;
@@ -83,7 +85,7 @@ public class ExpressionTest extends TestBase {
 
         Assert.assertEquals(1, data.size());
 
-         Assert.assertEquals(List.of(152L), retrieveIds(data));
+        Assert.assertEquals(List.of(152L), retrieveIds(data));
     }
 
     @Test
@@ -124,6 +126,33 @@ public class ExpressionTest extends TestBase {
         Assert.assertEquals(418, resultProvider.apply("\\{\\}").dataStream().toList().size());
         Assert.assertEquals(409, resultProvider.apply("%finalAnswerPlaceholderId%").dataStream().toList().size());
         Assert.assertEquals(50, resultProvider.apply("%c5666703-4b9f-40f6-9268-8f92619d1199%").dataStream().toList().size());
+    }
+
+    @Test
+    public void tmp() {
+        var calculator = new ExpressionComplexityCalculator(resolver, HeaderRow.empty(), ExternalHeaderRow.empty());
+
+        // new BooleanValue(true); 1
+        // Q.op(IN, new IntegerNumber(1), new ExpressionList(new IntegerNumber(3), new IntegerNumber(2), new IntegerNumber(1))) 4
+
+
+        var res = Q.op(LIKE, new StringValue("HELLO"), new StringValue("%LL%")).accept(calculator);
+
+        System.out.println(res.normalize().complexity());
+
+
+        var expression =
+            Q.op(OR,
+                Q.op(OR,
+                    Q.op(EQ, Q.column("user", "id"), new LongNumber(2L)),
+                    Q.op(LIKE, Q.column("user", "name"), new StringValue("%th%"))
+                ),
+                Q.op(IN,
+                    Q.column("user", "id"),
+                    new SubTable(Query.from("...").offset().leftJoin().where().limit().build())
+                )
+            );
+
     }
 
 }
