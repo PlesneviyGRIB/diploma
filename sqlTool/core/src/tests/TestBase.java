@@ -1,23 +1,21 @@
 package tests;
 
-import com.savchenko.sqlTool.model.cache.CacheContext;
-import com.savchenko.sqlTool.model.cache.CacheStrategy;
-import com.savchenko.sqlTool.model.domain.ExternalHeaderRow;
-import com.savchenko.sqlTool.model.domain.LazyTable;
-import com.savchenko.sqlTool.model.domain.Projection;
-import com.savchenko.sqlTool.model.domain.Row;
-import com.savchenko.sqlTool.model.expression.LongNumber;
-import com.savchenko.sqlTool.model.resolver.Resolver;
-import com.savchenko.sqlTool.support.WrappedStream;
-import com.savchenko.sqlTool.utils.DatabaseReader;
+import com.core.sqlTool.model.cache.CacheContext;
+import com.core.sqlTool.model.cache.CacheStrategy;
+import com.core.sqlTool.model.domain.ExternalHeaderRow;
+import com.core.sqlTool.model.domain.LazyTable;
+import com.core.sqlTool.model.domain.Projection;
+import com.core.sqlTool.model.domain.Row;
+import com.core.sqlTool.model.resolver.Resolver;
+import com.core.sqlTool.support.WrappedStream;
+import com.core.sqlTool.utils.DatabaseReader;
 import org.apache.commons.collections4.ListUtils;
 import org.junit.Assert;
 
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.List;
 
-import static com.savchenko.sqlTool.config.Constants.*;
+import static com.core.sqlTool.config.Constants.*;
 import static java.lang.String.format;
 
 public class TestBase {
@@ -56,12 +54,12 @@ public class TestBase {
         return new LazyTable(tableName, columns, data, ExternalHeaderRow.empty());
     }
 
-    protected List<Long> retrieveIds(List<Row> data) {
-        return data.stream()
-                .map(row -> row.values().get(0))
-                .filter(value -> value instanceof LongNumber)
-                .map(ln -> ((LongNumber) ln).value())
-                .toList();
-    }
+//    protected List<Long> retrieveIds(List<Row> data) {
+//        return data.stream()
+//                .map(row -> row.values().get(0))
+//                .filter(value -> value instanceof LongNumber)
+//                .map(ln -> ((LongNumber) ln).value())
+//                .toList();
+//    }
 
 }
