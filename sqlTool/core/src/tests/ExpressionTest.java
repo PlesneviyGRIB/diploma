@@ -1,19 +1,5 @@
 package tests;
 
-import com.core.sqlTool.exception.ComputedTypeException;
-import com.core.sqlTool.model.domain.ExternalHeaderRow;
-import com.core.sqlTool.model.domain.LazyTable;
-import com.core.sqlTool.model.expression.*;
-import com.core.sqlTool.model.expression.Number;
-import com.core.sqlTool.model.visitor.ExpressionValidator;
-import com.client.sqlTool.query.Query;
-import org.junit.Assert;
-import org.junit.Test;
-
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Function;
-
 public class ExpressionTest extends TestBase {
 
 //    @Test
@@ -32,7 +18,7 @@ public class ExpressionTest extends TestBase {
 //    public void inSubTable() {
 //        var subTable = new SubTable(Query
 //                .from("course_users")
-//                .select(Q.column("course_users", "course_id"))
+//                .select(Q.columnName("course_users", "course_id"))
 //                .build()
 //        );
 //
@@ -40,10 +26,10 @@ public class ExpressionTest extends TestBase {
 //                Query
 //                        .from("courses")
 //                        .where(Q.op(IN,
-//                                Q.column("courses", "id"),
+//                                Q.columnName("courses", "id"),
 //                                subTable
 //                        ))
-//                        .select(Q.column("courses", "id"))
+//                        .select(Q.columnName("courses", "id"))
 //        ).lazyTable();
 //
 //        var data = res.dataStream().toList();
@@ -60,7 +46,7 @@ public class ExpressionTest extends TestBase {
 //    public void notInSubTable() {
 //        var subTable = new SubTable(Query
 //                .from("course_users")
-//                .select(Q.column("course_users", "course_id"))
+//                .select(Q.columnName("course_users", "course_id"))
 //                .build()
 //        );
 //
@@ -70,11 +56,11 @@ public class ExpressionTest extends TestBase {
 //                        .where(Q.op(
 //                                NOT,
 //                                Q.op(IN,
-//                                        Q.column("courses", "id"),
+//                                        Q.columnName("courses", "id"),
 //                                        subTable
 //                                )
 //                        ))
-//                        .select(Q.column("courses", "id"))
+//                        .select(Q.columnName("courses", "id"))
 //        ).lazyTable();
 //
 //        var data = res.dataStream().toList();
@@ -93,17 +79,17 @@ public class ExpressionTest extends TestBase {
 //                        .where(Q.op(EXISTS,
 //                                new SubTable(Query
 //                                        .from("expression")
-//                                        .select(Q.column("expression", "id"))
+//                                        .select(Q.columnName("expression", "id"))
 //                                        .where(Q.op(EQ,
-//                                                Q.column("expression", "id"),
+//                                                Q.columnName("expression", "id"),
 //                                                Q.op(MINUS,
-//                                                        Q.column("ex", "id"),
+//                                                        Q.columnName("ex", "id"),
 //                                                        new LongNumber(43L)
 //                                                )))
 //                                        .build()
 //                                )
 //                        ))
-//                        .select(Q.column("ex", "id"))
+//                        .select(Q.columnName("ex", "id"))
 //        ).lazyTable();
 //
 //        Assert.assertEquals(550, res.dataStream().toList().size());
@@ -115,7 +101,7 @@ public class ExpressionTest extends TestBase {
 //        Function<String, LazyTable> resultProvider = pattern -> resolver.resolve(
 //                Query
 //                        .from("actions")
-//                        .where(Q.op(LIKE, Q.column("actions", "parameters"), new StringValue(pattern)))
+//                        .where(Q.op(LIKE, Q.columnName("actions", "parameters"), new StringValue(pattern)))
 //        ).lazyTable();
 //
 //        Assert.assertEquals(435, resultProvider.apply("%final%").dataStream().toList().size());

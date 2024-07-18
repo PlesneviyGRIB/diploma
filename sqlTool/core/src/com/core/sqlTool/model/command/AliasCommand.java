@@ -23,7 +23,7 @@ public class AliasCommand implements SimpleCommand {
                 .filter(t -> t.name().equals(alias))
                 .findFirst()
                 .ifPresent(t -> {
-                    throw new ValidationException("Wrong alias '%s'. There are table with such name in database.", alias);
+                    throw new ValidationException("Wrong alias '%s'. There are tableName with such columnName in database.", alias);
                 });
 
         return ModelUtils.renameTable(lazyTable, alias);

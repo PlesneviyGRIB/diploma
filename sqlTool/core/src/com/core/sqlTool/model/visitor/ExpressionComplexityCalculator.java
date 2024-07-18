@@ -5,7 +5,7 @@ import com.core.sqlTool.model.complexity.CalculatedExpressionResult;
 import com.core.sqlTool.model.domain.Column;
 import com.core.sqlTool.model.domain.ExternalHeaderRow;
 import com.core.sqlTool.model.domain.HeaderRow;
-import com.core.sqlTool.model.expression.Number;
+import com.core.sqlTool.model.expression.NumberValue;
 import com.core.sqlTool.model.expression.*;
 import com.core.sqlTool.model.resolver.Resolver;
 import org.apache.commons.collections4.ListUtils;
@@ -127,12 +127,12 @@ public class ExpressionComplexityCalculator implements Expression.Visitor<Calcul
     }
 
     @Override
-    public CalculatedExpressionResult visit(Number value) {
+    public CalculatedExpressionResult visit(NumberValue value) {
         return new CalculatedExpressionResult(0, List.of(), value);
     }
 
     @Override
-    public CalculatedExpressionResult visit(FloatNumber value) {
+    public CalculatedExpressionResult visit(FloatNumberValue value) {
         return new CalculatedExpressionResult(0, List.of(), value);
     }
 

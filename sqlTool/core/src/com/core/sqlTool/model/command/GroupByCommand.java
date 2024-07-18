@@ -20,13 +20,7 @@ import java.util.stream.Stream;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.groupingBy;
 
-public class GroupByCommand implements SimpleCalculedCommand {
-
-    private final Map<Column, AggregationFunction> columnMapperMap;
-
-    public GroupByCommand(Map<Column, AggregationFunction> columnMapperMap) {
-        this.columnMapperMap = columnMapperMap;
-    }
+public record GroupByCommand(List<Pair<Column, AggregationFunction>> columnMapperMap) implements SimpleCalculedCommand {
 
     @Override
     public LazyTable run(LazyTable lazyTable, Projection projection, CalculatorEntry calculatorEntry) {
@@ -97,7 +91,7 @@ public class GroupByCommand implements SimpleCalculedCommand {
 
                         var list = groupedRow.get(i);
                         var column = table.columns().get(i);
-                        var expressionList = new ExpressionList(list, column.type());
+                        var expressionList = new ExpressionList(list, column.columnType());
                         var func = functions.get(i);
 
                         Value<?> value = func.apply(expressionList);
@@ -138,14 +132,14 @@ public class GroupByCommand implements SimpleCalculedCommand {
             var list = table.data().stream()
                     .map(row -> row.values().get(index))
                     .toList();
-            return new ExpressionList(list, table.columns().get(index).type());
+            return new ExpressionList(list, table.columns().get(index).columnType());
         };
 
         for (int i = 0; i < columns.size(); i++) {
             var column = columns.get(i);
             var function = columnMapperMap.get(column);
-            var columnName = format("%s.%s", column.name(), function.getClass().getSimpleName().toUpperCase());
-            targetColumns.add(new Column(columnName, column.table(), column.type()));
+            var columnName = format("%s.%s", column.columnName(), function.getClass().getSimpleName().toUpperCase());
+            targetColumns.add(new Column(columnName, column.tableName(), column.columnType()));
             values.add(function.apply(getColumnValues.apply(i)));
         }
 

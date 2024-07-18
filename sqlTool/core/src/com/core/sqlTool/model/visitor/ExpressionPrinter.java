@@ -1,7 +1,7 @@
 package com.core.sqlTool.model.visitor;
 
 import com.core.sqlTool.model.domain.Column;
-import com.core.sqlTool.model.expression.Number;
+import com.core.sqlTool.model.expression.NumberValue;
 import com.core.sqlTool.model.expression.*;
 
 import java.util.stream.Collectors;
@@ -64,12 +64,12 @@ public class ExpressionPrinter implements Expression.Visitor<String> {
     }
 
     @Override
-    public String visit(Number value) {
+    public String visit(NumberValue value) {
         return value.value().toString();
     }
 
     @Override
-    public String visit(FloatNumber value) {
+    public String visit(FloatNumberValue value) {
         return value.value().toString();
     }
 

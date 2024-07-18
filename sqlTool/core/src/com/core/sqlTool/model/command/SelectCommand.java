@@ -1,11 +1,11 @@
 package com.core.sqlTool.model.command;
 
 import com.core.sqlTool.model.command.domain.SimpleCommand;
-import com.core.sqlTool.model.expression.Value;
-import com.core.sqlTool.model.domain.Column;
 import com.core.sqlTool.model.domain.LazyTable;
 import com.core.sqlTool.model.domain.Projection;
 import com.core.sqlTool.model.domain.Row;
+import com.core.sqlTool.model.expression.Expression;
+import com.core.sqlTool.model.expression.Value;
 import com.core.sqlTool.utils.ModelUtils;
 
 import java.util.List;
@@ -13,13 +13,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class SelectCommand implements SimpleCommand {
-
-    private final List<Column> columns;
-
-    public SelectCommand(List<Column> columns) {
-        this.columns = columns;
-    }
+public record SelectCommand(List<Expression> columns) implements SimpleCommand {
 
     @Override
     public LazyTable run(LazyTable lazyTable, Projection projection) {

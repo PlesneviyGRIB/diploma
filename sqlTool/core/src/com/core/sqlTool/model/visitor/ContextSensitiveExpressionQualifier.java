@@ -5,7 +5,7 @@ import com.core.sqlTool.model.command.domain.ComplexCalculedCommand;
 import com.core.sqlTool.model.command.domain.SimpleCalculedCommand;
 import com.core.sqlTool.model.command.domain.SimpleCommand;
 import com.core.sqlTool.model.domain.Column;
-import com.core.sqlTool.model.expression.Number;
+import com.core.sqlTool.model.expression.NumberValue;
 import com.core.sqlTool.model.expression.*;
 
 import java.util.List;
@@ -82,12 +82,12 @@ public class ContextSensitiveExpressionQualifier implements Expression.Visitor<B
     }
 
     @Override
-    public Boolean visit(Number value) {
+    public Boolean visit(NumberValue value) {
         return false;
     }
 
     @Override
-    public Boolean visit(FloatNumber value) {
+    public Boolean visit(FloatNumberValue value) {
         return false;
     }
 

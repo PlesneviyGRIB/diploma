@@ -5,35 +5,35 @@ import com.core.sqlTool.exception.UnexpectedException;
 
 import java.util.Objects;
 
-public record Number(Integer value) implements Value<Number> {
+public record FloatNumberValue(Float value) implements Value<FloatNumberValue> {
     @Override
     public <T> T accept(Visitor<T> visitor) {
         return visitor.visit(this);
     }
 
     @Override
-    public int compareTo(Number integerNumber) {
-        return this.value().compareTo(integerNumber.value());
+    public int compareTo(FloatNumberValue floatNumber) {
+        return this.value().compareTo(floatNumber.value());
     }
 
     @Override
-    public Value<Number> processArithmetic(Operator operator, Value<Number> operand) {
-        var val = (Number) operand;
+    public Value<FloatNumberValue> processArithmetic(Operator operator, Value<FloatNumberValue> operand) {
+        var val = (FloatNumberValue) operand;
         switch (operator) {
             case PLUS -> {
-                return new Number(this.value + val.value);
+                return new FloatNumberValue(this.value + val.value);
             }
             case MINUS -> {
-                return new Number(this.value - val.value);
+                return new FloatNumberValue(this.value - val.value);
             }
             case MULTIPLY -> {
-                return new Number(this.value * val.value);
+                return new FloatNumberValue(this.value * val.value);
             }
             case DIVISION -> {
-                return new Number(this.value / val.value);
+                return new FloatNumberValue(this.value / val.value);
             }
             case MOD -> {
-                return new Number(this.value % val.value);
+                return new FloatNumberValue(this.value % val.value);
             }
         }
         throw new UnexpectedException();
@@ -43,7 +43,7 @@ public record Number(Integer value) implements Value<Number> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Number that = (Number) o;
+        FloatNumberValue that = (FloatNumberValue) o;
         return Objects.equals(value, that.value);
     }
 

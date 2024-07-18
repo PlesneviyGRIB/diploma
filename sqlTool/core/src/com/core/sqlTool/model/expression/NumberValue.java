@@ -5,35 +5,35 @@ import com.core.sqlTool.exception.UnexpectedException;
 
 import java.util.Objects;
 
-public record FloatNumber(Float value) implements Value<FloatNumber> {
+public record NumberValue(Integer value) implements Value<NumberValue> {
     @Override
     public <T> T accept(Visitor<T> visitor) {
         return visitor.visit(this);
     }
 
     @Override
-    public int compareTo(FloatNumber floatNumber) {
-        return this.value().compareTo(floatNumber.value());
+    public int compareTo(NumberValue integerNumber) {
+        return this.value().compareTo(integerNumber.value());
     }
 
     @Override
-    public Value<FloatNumber> processArithmetic(Operator operator, Value<FloatNumber> operand) {
-        var val = (FloatNumber) operand;
+    public Value<NumberValue> processArithmetic(Operator operator, Value<NumberValue> operand) {
+        var val = (NumberValue) operand;
         switch (operator) {
             case PLUS -> {
-                return new FloatNumber(this.value + val.value);
+                return new NumberValue(this.value + val.value);
             }
             case MINUS -> {
-                return new FloatNumber(this.value - val.value);
+                return new NumberValue(this.value - val.value);
             }
             case MULTIPLY -> {
-                return new FloatNumber(this.value * val.value);
+                return new NumberValue(this.value * val.value);
             }
             case DIVISION -> {
-                return new FloatNumber(this.value / val.value);
+                return new NumberValue(this.value / val.value);
             }
             case MOD -> {
-                return new FloatNumber(this.value % val.value);
+                return new NumberValue(this.value % val.value);
             }
         }
         throw new UnexpectedException();
@@ -43,7 +43,7 @@ public record FloatNumber(Float value) implements Value<FloatNumber> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        FloatNumber that = (FloatNumber) o;
+        NumberValue that = (NumberValue) o;
         return Objects.equals(value, that.value);
     }
 

@@ -1,4 +1,4 @@
 package com.client.sqlTool.command;
 
-public record From(String table) implements Command {
+public record From(String tableName) implements Command {
 }

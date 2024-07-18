@@ -9,13 +9,7 @@ import com.core.sqlTool.utils.ModelUtils;
 
 import java.util.Objects;
 
-public class ConstructIndexCommand implements SimpleCalculedCommand {
-
-    private final Index index;
-
-    public ConstructIndexCommand(Index index) {
-        this.index = index;
-    }
+public record ConstructIndexCommand(Index index) implements SimpleCalculedCommand {
 
     @Override
     public LazyTable run(LazyTable lazyTable, Projection projection, CalculatorEntry calculatorEntry) {

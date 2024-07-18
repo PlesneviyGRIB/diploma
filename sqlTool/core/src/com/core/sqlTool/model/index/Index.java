@@ -1,9 +1,11 @@
 package com.core.sqlTool.model.index;
 
 import com.core.sqlTool.model.domain.Column;
+import lombok.Getter;
 
 import java.util.List;
 
+@Getter
 public abstract class Index {
 
     private final String name;
@@ -16,13 +18,5 @@ public abstract class Index {
     }
 
     public abstract void construct();
-
-    public String getName() {
-        return name;
-    }
-
-    public List<Column> getColumns() {
-        return columns;
-    }
 
 }

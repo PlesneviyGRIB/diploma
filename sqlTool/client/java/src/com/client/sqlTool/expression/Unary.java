@@ -1,5 +1,8 @@
 package com.client.sqlTool.expression;
 
+import lombok.Getter;
+
+@Getter
 public class Unary implements Expression {
 
     private final Operator operator;

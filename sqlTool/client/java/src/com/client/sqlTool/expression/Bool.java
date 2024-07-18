@@ -1,5 +1,8 @@
 package com.client.sqlTool.expression;
 
+import lombok.Getter;
+
+@Getter
 public class Bool implements Expression {
 
     private final boolean value;

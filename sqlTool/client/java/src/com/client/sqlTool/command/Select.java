@@ -4,5 +4,5 @@ import com.client.sqlTool.expression.Expression;
 
 import java.util.List;
 
-public record Select(List<Expression> selectables) implements Command {
+public record Select(List<Expression> expressions) implements Command {
 }

@@ -27,10 +27,10 @@ public class CacheTest extends TestBase {
 //                                                                    Query
 //                                                                            .from("courses")
 //                                                                            .as("c2")
-//                                                                            .where(Q.op(GREATER, Q.column("c2", "id"), new LongNumber(152L)))
+//                                                                            .where(Q.op(GREATER, Q.columnName("c2", "id"), new LongNumber(152L)))
 //                                                                            .where(Q.op(AND,
-//                                                                                    Q.op(EQ, Q.op(MINUS, Q.column("c1", "id"), new LongNumber(2L)), Q.column("c1", "id")),
-//                                                                                    Q.op(EQ, Q.column("c1", "id"), Q.op(MINUS, Q.column("c2", "id"), new LongNumber(4L)))
+//                                                                                    Q.op(EQ, Q.op(MINUS, Q.columnName("c1", "id"), new LongNumber(2L)), Q.columnName("c1", "id")),
+//                                                                                    Q.op(EQ, Q.columnName("c1", "id"), Q.op(MINUS, Q.columnName("c2", "id"), new LongNumber(4L)))
 //                                                                            ))
 //                                                                            .build())),
 //                                                            Q.op(NOT,
@@ -38,10 +38,10 @@ public class CacheTest extends TestBase {
 //                                                                            Query
 //                                                                                    .from("courses")
 //                                                                                    .as("c2")
-//                                                                                    .where(Q.op(GREATER, Q.column("c2", "id"), new LongNumber(152L)))
+//                                                                                    .where(Q.op(GREATER, Q.columnName("c2", "id"), new LongNumber(152L)))
 //                                                                                    .where(Q.op(AND,
-//                                                                                            Q.op(EQ, Q.op(MINUS, Q.column("c1", "id"), new LongNumber(2L)), Q.column("c1", "id")),
-//                                                                                            Q.op(EQ, Q.column("c1", "id"), Q.op(MINUS, Q.column("c2", "id"), new LongNumber(4L)))
+//                                                                                            Q.op(EQ, Q.op(MINUS, Q.columnName("c1", "id"), new LongNumber(2L)), Q.columnName("c1", "id")),
+//                                                                                            Q.op(EQ, Q.columnName("c1", "id"), Q.op(MINUS, Q.columnName("c2", "id"), new LongNumber(4L)))
 //                                                                                    ))
 //                                                                                    .build()))
 //                                                            )
@@ -50,23 +50,23 @@ public class CacheTest extends TestBase {
 //                                                            Query
 //                                                                    .from("courses")
 //                                                                    .as("c2")
-//                                                                    .where(Q.op(GREATER, Q.column("c2", "id"), new LongNumber(152L)))
+//                                                                    .where(Q.op(GREATER, Q.columnName("c2", "id"), new LongNumber(152L)))
 //                                                                    .where(Q.op(AND,
-//                                                                            Q.op(EQ, Q.op(MINUS, Q.column("c1", "id"), new LongNumber(2L)), Q.column("c1", "id")),
-//                                                                            Q.op(EQ, Q.column("c1", "id"), Q.op(MINUS, Q.column("c2", "id"), new LongNumber(4L)))
+//                                                                            Q.op(EQ, Q.op(MINUS, Q.columnName("c1", "id"), new LongNumber(2L)), Q.columnName("c1", "id")),
+//                                                                            Q.op(EQ, Q.columnName("c1", "id"), Q.op(MINUS, Q.columnName("c2", "id"), new LongNumber(4L)))
 //                                                                    ))
 //                                                                    .build()))
 //                                            )
 //                                    )
 //                                    .build()))
 //                    )
-//                    .orderBy(List.of(Pair.of(Q.column("c", "id"), false)))
-//                    .select(Q.column("c", "id")),
+//                    .orderBy(List.of(Pair.of(Q.columnName("c", "id"), false)))
+//                    .select(Q.columnName("c", "id")),
 //            Query
 //                    .from("math_elements")
 //                    .fullJoin(
 //                            Query.from("expression"),
-//                            Q.op(EQ, Q.column("math_elements", "id"), Q.column("expression", "id")),
+//                            Q.op(EQ, Q.columnName("math_elements", "id"), Q.columnName("expression", "id")),
 //                            JoinStrategy.LOOP
 //                    )
 //    );

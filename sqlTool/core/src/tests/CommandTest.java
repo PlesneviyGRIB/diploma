@@ -1,51 +1,28 @@
 package tests;
 
-import com.core.sqlTool.exception.UnexpectedException;
-import com.core.sqlTool.exception.ValidationException;
-import com.core.sqlTool.model.command.FromCommand;
-import com.core.sqlTool.model.command.function.Identity;
-import com.client.sqlTool.domain.JoinStrategy;
-import com.core.sqlTool.model.domain.Column;
-import com.core.sqlTool.model.domain.ExternalHeaderRow;
-import com.core.sqlTool.model.domain.LazyTable;
-import com.core.sqlTool.model.expression.*;
-import com.client.sqlTool.query.Query;
-import com.core.sqlTool.model.expression.Number;
-import org.apache.commons.lang3.function.TriFunction;
-import org.apache.commons.lang3.tuple.Pair;
-import org.junit.Assert;
-import org.junit.Test;
-
-import java.util.List;
-import java.util.Map;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.IntStream;
-
 import static org.junit.Assert.assertEquals;
 
 public class CommandTest extends TestBase {
 
 //    @Test
 //    public void limitTest() {
-//        Supplier<Query> table = () -> Query.from("actions");
+//        Supplier<Query> tableName = () -> Query.from("actions");
 //
-//        expectRowsCount(table.get().limit(1052), 1052);
-//        expectRowsCount(table.get().limit(50), 50);
-//        expectRowsCount(table.get().limit(4000), 1052);
-//        expectRowsCount(table.get().limit(50).limit(300).limit(20), 20);
+//        expectRowsCount(tableName.get().limit(1052), 1052);
+//        expectRowsCount(tableName.get().limit(50), 50);
+//        expectRowsCount(tableName.get().limit(4000), 1052);
+//        expectRowsCount(tableName.get().limit(50).limit(300).limit(20), 20);
 //    }
 //
 //    @Test
 //    public void offsetTest() {
-//        Supplier<Query> table = () -> Query.from("actions");
+//        Supplier<Query> tableName = () -> Query.from("actions");
 //
-//        expectRowsCount(table.get().offset(0), 1052);
-//        expectRowsCount(table.get().offset(1052), 0);
-//        expectRowsCount(table.get().offset(4000), 0);
-//        expectRowsCount(table.get().offset(50), 1002);
-//        expectRowsCount(table.get().offset(500).offset(300).offset(20), 232);
+//        expectRowsCount(tableName.get().offset(0), 1052);
+//        expectRowsCount(tableName.get().offset(1052), 0);
+//        expectRowsCount(tableName.get().offset(4000), 0);
+//        expectRowsCount(tableName.get().offset(50), 1002);
+//        expectRowsCount(tableName.get().offset(500).offset(300).offset(20), 232);
 //    }
 //
 //    @Test
@@ -56,7 +33,7 @@ public class CommandTest extends TestBase {
 //                .innerJoin(Query.from("activities"), new BooleanValue(true), JoinStrategy.LOOP)
 //                .innerJoin(Query.from("auth_sources"), new BooleanValue(true), JoinStrategy.LOOP)
 //        ).lazyTable().columns().size(), 24);
-//        assertEquals(resolver.resolve(Query.from("actions").select(Q.column("actions", "id"))).lazyTable().columns().size(), 1);
+//        assertEquals(resolver.resolve(Query.from("actions").select(Q.columnName("actions", "id"))).lazyTable().columns().size(), 1);
 //    }
 //
 //    @Test
@@ -66,15 +43,15 @@ public class CommandTest extends TestBase {
 //                .innerJoin(Query.from(table2), expression, JoinStrategy.LOOP);
 //
 //        expectRowsCount(
-//                join.apply("courses", "course_users", Q.op(EQ, Q.column("courses", "id"), Q.column("course_users", "course_id"))),
+//                join.apply("courses", "course_users", Q.op(EQ, Q.columnName("courses", "id"), Q.columnName("course_users", "course_id"))),
 //                45
 //        );
 //        expectRowsCount(
-//                join.apply("math_elements", "final_answers", Q.op(EQ, Q.column("math_elements", "id"), Q.column("final_answers", "element_id"))),
+//                join.apply("math_elements", "final_answers", Q.op(EQ, Q.columnName("math_elements", "id"), Q.columnName("final_answers", "element_id"))),
 //                160
 //        );
 //        expectRowsCount(
-//                join.apply("content", "content_descriptor", Q.op(EQ, Q.column("content", "id"), Q.column("content_descriptor", "actual_content_id"))),
+//                join.apply("content", "content_descriptor", Q.op(EQ, Q.columnName("content", "id"), Q.columnName("content_descriptor", "actual_content_id"))),
 //                323
 //        );
 //    }
@@ -85,15 +62,15 @@ public class CommandTest extends TestBase {
 //                .from(table1)
 //                .leftJoin(Query.from(table2), expression, JoinStrategy.LOOP);
 //        expectRowsCount(
-//                join.apply("courses", "course_users", Q.op(EQ, Q.column("courses", "id"), Q.column("course_users", "course_id"))),
+//                join.apply("courses", "course_users", Q.op(EQ, Q.columnName("courses", "id"), Q.columnName("course_users", "course_id"))),
 //                46
 //        );
 //        expectRowsCount(
-//                join.apply("math_elements", "final_answers", Q.op(EQ, Q.column("math_elements", "id"), Q.column("final_answers", "element_id"))),
+//                join.apply("math_elements", "final_answers", Q.op(EQ, Q.columnName("math_elements", "id"), Q.columnName("final_answers", "element_id"))),
 //                1529
 //        );
 //        expectRowsCount(
-//                join.apply("content", "content_descriptor", Q.op(EQ, Q.column("content", "id"), Q.column("content_descriptor", "actual_content_id"))),
+//                join.apply("content", "content_descriptor", Q.op(EQ, Q.columnName("content", "id"), Q.columnName("content_descriptor", "actual_content_id"))),
 //                331
 //        );
 //    }
@@ -104,15 +81,15 @@ public class CommandTest extends TestBase {
 //                .from(table1)
 //                .rightJoin(Query.from(table2), expression, JoinStrategy.LOOP);
 //        expectRowsCount(
-//                join.apply("courses", "course_users", Q.op(EQ, Q.column("courses", "id"), Q.column("course_users", "course_id"))),
+//                join.apply("courses", "course_users", Q.op(EQ, Q.columnName("courses", "id"), Q.columnName("course_users", "course_id"))),
 //                45
 //        );
 //        expectRowsCount(
-//                join.apply("math_elements", "final_answers", Q.op(EQ, Q.column("math_elements", "id"), Q.column("final_answers", "element_id"))),
+//                join.apply("math_elements", "final_answers", Q.op(EQ, Q.columnName("math_elements", "id"), Q.columnName("final_answers", "element_id"))),
 //                434
 //        );
 //        expectRowsCount(
-//                join.apply("content", "content_descriptor", Q.op(EQ, Q.column("content", "id"), Q.column("content_descriptor", "actual_content_id"))),
+//                join.apply("content", "content_descriptor", Q.op(EQ, Q.columnName("content", "id"), Q.columnName("content_descriptor", "actual_content_id"))),
 //                331
 //        );
 //    }
@@ -123,15 +100,15 @@ public class CommandTest extends TestBase {
 //                .from(table1)
 //                .fullJoin(Query.from(table2), expression, JoinStrategy.LOOP);
 //        expectRowsCount(
-//                join.apply("courses", "course_users", Q.op(EQ, Q.column("courses", "id"), Q.column("course_users", "course_id"))),
+//                join.apply("courses", "course_users", Q.op(EQ, Q.columnName("courses", "id"), Q.columnName("course_users", "course_id"))),
 //                46
 //        );
 //        expectRowsCount(
-//                join.apply("math_elements", "final_answers", Q.op(EQ, Q.column("math_elements", "id"), Q.column("final_answers", "element_id"))),
+//                join.apply("math_elements", "final_answers", Q.op(EQ, Q.columnName("math_elements", "id"), Q.columnName("final_answers", "element_id"))),
 //                1803
 //        );
 //        expectRowsCount(
-//                join.apply("content", "content_descriptor", Q.op(EQ, Q.column("content", "id"), Q.column("content_descriptor", "actual_content_id"))),
+//                join.apply("content", "content_descriptor", Q.op(EQ, Q.columnName("content", "id"), Q.columnName("content_descriptor", "actual_content_id"))),
 //                339
 //        );
 //    }
@@ -162,7 +139,7 @@ public class CommandTest extends TestBase {
 //        expectError(() -> resolver.resolve(hashJoin.apply(new BinaryOperation(NOT_EQ, new Number(3), new Number(9)))), UnexpectedException.class);
 //
 //        expectRowsCount(
-//                hashJoin.apply(Q.op(EQ, Q.column("content", "id"), Q.column("content_descriptor", "actual_content_id"))),
+//                hashJoin.apply(Q.op(EQ, Q.columnName("content", "id"), Q.columnName("content_descriptor", "actual_content_id"))),
 //                339
 //        );
 //
@@ -172,14 +149,14 @@ public class CommandTest extends TestBase {
 //                                MINUS,
 //                                Q.op(
 //                                        PLUS,
-//                                        Q.op(MULTIPLY, new LongNumber(2L), Q.column("content", "id")),
-//                                        Q.column("content", "id")
+//                                        Q.op(MULTIPLY, new LongNumber(2L), Q.columnName("content", "id")),
+//                                        Q.columnName("content", "id")
 //                                ),
-//                                Q.column("content", "id")
+//                                Q.columnName("content", "id")
 //                        ),
 //                        Q.op(
 //                                DIVISION,
-//                                Q.column("content_descriptor", "actual_content_id"),
+//                                Q.columnName("content_descriptor", "actual_content_id"),
 //                                new LongNumber(1L)
 //                        ))
 //                ),
@@ -189,26 +166,26 @@ public class CommandTest extends TestBase {
 //
 //    @Test
 //    public void indicesPresentsInProjection() {
-//        var table = resolver.resolve(Query.from("courses")
+//        var tableName = resolver.resolve(Query.from("courses")
 //        );
-////        Assert.assertEquals(4, table.indices().size());
-////        table.indices().forEach(index -> Assert.assertEquals(BalancedTreeIndex.class, index.getClass()));
+////        Assert.assertEquals(4, tableName.indices().size());
+////        tableName.indices().forEach(index -> Assert.assertEquals(BalancedTreeIndex.class, index.getClass()));
 //    }
 //
 //    @Test
 //    public void aliasTest() {
-//        BiConsumer<LazyTable, List<String>> check = (table, columnNames) -> IntStream.range(0, columnNames.size())
-//                .forEach(index -> Assert.assertEquals(columnNames.get(index), table.columns().get(index).toString()));
+//        BiConsumer<LazyTable, List<String>> check = (tableName, columnNames) -> IntStream.range(0, columnNames.size())
+//                .forEach(index -> Assert.assertEquals(columnNames.get(index), tableName.columns().get(index).toString()));
 //
 //        var table1 = resolver.resolve(Query.from("wikis").as("w")).lazyTable();
 //        check.accept(table1, List.of("w.id", "w.text"));
 //
 //        var table2 = resolver.resolve(Query.from("wikis").innerJoin(Query.from("tag"), new BooleanValue(true), JoinStrategy.LOOP)).lazyTable();
 //        check.accept(table2, List.of("wikis_tag.wikis.id", "wikis_tag.text", "wikis_tag.tag.id", "wikis_tag.label",
-//                "wikis_tag.discriminator", "wikis_tag.math_id", "wikis_tag.relevancy", "wikis_tag.type"));
+//                "wikis_tag.discriminator", "wikis_tag.math_id", "wikis_tag.relevancy", "wikis_tag.columnType"));
 //
 //        var table3 = resolver.resolve(Query.from("wikis").innerJoin(Query.from("tag"), new BooleanValue(true), JoinStrategy.LOOP).as("w")).lazyTable();
-//        check.accept(table3, List.of("w.wikis.id", "w.text", "w.tag.id", "w.label", "w.discriminator", "w.math_id", "w.relevancy", "w.type"));
+//        check.accept(table3, List.of("w.wikis.id", "w.text", "w.tag.id", "w.label", "w.discriminator", "w.math_id", "w.relevancy", "w.columnType"));
 //
 //        expectError(
 //                () -> resolver.resolve(Query.from("wikis").innerJoin(Query.from("wikis"), new BooleanValue(true), JoinStrategy.LOOP)),
@@ -224,20 +201,20 @@ public class CommandTest extends TestBase {
 //
 //    @Test
 //    public void distinctValues() {
-//        Function<List<Column>, Query> table = columns -> Query.from("courses").select(columns.toArray(Column[]::new)).distinct();
+//        Function<List<Column>, Query> tableName = columns -> Query.from("courses").select(columns.toArray(Column[]::new)).distinct();
 //
-//        expectRowsCount(table.apply(List.of(Q.column("courses", "version"))), 6);
-//        expectRowsCount(table.apply(List.of(Q.column("courses", "lti_context_id"))), 3);
-//        expectRowsCount(table.apply(List.of(Q.column("courses", "version"), Q.column("courses", "university_id"))), 8);
-//        expectRowsCount(table.apply(List.of(Q.column("courses", "lti_context_id"), Q.column("courses", "name"))), 10);
+//        expectRowsCount(tableName.apply(List.of(Q.columnName("courses", "version"))), 6);
+//        expectRowsCount(tableName.apply(List.of(Q.columnName("courses", "lti_context_id"))), 3);
+//        expectRowsCount(tableName.apply(List.of(Q.columnName("courses", "version"), Q.columnName("courses", "university_id"))), 8);
+//        expectRowsCount(tableName.apply(List.of(Q.columnName("courses", "lti_context_id"), Q.columnName("courses", "columnName"))), 10);
 //    }
 //
 //    @Test
 //    public void groupBy() {
 //        var query = Query
 //                .from("courses")
-//                .select(Q.column("courses", "lti_context_id"), Q.column("courses", "id"))
-//                .groupBy(Map.of(Q.column("courses", "lti_context_id"), new Identity(), Q.column("courses", "id"), new Identity()));
+//                .select(Q.columnName("courses", "lti_context_id"), Q.columnName("courses", "id"))
+//                .groupBy(Map.of(Q.columnName("courses", "lti_context_id"), new Identity(), Q.columnName("courses", "id"), new Identity()));
 //
 //        expectRowsCount(query, 14);
 //    }
@@ -246,8 +223,8 @@ public class CommandTest extends TestBase {
 //    public void ExternalRowTest() {
 //
 //        var predicate = Q.op(AND,
-//                Q.op(EQ, Q.op(MINUS, Q.column("c", "id"), new LongNumber(2L)), Q.column("c1", "id")),
-//                Q.op(EQ, Q.column("c1", "id"), Q.op(MINUS, Q.column("c2", "id"), new LongNumber(4L)))
+//                Q.op(EQ, Q.op(MINUS, Q.columnName("c", "id"), new LongNumber(2L)), Q.columnName("c1", "id")),
+//                Q.op(EQ, Q.columnName("c1", "id"), Q.op(MINUS, Q.columnName("c2", "id"), new LongNumber(4L)))
 //        );
 //
 //        var query = Query
@@ -266,8 +243,8 @@ public class CommandTest extends TestBase {
 //                                )
 //                                .build()))
 //                )
-//                .orderBy(List.of(Pair.of(Q.column("c", "id"), false)))
-//                .select(Q.column("c", "id"));
+//                .orderBy(List.of(Pair.of(Q.columnName("c", "id"), false)))
+//                .select(Q.columnName("c", "id"));
 //
 //        var resolverResult = resolver.resolve(query);
 //        var ids = retrieveIds(resolverResult.lazyTable().dataStream().toList());

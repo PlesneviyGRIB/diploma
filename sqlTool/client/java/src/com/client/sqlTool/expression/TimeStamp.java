@@ -1,7 +1,10 @@
 package com.client.sqlTool.expression;
 
+import lombok.Getter;
+
 import java.sql.Timestamp;
 
+@Getter
 public class TimeStamp implements Expression {
 
     private final Timestamp timestamp;

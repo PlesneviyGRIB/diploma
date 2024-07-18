@@ -1,7 +1,7 @@
 package com.core.sqlTool.model.visitor;
 
 import com.core.sqlTool.model.domain.Column;
-import com.core.sqlTool.model.expression.Number;
+import com.core.sqlTool.model.expression.NumberValue;
 import com.core.sqlTool.model.expression.*;
 
 public class ExpressionTraversal implements Expression.Visitor<Void> {
@@ -59,12 +59,12 @@ public class ExpressionTraversal implements Expression.Visitor<Void> {
     }
 
     @Override
-    public Void visit(Number value) {
+    public Void visit(NumberValue value) {
         return null;
     }
 
     @Override
-    public Void visit(FloatNumber value) {
+    public Void visit(FloatNumberValue value) {
         return null;
     }
 

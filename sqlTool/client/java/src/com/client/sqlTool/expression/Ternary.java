@@ -1,5 +1,8 @@
 package com.client.sqlTool.expression;
 
+import lombok.Getter;
+
+@Getter
 public class Ternary implements Expression {
 
     private final Operator operator;

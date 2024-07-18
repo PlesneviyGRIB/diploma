@@ -4,7 +4,7 @@ import com.core.sqlTool.exception.UnexpectedException;
 import com.core.sqlTool.model.domain.Column;
 import com.core.sqlTool.model.domain.ExternalHeaderRow;
 import com.core.sqlTool.model.domain.HeaderRow;
-import com.core.sqlTool.model.expression.Number;
+import com.core.sqlTool.model.expression.NumberValue;
 import com.core.sqlTool.model.expression.*;
 
 public class ValueInjector implements Expression.Visitor<Expression> {
@@ -76,12 +76,12 @@ public class ValueInjector implements Expression.Visitor<Expression> {
     }
 
     @Override
-    public Expression visit(Number value) {
+    public Expression visit(NumberValue value) {
         return value;
     }
 
     @Override
-    public Expression visit(FloatNumber value) {
+    public Expression visit(FloatNumberValue value) {
         return value;
     }
 

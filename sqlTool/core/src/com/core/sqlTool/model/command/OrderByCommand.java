@@ -1,14 +1,16 @@
 package com.core.sqlTool.model.command;
 
+import com.core.sqlTool.exception.ValidationException;
 import com.core.sqlTool.model.command.domain.SimpleCalculedCommand;
 import com.core.sqlTool.model.complexity.CalculatorEntry;
+import com.core.sqlTool.model.domain.Column;
 import com.core.sqlTool.model.domain.LazyTable;
+import com.core.sqlTool.model.domain.Projection;
 import com.core.sqlTool.model.domain.Row;
 import com.core.sqlTool.model.expression.StringValue;
 import com.core.sqlTool.model.expression.Value;
-import com.core.sqlTool.exception.ValidationException;
-import com.core.sqlTool.model.domain.Projection;
 import com.core.sqlTool.utils.ModelUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Comparator;
 import java.util.List;
@@ -17,13 +19,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class OrderByCommand implements SimpleCalculedCommand {
-
-    private final List<OrderCommand> orders;
-
-    public OrderByCommand(List<OrderCommand> orders) {
-        this.orders = orders;
-    }
+public record OrderByCommand(List<Pair<Column, Boolean>> orders) implements SimpleCalculedCommand {
 
     @Override
     public LazyTable run(LazyTable lazyTable, Projection projection, CalculatorEntry calculatorEntry) {
@@ -34,7 +30,7 @@ public class OrderByCommand implements SimpleCalculedCommand {
                 .filter(entry -> entry.getValue() > 1)
                 .map(Map.Entry::getKey)
                 .findAny().ifPresent(column -> {
-                    throw new ValidationException("ORDER_BY command can not contains the same column (%s) several times!", column);
+                    throw new ValidationException("ORDER_BY command can not contains the same columnName (%s) several times!", column);
                 });
 
         var indexes = orders.stream()
@@ -47,7 +43,7 @@ public class OrderByCommand implements SimpleCalculedCommand {
                 var elem1 = row1.values().get(idx);
                 var elem2 = row2.values().get(idx);
 
-                var res = ModelUtils.compareValues(elem1, elem2, lazyTable.columns().get(idx).type());
+                var res = ModelUtils.compareValues(elem1, elem2, lazyTable.columns().get(idx).columnType());
 
                 IntStream.range(0, getComparisonComplexity(elem1, elem2)).forEach(calculatorEntry::count);
 

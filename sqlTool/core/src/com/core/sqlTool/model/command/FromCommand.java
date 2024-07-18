@@ -6,13 +6,7 @@ import com.core.sqlTool.model.domain.Projection;
 
 import java.util.Objects;
 
-public class FromCommand implements SimpleCommand {
-
-    private final String tableName;
-
-    public FromCommand(String tableName) {
-        this.tableName = tableName;
-    }
+public record FromCommand(String tableName) implements SimpleCommand {
 
     @Override
     public LazyTable run(LazyTable lazyTable, Projection projection) {

@@ -70,7 +70,7 @@ public abstract class JoinCommand extends ComplexCalculedCommand {
 
     private void validate(LazyTable table, LazyTable joinedTable) {
         if (table.name().equals(joinedTable.name())) {
-            throw new ValidationException("There are two tables with the same name '%s' in context. Use alias to resolve the conflict.", table.name());
+            throw new ValidationException("There are two tables with the same columnName '%s' in context. Use alias to resolve the conflict.", table.name());
         }
     }
 

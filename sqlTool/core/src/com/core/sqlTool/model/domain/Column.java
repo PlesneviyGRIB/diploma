@@ -5,23 +5,24 @@ import com.core.sqlTool.model.expression.Value;
 
 import java.util.Objects;
 
-public record Column(String name, String table, Class<? extends Value<?>> type) implements Expression {
+public record Column(String tableName, String columnName, Class<? extends Value<?>> columnType) implements Expression {
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Column column = (Column) o;
-        return Objects.equals(name, column.name) && Objects.equals(table, column.table);
+        return Objects.equals(column, column.columnName) && Objects.equals(tableName, column.tableName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, table);
+        return Objects.hash(columnName, tableName);
     }
 
     @Override
     public String toString() {
-        return table + "." + name;
+        return tableName + "." + columnName;
     }
 
     @Override

@@ -12,5 +12,6 @@
     <orderEntry type="library" name="commons" level="project" />
     <orderEntry type="library" name="jars" level="project" />
     <orderEntry type="library" name="junit" level="project" />
+    <orderEntry type="library" name="lombok-1.18.34" level="project" />
   </component>
 </module>

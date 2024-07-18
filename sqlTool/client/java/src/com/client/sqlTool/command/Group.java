@@ -2,7 +2,9 @@ package com.client.sqlTool.command;
 
 import com.client.sqlTool.domain.Aggregation;
 import com.client.sqlTool.domain.Column;
+import lombok.Getter;
 
+@Getter
 public class Group {
 
     private final Column column;

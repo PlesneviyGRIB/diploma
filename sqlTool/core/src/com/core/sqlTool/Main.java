@@ -14,15 +14,15 @@ public class Main {
 
 
 //        var query = Query.from("courses").as("c")
-//                .select(Q.column("c", "id"))
+//                .select(Q.columnName("c", "id"))
 //                .limit(1)
 //                ;
 //
 //
 //        var cacheContext = new CacheContext(CacheStrategy.NONE);
 //        var resolverResult = new Resolver(projection, cacheContext).resolve(query);
-//        var table = resolverResult.lazyTable().fetch();
-//        var tableStr = new TablePrinter(table).stringify();
+//        var tableName = resolverResult.lazyTable().fetch();
+//        var tableStr = new TablePrinter(tableName).stringify();
 //        var calculatorStr = new CalculatorPrinter(resolverResult.calculator()).stringify();
 //
 //        System.out.println(tableStr);

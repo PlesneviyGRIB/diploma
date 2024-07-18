@@ -1,18 +1,13 @@
 package com.core.sqlTool.model.command;
 
+import com.core.sqlTool.exception.ValidationException;
 import com.core.sqlTool.model.command.domain.SimpleCommand;
 import com.core.sqlTool.model.domain.LazyTable;
-import com.core.sqlTool.exception.ValidationException;
 import com.core.sqlTool.model.domain.Projection;
 
 import java.util.Objects;
 
-public class OffsetCommand implements SimpleCommand {
-    private final Integer offset;
-
-    public OffsetCommand(Integer offset) {
-        this.offset = offset;
-    }
+public record OffsetCommand(Integer offset) implements SimpleCommand {
 
     @Override
     public LazyTable run(LazyTable lazyTable, Projection projection) {

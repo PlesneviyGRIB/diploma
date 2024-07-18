@@ -26,9 +26,9 @@ public interface Expression {
 
         T visit(BooleanValue value);
 
-        T visit(Number value);
+        T visit(NumberValue value);
 
-        T visit(FloatNumber value);
+        T visit(FloatNumberValue value);
 
         T visit(TimestampValue value);
     }

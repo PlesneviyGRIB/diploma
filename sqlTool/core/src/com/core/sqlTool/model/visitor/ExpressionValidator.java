@@ -6,7 +6,7 @@ import com.core.sqlTool.exception.IncorrectOperatorUsageException;
 import com.core.sqlTool.exception.UnsupportedTypeException;
 import com.core.sqlTool.model.domain.Column;
 import com.core.sqlTool.model.domain.ExternalHeaderRow;
-import com.core.sqlTool.model.expression.Number;
+import com.core.sqlTool.model.expression.NumberValue;
 import com.core.sqlTool.model.expression.*;
 import com.core.sqlTool.utils.ModelUtils;
 import com.core.sqlTool.utils.OperatorUtils;
@@ -38,12 +38,12 @@ public class ExpressionValidator implements Expression.Visitor<Class<? extends V
 
     @Override
     public Class<? extends Value<?>> visit(SubTable table) {
-        throw new UnsupportedTypeException("Can not process type of '%s' in such context", table.stringify());
+        throw new UnsupportedTypeException("Can not process columnType of '%s' in such context", table.stringify());
     }
 
     @Override
     public Class<? extends Value<?>> visit(Column column) {
-        return ModelUtils.resolveColumn(columns, column).type();
+        return ModelUtils.resolveColumn(columns, column).columnType();
     }
 
     @Override
@@ -121,13 +121,13 @@ public class ExpressionValidator implements Expression.Visitor<Class<? extends V
     }
 
     @Override
-    public Class<? extends Value<?>> visit(Number operation) {
-        return Number.class;
+    public Class<? extends Value<?>> visit(NumberValue operation) {
+        return NumberValue.class;
     }
 
     @Override
-    public Class<? extends Value<?>> visit(FloatNumber value) {
-        return FloatNumber.class;
+    public Class<? extends Value<?>> visit(FloatNumberValue value) {
+        return FloatNumberValue.class;
     }
 
     @Override

@@ -8,7 +8,7 @@ import com.core.sqlTool.exception.ValidationException;
 import com.core.sqlTool.model.domain.Column;
 import com.core.sqlTool.model.domain.LazyTable;
 import com.core.sqlTool.model.domain.Row;
-import com.core.sqlTool.model.expression.Number;
+import com.core.sqlTool.model.expression.NumberValue;
 import com.core.sqlTool.model.expression.*;
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -39,9 +39,9 @@ public class ModelUtils {
                 .map(column -> {
                     var identifier = columnIdentifier.apply(column);
                     if (identityMap.get(identifier) != 1) {
-                        identifier = format("%s.%s", column.table(), identifier);
+                        identifier = format("%s.%s", column.tableName(), identifier);
                     }
-                    return new Column(identifier, tableName, column.type());
+                    return new Column(identifier, tableName, column.columnType());
                 }).toList();
 
         return new LazyTable(tableName, targetColumns, lazyTable.dataStream(), lazyTable.externalRow());
@@ -58,7 +58,7 @@ public class ModelUtils {
         var columns = lazyTable.columns();
         var size = columns.size();
         var data = new ArrayList<Value<?>>(size);
-        IntStream.range(0, size).forEach(index -> data.add(index, getDefaultValueByType(columns.get(index).type())));
+        IntStream.range(0, size).forEach(index -> data.add(index, getDefaultValueByType(columns.get(index).columnType())));
         return new Row(data);
     }
 
@@ -73,11 +73,11 @@ public class ModelUtils {
             if (targetClass.equals(BooleanValue.class)) {
                 return new BooleanValue(Boolean.parseBoolean(object));
             }
-            if (targetClass.equals(Number.class)) {
-                return new Number((int) Long.parseLong(object));
+            if (targetClass.equals(NumberValue.class)) {
+                return new NumberValue((int) Long.parseLong(object));
             }
-            if (targetClass.equals(FloatNumber.class)) {
-                return new FloatNumber(Float.parseFloat(object));
+            if (targetClass.equals(FloatNumberValue.class)) {
+                return new FloatNumberValue(Float.parseFloat(object));
             }
             if (targetClass.equals(TimestampValue.class)) {
                 try {
@@ -87,7 +87,7 @@ public class ModelUtils {
                 }
             }
         } catch (Exception e) {
-            System.err.printf("Unable to parse '%s' of type '%s'\n", object, targetClass.getTypeName());
+            System.err.printf("Unable to parse '%s' of columnType '%s'\n", object, targetClass.getTypeName());
         }
         return null;
     }
@@ -98,25 +98,25 @@ public class ModelUtils {
         } else if (clazz.equals(Boolean.class)) {
             return BooleanValue.class;
         } else if (clazz.equals(Integer.class)) {
-            return Number.class;
+            return NumberValue.class;
         } else if (clazz.equals(Long.class)) {
-            return Number.class;
+            return NumberValue.class;
         } else if (clazz.equals(BigDecimal.class)) {
-            return FloatNumber.class;
+            return FloatNumberValue.class;
         } else if (clazz.equals(Float.class)) {
-            return FloatNumber.class;
+            return FloatNumberValue.class;
         } else if (clazz.equals(Double.class)) {
-            return FloatNumber.class;
+            return FloatNumberValue.class;
         } else if (clazz.equals(Timestamp.class)) {
             return TimestampValue.class;
         }
-        throw new UnsupportedTypeException("Unable to process value of type '%s'", clazz.getSimpleName());
+        throw new UnsupportedTypeException("Unable to process value of columnType '%s'", clazz.getSimpleName());
     }
 
     public static int resolveColumnIndex(List<Column> columns, Column column) {
         return IntStream.range(0, columns.size()).filter(i -> {
             var c = columns.get(i);
-            return c.name().equals(column.name()) && c.table().equals(column.table());
+            return c.columnName().equals(column.columnName()) && c.tableName().equals(column.tableName());
         }).findFirst().orElseThrow(() -> new ColumnNotFoundException(column, columns));
     }
 
@@ -152,16 +152,16 @@ public class ModelUtils {
         if (clazz.equals(BooleanValue.class)) {
             return List.of(Operator.AND, Operator.OR, Operator.EXISTS, Operator.IN, Operator.IS_NULL, Operator.EQ, Operator.NOT_EQ, Operator.NOT).contains(operator);
         }
-        if (clazz.equals(Number.class)) {
+        if (clazz.equals(NumberValue.class)) {
             return check.apply(List.of(Operator.BETWEEN, Operator.PLUS, Operator.MINUS, Operator.MULTIPLY, Operator.DIVISION, Operator.MOD));
         }
-        if (clazz.equals(FloatNumber.class)) {
+        if (clazz.equals(FloatNumberValue.class)) {
             return check.apply(List.of(Operator.BETWEEN, Operator.PLUS, Operator.MINUS, Operator.MULTIPLY, Operator.DIVISION));
         }
         if (clazz.equals(TimestampValue.class)) {
             return check.apply(List.of(Operator.BETWEEN, Operator.PLUS, Operator.MINUS));
         }
-        throw new ValidationException("Unexpected type '%s'", clazz.getTypeName());
+        throw new ValidationException("Unexpected columnType '%s'", clazz.getTypeName());
     }
 
     public static boolean theSameClasses(Class... classes) {
@@ -175,7 +175,7 @@ public class ModelUtils {
                 .findAny()
                 .ifPresent(c -> {
                     throw new UnexpectedException(
-                            "Ambiguity found: Column name for sub table and parent table is the same '%s'. Try to rename sub or parent table",
+                            "Ambiguity found: Column columnName for sub tableName and parent tableName is the same '%s'. Try to rename sub or parent tableName",
                             c.stringify());
                 });
     }
@@ -192,14 +192,14 @@ public class ModelUtils {
             return new StringValue("");
         } else if (valueClass.equals(BooleanValue.class)) {
             return new BooleanValue(false);
-        } else if (valueClass.equals(Number.class)) {
-            return new Number(0);
-        } else if (valueClass.equals(FloatNumber.class)) {
-            return new FloatNumber(0F);
+        } else if (valueClass.equals(NumberValue.class)) {
+            return new NumberValue(0);
+        } else if (valueClass.equals(FloatNumberValue.class)) {
+            return new FloatNumberValue(0F);
         } else if (valueClass.equals(TimestampValue.class)) {
             return new TimestampValue(new Timestamp(0));
         }
-        throw new UnsupportedTypeException("Unable to process value of type '%s'", valueClass.getSimpleName());
+        throw new UnsupportedTypeException("Unable to process value of columnType '%s'", valueClass.getSimpleName());
     }
 
 }

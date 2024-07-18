@@ -7,7 +7,7 @@ import com.core.sqlTool.model.domain.Column;
 import com.core.sqlTool.model.domain.ExternalHeaderRow;
 import com.core.sqlTool.model.domain.HeaderRow;
 import com.core.sqlTool.model.domain.LazyTable;
-import com.core.sqlTool.model.expression.Number;
+import com.core.sqlTool.model.expression.NumberValue;
 import com.core.sqlTool.model.expression.*;
 import com.core.sqlTool.model.resolver.Resolver;
 import com.core.sqlTool.utils.ModelUtils;
@@ -146,12 +146,12 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
     }
 
     @Override
-    public Value<Number> visit(Number value) {
+    public Value<NumberValue> visit(NumberValue value) {
         return value;
     }
 
     @Override
-    public Value<FloatNumber> visit(FloatNumber value) {
+    public Value<FloatNumberValue> visit(FloatNumberValue value) {
         return value;
     }
 
@@ -195,14 +195,14 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
         var columnsCount = lazyTable.columns().size();
 
         if (columnsCount != 1) {
-            throw new UnexpectedException("Expected exactly one column in table '%s'", lazyTable.name());
+            throw new UnexpectedException("Expected exactly one columnName in tableName '%s'", lazyTable.name());
         }
 
         var columnData = lazyTable.dataStream()
                 .map(row -> (Value<?>) row.values().get(0))
                 .toList();
 
-        var type = lazyTable.columns().get(0).type();
+        var type = lazyTable.columns().get(0).columnType();
 
         return processInListOperation(value, new ExpressionList(columnData, type));
     }

@@ -9,6 +9,6 @@ import static java.lang.String.format;
 
 public class TableNotFoundException extends RuntimeException {
     public TableNotFoundException(String name, Projection projection) {
-        super(format("Unable to find table '%s' in context. There is(are) only [%s]", name, projection.tables().stream().map(Table::name).collect(Collectors.joining(", "))));
+        super(format("Unable to find tableName '%s' in context. There is(are) only [%s]", name, projection.tables().stream().map(Table::name).collect(Collectors.joining(", "))));
     }
 }
