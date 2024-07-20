@@ -24,8 +24,8 @@ public class Query {
         return new Query(new From(table));
     }
 
-    public Query select(Expression selectable, Expression... selectables) {
-        commands.add(new Select(union(selectable, selectables)));
+    public Query select(Expression expression, Expression... expressions) {
+        commands.add(new Select(union(expression, expressions)));
         return this;
     }
 

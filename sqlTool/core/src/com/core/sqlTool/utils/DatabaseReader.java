@@ -6,9 +6,9 @@ import com.core.sqlTool.model.domain.Projection;
 import com.core.sqlTool.model.domain.Row;
 import com.core.sqlTool.model.domain.Table;
 import com.core.sqlTool.model.expression.Value;
-import com.core.sqlTool.model.index.TreeIndex;
 import com.core.sqlTool.model.index.HashIndex;
 import com.core.sqlTool.model.index.Index;
+import com.core.sqlTool.model.index.TreeIndex;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -53,7 +53,7 @@ public class DatabaseReader {
             var columnsCount = metaData.getColumnCount();
 
             var columns = readColumns(tableName, metaData);
-            var indices = readIndices(tableName, columns);
+            //var indices = readIndices(tableName, columns);
             var data = new LinkedList<Row>();
 
             while (resultSet.next()) {
@@ -80,7 +80,7 @@ public class DatabaseReader {
             var columnName = metaData.getColumnName(i);
             try {
                 var columnClassType = ModelUtils.getWrapper(Class.forName(metaData.getColumnClassName(i)));
-                var column = new Column(columnName, tableName, columnClassType);
+                var column = new Column(tableName, columnName, columnClassType);
                 columns.add(column);
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException("Fatal while reading database");

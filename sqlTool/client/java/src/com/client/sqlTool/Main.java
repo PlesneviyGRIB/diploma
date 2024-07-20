@@ -1,28 +1,33 @@
 package com.client.sqlTool;
 
-import com.client.sqlTool.command.Group;
-import com.client.sqlTool.command.Order;
-import com.client.sqlTool.domain.Aggregation;
 import com.client.sqlTool.domain.Column;
-import com.client.sqlTool.expression.Binary;
-import com.client.sqlTool.expression.Bool;
-import com.client.sqlTool.expression.Number;
 import com.client.sqlTool.query.Query;
+import com.core.sqlTool.utils.QueryExecutor;
+import com.core.sqlTool.utils.printer.TablePrinter;
 
-import static com.client.sqlTool.expression.Operator.AND;
-import static com.client.sqlTool.expression.Operator.EQ;
+import java.sql.SQLException;
 
 public class Main {
-    public static void main(String[] args) {
-        Query.from("asd").as("ads")
-                .where(Binary.of(AND, Binary.of(EQ, Column.of("", ""), Number.of(10)), Bool.FALSE))
-                .groupBy(
-                        Group.of(Column.of("sdf", "asd"), Aggregation.MIN),
-                        Group.of(Column.of("sdf", "asd"), Aggregation.MIN)
-                )
-                .orderBy(
-                        Order.of(Column.of("", "Asd")),
-                        Order.of(Column.of("", "Asd")).desc()).select(Column.of("", "sad")
-                );
+
+    public static void main(String[] args) throws SQLException {
+
+
+        var query = Query.from("courses")
+                .select(Column.of("courses", "id"))
+                .limit(20);
+
+        executeAndPrint(query);
     }
+
+    private static void executeAndPrint(Query query) throws SQLException {
+        var result = new QueryExecutor(query).execute();
+
+        var tableStr = new TablePrinter(result.getLeft()).stringify();
+        //var calculatorStr = new CalculatorPrinter(result.getRight()).stringify();
+
+        System.out.println(tableStr);
+        System.out.println();
+        //System.out.println(calculatorStr);
+    }
+
 }

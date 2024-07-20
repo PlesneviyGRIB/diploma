@@ -2,21 +2,20 @@ package com.core.sqlTool.model.command;
 
 import com.core.sqlTool.model.command.domain.ComplexCalculedCommand;
 import com.core.sqlTool.model.complexity.CalculatorEntry;
-import com.core.sqlTool.model.domain.Column;
-import com.core.sqlTool.model.domain.HeaderRow;
-import com.core.sqlTool.model.domain.LazyTable;
-import com.core.sqlTool.model.domain.Projection;
-import com.core.sqlTool.model.expression.BooleanValue;
+import com.core.sqlTool.model.domain.*;
 import com.core.sqlTool.model.expression.Expression;
 import com.core.sqlTool.model.resolver.Resolver;
 import com.core.sqlTool.model.visitor.ContextSensitiveExpressionQualifier;
 import com.core.sqlTool.model.visitor.ExpressionCalculator;
 import com.core.sqlTool.model.visitor.ExpressionValidator;
 import com.core.sqlTool.model.visitor.ValueInjector;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 
 public record SelectCommand(List<Expression> expressions) implements ComplexCalculedCommand {
@@ -27,36 +26,45 @@ public record SelectCommand(List<Expression> expressions) implements ComplexCalc
         var expressionValidator = new ExpressionValidator(lazyTable.columns(), lazyTable.externalRow());
         var columns = getColumns(lazyTable.name(), expressions, expressionValidator);
 
-        var calculatedValueOptionals = expressions.stream()
+        var calculatedValueByExpressionMap = expressions.stream()
                 .map(expression -> {
 
                     var isContextSensitiveExpression = expression.accept(new ContextSensitiveExpressionQualifier(lazyTable.columns()));
 
                     if (isContextSensitiveExpression) {
-                        return Optional.empty();
+                        return null;
                     }
 
-                    return expression
+                    var value = expression
                             .accept(new ValueInjector(HeaderRow.empty(), lazyTable.externalRow()))
                             .accept(new ExpressionCalculator(resolver, HeaderRow.empty(), lazyTable.externalRow()));
+
+                    return Pair.of(expression, value);
                 })
-                .toList();
+                .filter(Objects::nonNull)
+                .collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
 
-//        Function<Row, Row> mapper = row -> expressions.stream()
-//                .map()
+        Function<Row, Row> mapper = row -> {
 
+            var headerRow = new HeaderRow(columns, row);
 
-//        var isContextSensitiveExpression = expression.accept(new ContextSensitiveExpressionQualifier(expressions));
-//
-//        var valueProvider = isContextSensitiveExpression ?
-//                Optional.<BooleanValue>empty() :
-//                Optional.of((BooleanValue) expression
-//                        .accept(new ValueInjector(HeaderRow.empty(), externalRow))
-//                        .accept(new ExpressionCalculator(resolver, HeaderRow.empty(), externalRow)));
+            return expressions.stream()
+                    .map(expression -> {
 
+                        var value = calculatedValueByExpressionMap.get(expression);
+                        if (value != null) {
+                            return value;
+                        }
 
-        //return new LazyTable(lazyTable.name(), columns, lazyTable.dataStream().map(mapper), lazyTable.externalRow());
-        return null;
+                        return expression
+                                .accept(new ValueInjector(headerRow, lazyTable.externalRow()))
+                                .accept(new ExpressionCalculator(resolver, HeaderRow.empty(), lazyTable.externalRow()));
+
+                    })
+                    .collect(Collectors.collectingAndThen(Collectors.toList(), Row::new));
+        };
+
+        return new LazyTable(lazyTable.name(), columns, lazyTable.dataStream().map(mapper), lazyTable.externalRow());
     }
 
     private List<Column> getColumns(String tableName, List<Expression> expressions, ExpressionValidator expressionValidator) {

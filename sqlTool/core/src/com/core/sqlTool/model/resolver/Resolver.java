@@ -3,6 +3,7 @@ package com.core.sqlTool.model.resolver;
 import com.core.sqlTool.exception.UnexpectedException;
 import com.core.sqlTool.model.cache.CacheContext;
 import com.core.sqlTool.model.cache.CacheStrategy;
+import com.core.sqlTool.model.command.SelectCommand;
 import com.core.sqlTool.model.command.WhereCommand;
 import com.core.sqlTool.model.command.domain.Command;
 import com.core.sqlTool.model.command.domain.ComplexCalculedCommand;
@@ -101,7 +102,9 @@ public record Resolver(Projection projection, CacheContext cacheContext) {
 //                    return new JoinCalculatorEntry(join, resolverResult.calculator(), calculatedExpressionEntry, expressionIsContextSensitive);
 //                }
 
-                throw new UnexpectedException();
+                //throw new UnexpectedException();
+
+                return null;
             }
 
         });
