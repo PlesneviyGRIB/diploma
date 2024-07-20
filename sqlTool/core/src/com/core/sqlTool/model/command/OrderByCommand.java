@@ -24,53 +24,42 @@ public record OrderByCommand(List<Pair<Column, Boolean>> orders) implements Simp
     @Override
     public LazyTable run(LazyTable lazyTable, Projection projection, CalculatorEntry calculatorEntry) {
 
-        orders.stream()
-                .collect(Collectors.groupingBy(OrderCommand::column, Collectors.counting()))
-                .entrySet().stream()
-                .filter(entry -> entry.getValue() > 1)
-                .map(Map.Entry::getKey)
-                .findAny().ifPresent(column -> {
-                    throw new ValidationException("ORDER_BY command can not contains the same columnName (%s) several times!", column);
-                });
+//        orders.stream()
+//                .collect(Collectors.groupingBy(OrderCommand::column, Collectors.counting()))
+//                .entrySet().stream()
+//                .filter(entry -> entry.getValue() > 1)
+//                .map(Map.Entry::getKey)
+//                .findAny().ifPresent(column -> {
+//                    throw new ValidationException("ORDER_BY command can not contains the same columnName (%s) several times!", column);
+//                });
+//
+//        var indexes = orders.stream()
+//                .map(o -> ModelUtils.resolveColumnIndex(lazyTable.columns(), o.column()))
+//                .toList();
+//
+//        Comparator<Row> rowsComparator = (row1, row2) -> {
+//            for (int i = 0; i < indexes.size(); i++) {
+//                var idx = indexes.get(i);
+//                var elem1 = row1.values().get(idx);
+//                var elem2 = row2.values().get(idx);
+//
+//                var res = ModelUtils.compareValues(elem1, elem2, lazyTable.columns().get(idx).columnType());
+//
+//                IntStream.range(0, getComparisonComplexity(elem1, elem2)).forEach(calculatorEntry::count);
+//
+//                if (orders.get(i).reverse()) {
+//                    res *= -1;
+//                }
+//                if (res != 0) {
+//                    return res;
+//                }
+//            }
+//            return 0;
+//        };
+//
+//        return new LazyTable(lazyTable.name(), lazyTable.columns(), lazyTable.dataStream().sorted(rowsComparator), lazyTable.externalRow());
 
-        var indexes = orders.stream()
-                .map(o -> ModelUtils.resolveColumnIndex(lazyTable.columns(), o.column()))
-                .toList();
-
-        Comparator<Row> rowsComparator = (row1, row2) -> {
-            for (int i = 0; i < indexes.size(); i++) {
-                var idx = indexes.get(i);
-                var elem1 = row1.values().get(idx);
-                var elem2 = row2.values().get(idx);
-
-                var res = ModelUtils.compareValues(elem1, elem2, lazyTable.columns().get(idx).columnType());
-
-                IntStream.range(0, getComparisonComplexity(elem1, elem2)).forEach(calculatorEntry::count);
-
-                if (orders.get(i).reverse()) {
-                    res *= -1;
-                }
-                if (res != 0) {
-                    return res;
-                }
-            }
-            return 0;
-        };
-
-        return new LazyTable(lazyTable.name(), lazyTable.columns(), lazyTable.dataStream().sorted(rowsComparator), lazyTable.externalRow());
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        OrderByCommand orderBy = (OrderByCommand) o;
-        return Objects.equals(orders, orderBy.orders);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(orders);
+        return null;
     }
 
     private Integer getComparisonComplexity(Value<?> value1, Value<?> value2) {

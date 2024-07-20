@@ -12,6 +12,7 @@ import com.core.sqlTool.model.visitor.ExpressionValidator;
 import java.util.List;
 
 public class ExpressionUtils {
+
     public static boolean columnsContainsNulls(HeaderRow HeaderRow, ExternalHeaderRow externalRow, Expression expression) {
         var o = new Object() {
             public boolean nullPresents;

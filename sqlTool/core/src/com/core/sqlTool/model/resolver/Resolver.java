@@ -1,6 +1,5 @@
 package com.core.sqlTool.model.resolver;
 
-import com.client.sqlTool.query.Query;
 import com.core.sqlTool.exception.UnexpectedException;
 import com.core.sqlTool.model.cache.CacheContext;
 import com.core.sqlTool.model.cache.CacheStrategy;
@@ -22,20 +21,7 @@ import com.core.sqlTool.utils.ModelUtils;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class Resolver {
-
-    private final Projection projection;
-
-    private final CacheContext cacheContext;
-
-    public Resolver(Projection projection, CacheContext cacheContext) {
-        this.projection = projection;
-        this.cacheContext = cacheContext;
-    }
-
-    public ResolverResult resolve(Query query) {
-        return resolve(List.of(), ExternalHeaderRow.empty());
-    }
+public record Resolver(Projection projection, CacheContext cacheContext) {
 
     public ResolverResult resolve(List<Command> commands, ExternalHeaderRow externalRow) {
 
@@ -97,23 +83,23 @@ public class Resolver {
             @Override
             public CalculatorEntry visit(ComplexCalculedCommand command) {
 
-                var expressionIsContextSensitive = command.getExpression()
-                        .accept(new ContextSensitiveExpressionQualifier(lazyTable.columns()));
-
-                // unsafe due to use `lazyTable.phonyHeaderRow()` that is not actual context row
-                var phonyHeaderRow = new HeaderRow(lazyTable.columns(), ModelUtils.typeSafeEmptyRow(lazyTable));
-                var calculatedExpressionEntry = command.getExpression()
-                        .accept(new ExpressionComplexityCalculator(utilityInstance(), phonyHeaderRow, externalRow))
-                        .normalize();
-
-                if (command instanceof WhereCommand where) {
-                    return new ComplexCalculatorEntry(where, calculatedExpressionEntry, expressionIsContextSensitive);
-                }
-
-                if (command instanceof JoinCommand join) {
-                    var resolverResult = utilityInstance().resolve(join.getCommands(), externalRow);
-                    return new JoinCalculatorEntry(join, resolverResult.calculator(), calculatedExpressionEntry, expressionIsContextSensitive);
-                }
+//                var expressionIsContextSensitive = command.getExpression()
+//                        .accept(new ContextSensitiveExpressionQualifier(lazyTable.columns()));
+//
+//                // unsafe due to use `lazyTable.phonyHeaderRow()` that is not actual context row
+//                var phonyHeaderRow = new HeaderRow(lazyTable.columns(), ModelUtils.typeSafeEmptyRow(lazyTable));
+//                var calculatedExpressionEntry = command.getExpression()
+//                        .accept(new ExpressionComplexityCalculator(utilityInstance(), phonyHeaderRow, externalRow))
+//                        .normalize();
+//
+//                if (command instanceof WhereCommand where) {
+//                    return new ComplexCalculatorEntry(where, calculatedExpressionEntry, expressionIsContextSensitive);
+//                }
+//
+//                if (command instanceof JoinCommand join) {
+//                    var resolverResult = utilityInstance().resolve(join.getCommands(), externalRow);
+//                    return new JoinCalculatorEntry(join, resolverResult.calculator(), calculatedExpressionEntry, expressionIsContextSensitive);
+//                }
 
                 throw new UnexpectedException();
             }

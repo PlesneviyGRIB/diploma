@@ -6,6 +6,6 @@ import com.core.sqlTool.model.expression.Value;
 @FunctionalInterface
 public interface AggregationFunction {
 
-    Value<?> apply(ExpressionList list);
+    Value<?> aggregate(ExpressionList list);
 
 }

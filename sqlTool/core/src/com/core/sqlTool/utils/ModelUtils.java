@@ -8,7 +8,6 @@ import com.core.sqlTool.exception.ValidationException;
 import com.core.sqlTool.model.domain.Column;
 import com.core.sqlTool.model.domain.LazyTable;
 import com.core.sqlTool.model.domain.Row;
-import com.core.sqlTool.model.expression.NumberValue;
 import com.core.sqlTool.model.expression.*;
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -114,10 +113,11 @@ public class ModelUtils {
     }
 
     public static int resolveColumnIndex(List<Column> columns, Column column) {
-        return IntStream.range(0, columns.size()).filter(i -> {
-            var c = columns.get(i);
-            return c.columnName().equals(column.columnName()) && c.tableName().equals(column.tableName());
-        }).findFirst().orElseThrow(() -> new ColumnNotFoundException(column, columns));
+        var index = columns.indexOf(column);
+        if (index == -1) {
+            throw new ColumnNotFoundException(column, columns);
+        }
+        return index;
     }
 
     public static Column resolveColumn(List<Column> columns, Column column) {

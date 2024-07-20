@@ -3,9 +3,8 @@ package com.core.sqlTool.model.expression;
 import com.client.sqlTool.expression.Operator;
 import com.core.sqlTool.exception.UnexpectedException;
 
-import java.util.Objects;
-
 public record NumberValue(Integer value) implements Value<NumberValue> {
+
     @Override
     public <T> T accept(Visitor<T> visitor) {
         return visitor.visit(this);
@@ -39,16 +38,4 @@ public record NumberValue(Integer value) implements Value<NumberValue> {
         throw new UnexpectedException();
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        NumberValue that = (NumberValue) o;
-        return Objects.equals(value, that.value);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(value);
-    }
 }

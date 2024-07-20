@@ -15,7 +15,7 @@ public class ValidationUtils {
         var tokens = resolvedClass.getTypeName().split("\\.");
         var type = tokens[tokens.length - 1];
         if (!type.equals("BooleanValue")) {
-            throw new UnexpectedException("Expected BooleanValue here, but found %s", type);
+            throw new UnexpectedException("Expected BooleanValue, but found %s", type);
         }
     }
 

@@ -5,9 +5,9 @@ import com.core.sqlTool.exception.UnexpectedException;
 
 import java.sql.Timestamp;
 import java.util.Calendar;
-import java.util.Objects;
 
 public record TimestampValue(Timestamp value) implements Value<TimestampValue> {
+
     @Override
     public <T> T accept(Visitor<T> visitor) {
         return visitor.visit(this);
@@ -37,16 +37,4 @@ public record TimestampValue(Timestamp value) implements Value<TimestampValue> {
         throw new UnexpectedException();
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        TimestampValue that = (TimestampValue) o;
-        return Objects.equals(value, that.value);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(value);
-    }
 }

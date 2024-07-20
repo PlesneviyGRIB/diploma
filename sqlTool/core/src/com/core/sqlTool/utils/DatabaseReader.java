@@ -6,7 +6,7 @@ import com.core.sqlTool.model.domain.Projection;
 import com.core.sqlTool.model.domain.Row;
 import com.core.sqlTool.model.domain.Table;
 import com.core.sqlTool.model.expression.Value;
-import com.core.sqlTool.model.index.BalancedTreeIndex;
+import com.core.sqlTool.model.index.TreeIndex;
 import com.core.sqlTool.model.index.HashIndex;
 import com.core.sqlTool.model.index.Index;
 import org.apache.commons.collections4.ListUtils;
@@ -122,10 +122,11 @@ public class DatabaseReader {
                             .toList();
 
                     if (rawIndexData.get(3).equals("2")) {
-                        return new HashIndex(indexName, targetColumns);
+                        return (Index) new HashIndex(indexName, targetColumns);
                     } else {
-                        return new BalancedTreeIndex(indexName, targetColumns);
+                        return (Index) new TreeIndex(indexName, targetColumns);
                     }
-                }).toList();
+                })
+                .toList();
     }
 }

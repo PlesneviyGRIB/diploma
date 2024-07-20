@@ -16,7 +16,7 @@ public class SimpleEntry extends ExecutedCalculatorEntry {
             return toRow(prefix, "%s[%s] -", stringifyCommand(), from.getTableName());
         }
         if (getCommand() instanceof AliasCommand alias) {
-            return toRow(prefix, "%s[%s] -", stringifyCommand(), alias.getAlias());
+            return toRow(prefix, "%s[%s] -", stringifyCommand(), alias.alias());
         }
         return toRow(prefix, "%s -", stringifyCommand());
     }

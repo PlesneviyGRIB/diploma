@@ -1,12 +1,6 @@
 package com.core.sqlTool.model.expression;
 
-import java.util.Objects;
-
 public record BooleanValue(Boolean value) implements Value<BooleanValue> {
-    @Override
-    public <T> T accept(Visitor<T> visitor) {
-        return visitor.visit(this);
-    }
 
     @Override
     public int compareTo(BooleanValue booleanValue) {
@@ -14,15 +8,8 @@ public record BooleanValue(Boolean value) implements Value<BooleanValue> {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        BooleanValue that = (BooleanValue) o;
-        return Objects.equals(value, that.value);
+    public <T> T accept(Visitor<T> visitor) {
+        return visitor.visit(this);
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(value);
-    }
 }

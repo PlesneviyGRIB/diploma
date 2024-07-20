@@ -3,17 +3,11 @@ package com.core.sqlTool.model.expression;
 import com.client.sqlTool.expression.Operator;
 import com.core.sqlTool.exception.UnexpectedException;
 
-import java.util.Objects;
-
 public record FloatNumberValue(Float value) implements Value<FloatNumberValue> {
+
     @Override
     public <T> T accept(Visitor<T> visitor) {
         return visitor.visit(this);
-    }
-
-    @Override
-    public int compareTo(FloatNumberValue floatNumber) {
-        return this.value().compareTo(floatNumber.value());
     }
 
     @Override
@@ -40,15 +34,8 @@ public record FloatNumberValue(Float value) implements Value<FloatNumberValue> {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        FloatNumberValue that = (FloatNumberValue) o;
-        return Objects.equals(value, that.value);
+    public int compareTo(FloatNumberValue floatNumberValue) {
+        return value.compareTo(floatNumberValue.value);
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(value);
-    }
 }

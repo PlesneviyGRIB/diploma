@@ -5,15 +5,17 @@ import com.client.sqlTool.domain.Aggregation;
 import com.client.sqlTool.domain.JoinStrategy;
 import com.client.sqlTool.expression.Number;
 import com.client.sqlTool.expression.*;
+import com.core.sqlTool.exception.ColumnNotFoundException;
 import com.core.sqlTool.exception.UnexpectedException;
 import com.core.sqlTool.model.command.*;
 import com.core.sqlTool.model.command.domain.Command;
 import com.core.sqlTool.model.command.function.*;
 import com.core.sqlTool.model.command.join.*;
 import com.core.sqlTool.model.domain.Column;
+import com.core.sqlTool.model.domain.Projection;
 import com.core.sqlTool.model.expression.Expression;
 import com.core.sqlTool.model.expression.*;
-import com.core.sqlTool.model.index.BalancedTreeIndex;
+import com.core.sqlTool.model.index.TreeIndex;
 import com.core.sqlTool.model.index.BitmapIndex;
 import com.core.sqlTool.model.index.HashIndex;
 import com.core.sqlTool.model.index.Index;
@@ -22,7 +24,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.List;
 import java.util.function.Function;
 
-public class DtoToModelConverter {
+public record DtoToModelConverter(Projection projection) {
 
     public List<Command> convert(List<com.client.sqlTool.command.Command> dtoCommands) {
         return dtoCommands.stream()
@@ -90,7 +92,7 @@ public class DtoToModelConverter {
 
         return switch (dtoIndex.getIndexType()) {
             case HASH -> new HashIndex(dtoIndex.getIndexName(), columns);
-            case BALANCED_TREE -> new BalancedTreeIndex(dtoIndex.getIndexName(), columns);
+            case BALANCED_TREE -> new TreeIndex(dtoIndex.getIndexName(), columns);
             case BITMAP -> new BitmapIndex(dtoIndex.getIndexName(), columns);
         };
     }
@@ -99,14 +101,21 @@ public class DtoToModelConverter {
         return switch (aggregation) {
             case MAX -> new Max();
             case MIN -> new Min();
-            case AVERAGE -> new Avg();
+            case AVERAGE -> new Average();
             case COUNT -> new Count();
             case SUM -> new Sum();
         };
     }
 
     private Column convertColumn(com.client.sqlTool.domain.Column dtoColumn) {
-        return new Column(dtoColumn.getTable(), dtoColumn.getColumn(), null); // TODO: resolve columnType
+
+        var columnWithoutType = new Column(dtoColumn.getTable(), dtoColumn.getColumn(), null);
+        var table = projection.getTableByName(dtoColumn.getTable());
+
+        return table.columns().stream()
+                .filter(c -> c.columnName().equals(columnWithoutType.columnName()))
+                .findFirst()
+                .orElseThrow(() -> new ColumnNotFoundException(columnWithoutType, table.columns()));
     }
 
     private JoinCommand convertJoin(Join dtoJoin) {
@@ -115,9 +124,9 @@ public class DtoToModelConverter {
         var expression = convertExpression(dtoJoin.expression());
 
         Function<JoinStrategy, com.core.sqlTool.model.command.join.JoinStrategy> strategyResolver = strategy -> switch (strategy) {
-            case HASH -> new HashStrategy();
-            case MERGE -> new MergeStrategy();
-            case LOOP -> new LoopStrategy();
+            case HASH -> new HashJoinStrategy();
+            case MERGE -> new MergeJoinStrategy();
+            case LOOP -> new LoopJoinStrategy();
         };
 
         return switch (dtoJoin.type()) {

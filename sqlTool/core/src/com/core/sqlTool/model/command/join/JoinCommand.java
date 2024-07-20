@@ -12,25 +12,26 @@ import com.core.sqlTool.model.resolver.Resolver;
 import com.core.sqlTool.support.JoinStreams;
 import com.core.sqlTool.utils.ModelUtils;
 import com.core.sqlTool.utils.ValidationUtils;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.ListUtils;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
-public abstract class JoinCommand extends ComplexCalculedCommand {
+@RequiredArgsConstructor
+@Getter
+@EqualsAndHashCode
+public abstract class JoinCommand implements ComplexCalculedCommand {
 
     private final List<Command> commands;
 
-    private final JoinStrategy strategy;
+    private final Expression expression;
 
-    public JoinCommand(List<Command> commands, Expression expression, JoinStrategy strategy) {
-        super(expression);
-        this.commands = commands;
-        this.strategy = strategy;
-    }
+    private final JoinStrategy strategy;
 
     abstract Stream<Row> run(JoinStreams joinStreams);
 
@@ -51,30 +52,10 @@ public abstract class JoinCommand extends ComplexCalculedCommand {
         return ModelUtils.renameTable(targetTable, tableName);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        JoinCommand join = (JoinCommand) o;
-        return Objects.equals(commands, join.commands) && strategy == join.strategy;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(commands, strategy);
-    }
-
-    public JoinStrategy getStrategy() {
-        return strategy;
-    }
-
     private void validate(LazyTable table, LazyTable joinedTable) {
         if (table.name().equals(joinedTable.name())) {
             throw new ValidationException("There are two tables with the same columnName '%s' in context. Use alias to resolve the conflict.", table.name());
         }
     }
 
-    public List<Command> getCommands() {
-        return commands;
-    }
 }

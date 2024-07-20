@@ -6,11 +6,11 @@ import com.core.sqlTool.model.expression.Expression;
 import com.core.sqlTool.model.resolver.Resolver;
 import com.core.sqlTool.support.JoinStreams;
 
-public class HashStrategy implements JoinStrategy {
+public record MergeJoinStrategy() implements JoinStrategy {
 
     @Override
     public JoinStreams run(LazyTable lazyTable, LazyTable joinedLazyTable, Expression expression, Resolver resolver, CalculatorEntry calculatorEntry) {
-        return new LoopStrategy().run(lazyTable, joinedLazyTable, expression, resolver, calculatorEntry);
+        return new LoopJoinStrategy().run(lazyTable, joinedLazyTable, expression, resolver, calculatorEntry);
     }
 
 }

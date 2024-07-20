@@ -5,11 +5,13 @@ import com.client.sqlTool.domain.Column;
 import com.client.sqlTool.domain.JoinStrategy;
 import com.client.sqlTool.domain.JoinType;
 import com.client.sqlTool.expression.Expression;
+import lombok.Getter;
 import org.apache.commons.collections4.ListUtils;
 
 import java.util.LinkedList;
 import java.util.List;
 
+@Getter
 public class Query {
 
     private final List<Command> commands = new LinkedList<>();

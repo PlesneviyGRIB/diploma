@@ -27,13 +27,13 @@ public class CommandTest extends TestBase {
 //
 //    @Test
 //    public void columnsCountTest() {
-//        assertEquals(resolver.resolve(Query.from("actions")).lazyTable().columns().size(), 9);
-//        assertEquals(resolver.resolve(Query.from("actions").innerJoin(Query.from("actions").as("a"), new BooleanValue(true), JoinStrategy.LOOP)).lazyTable().columns().size(), 18);
+//        assertEquals(resolver.resolve(Query.from("actions")).lazyTable().expressions().size(), 9);
+//        assertEquals(resolver.resolve(Query.from("actions").innerJoin(Query.from("actions").as("a"), new BooleanValue(true), JoinStrategy.LOOP)).lazyTable().expressions().size(), 18);
 //        assertEquals(resolver.resolve(Query.from("actions")
 //                .innerJoin(Query.from("activities"), new BooleanValue(true), JoinStrategy.LOOP)
 //                .innerJoin(Query.from("auth_sources"), new BooleanValue(true), JoinStrategy.LOOP)
-//        ).lazyTable().columns().size(), 24);
-//        assertEquals(resolver.resolve(Query.from("actions").select(Q.columnName("actions", "id"))).lazyTable().columns().size(), 1);
+//        ).lazyTable().expressions().size(), 24);
+//        assertEquals(resolver.resolve(Query.from("actions").select(Q.columnName("actions", "id"))).lazyTable().expressions().size(), 1);
 //    }
 //
 //    @Test
@@ -175,7 +175,7 @@ public class CommandTest extends TestBase {
 //    @Test
 //    public void aliasTest() {
 //        BiConsumer<LazyTable, List<String>> check = (tableName, columnNames) -> IntStream.range(0, columnNames.size())
-//                .forEach(index -> Assert.assertEquals(columnNames.get(index), tableName.columns().get(index).toString()));
+//                .forEach(index -> Assert.assertEquals(columnNames.get(index), tableName.expressions().get(index).toString()));
 //
 //        var table1 = resolver.resolve(Query.from("wikis").as("w")).lazyTable();
 //        check.accept(table1, List.of("w.id", "w.text"));
@@ -201,7 +201,7 @@ public class CommandTest extends TestBase {
 //
 //    @Test
 //    public void distinctValues() {
-//        Function<List<Column>, Query> tableName = columns -> Query.from("courses").select(columns.toArray(Column[]::new)).distinct();
+//        Function<List<Column>, Query> tableName = expressions -> Query.from("courses").select(expressions.toArray(Column[]::new)).distinct();
 //
 //        expectRowsCount(tableName.apply(List.of(Q.columnName("courses", "version"))), 6);
 //        expectRowsCount(tableName.apply(List.of(Q.columnName("courses", "lti_context_id"))), 3);

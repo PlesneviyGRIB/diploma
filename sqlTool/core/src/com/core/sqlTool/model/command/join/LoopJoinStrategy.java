@@ -23,7 +23,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class LoopStrategy implements JoinStrategy {
+public record LoopJoinStrategy() implements JoinStrategy {
 
     @Override
     public JoinStreams run(LazyTable lazyTable, LazyTable joinedLazyTable, Expression expression, Resolver resolver, CalculatorEntry calculatorEntry) {

@@ -3,9 +3,8 @@ package com.core.sqlTool.model.expression;
 import com.client.sqlTool.expression.Operator;
 import com.core.sqlTool.exception.UnexpectedException;
 
-import java.util.Objects;
-
 public record StringValue(String value) implements Value<StringValue> {
+
     @Override
     public <T> T accept(Visitor<T> visitor) {
         return visitor.visit(this);
@@ -24,16 +23,4 @@ public record StringValue(String value) implements Value<StringValue> {
         throw new UnexpectedException();
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        StringValue that = (StringValue) o;
-        return Objects.equals(value, that.value);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(value);
-    }
 }

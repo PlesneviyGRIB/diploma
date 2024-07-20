@@ -4,13 +4,11 @@ import com.core.sqlTool.model.domain.Column;
 
 import java.util.List;
 
-public class HashIndex extends Index {
-    public HashIndex(String name, List<Column> columns) {
-        super(name, columns);
-    }
+public record HashIndex(String name, List<Column> columns) implements Index {
 
     @Override
     public void construct() {
 
     }
+
 }

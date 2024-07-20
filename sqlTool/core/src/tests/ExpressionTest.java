@@ -1,5 +1,15 @@
 package tests;
 
+import com.client.sqlTool.expression.Operator;
+import com.core.sqlTool.model.domain.Column;
+import com.core.sqlTool.model.expression.NumberValue;
+import com.core.sqlTool.model.expression.TernaryOperation;
+import lombok.Getter;
+import org.junit.Assert;
+import org.junit.Test;
+
+import static com.client.sqlTool.expression.Operator.BETWEEN;
+
 public class ExpressionTest extends TestBase {
 
 //    @Test

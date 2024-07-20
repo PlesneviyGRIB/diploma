@@ -1,20 +1,18 @@
 package com.core.sqlTool.model.cache;
 
 import com.core.sqlTool.model.resolver.CommandResult;
+import lombok.RequiredArgsConstructor;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+@RequiredArgsConstructor
 public class CacheContext {
 
     private final CacheStrategy strategy;
 
     private final Map<CacheKey, CommandResult> cache = new HashMap<>();
-
-    public CacheContext(CacheStrategy strategy) {
-        this.strategy = strategy;
-    }
 
     public void put(CacheKey cacheKey, CommandResult commandResult) {
         if (strategy == CacheStrategy.PROPER) {

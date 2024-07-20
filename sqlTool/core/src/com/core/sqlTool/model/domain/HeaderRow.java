@@ -1,6 +1,7 @@
 package com.core.sqlTool.model.domain;
 
 import com.core.sqlTool.model.expression.Value;
+import lombok.Getter;
 
 import java.util.HashMap;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
+@Getter
 public class HeaderRow {
 
     private final Map<Column, Value<?>> columnValueMap;
@@ -15,14 +17,6 @@ public class HeaderRow {
     private final List<Column> columns;
 
     private final Row row;
-
-    public List<Column> getColumns() {
-        return columns;
-    }
-
-    public Row getRow() {
-        return row;
-    }
 
     public HeaderRow(List<Column> columns, Row row) {
         this.columnValueMap = new HashMap<>();
