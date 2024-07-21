@@ -1,12 +1,13 @@
 package com.core.sqlTool.model.command.aggregation;
 
-import com.core.sqlTool.model.expression.ValueList;
 import com.core.sqlTool.model.expression.Value;
+
+import java.util.List;
 
 public record Sum() implements AggregationFunction {
 
     @Override
-    public Value<?> aggregate(ValueList list) {
+    public Value<?> aggregate(List<Value<?>> values) {
         return null;
     }
 

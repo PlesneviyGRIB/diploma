@@ -5,7 +5,6 @@ import com.core.sqlTool.model.complexity.CalculatorEntry;
 import com.core.sqlTool.model.domain.*;
 import com.core.sqlTool.model.expression.Expression;
 import com.core.sqlTool.model.expression.Value;
-import com.core.sqlTool.model.expression.ValueList;
 import com.core.sqlTool.model.resolver.Resolver;
 import com.core.sqlTool.model.visitor.ContextSensitiveExpressionQualifier;
 import com.core.sqlTool.model.visitor.ExpressionCalculator;
@@ -97,7 +96,7 @@ public record GroupByCommand(List<Expression> expressions,
                     var expression = aggregation.getLeft();
                     var aggregationFunction = aggregation.getRight();
 
-                    var values = groupOfRows.stream()
+                    List<Value<?>> values = groupOfRows.stream()
                             .map(row -> {
 
                                 var value = calculatedValueByExpressionMap.get(expression);
@@ -111,7 +110,7 @@ public record GroupByCommand(List<Expression> expressions,
                             })
                             .toList();
 
-                    return aggregationFunction.aggregate(new ValueList(values, (Class<? extends Value<?>>) values.get(0).getClass()));
+                    return aggregationFunction.aggregate(values);
                 })
                 .collect(Collectors.toList());
     }

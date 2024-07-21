@@ -7,7 +7,6 @@ import com.core.sqlTool.model.domain.Column;
 import com.core.sqlTool.model.domain.ExternalHeaderRow;
 import com.core.sqlTool.model.domain.HeaderRow;
 import com.core.sqlTool.model.domain.LazyTable;
-import com.core.sqlTool.model.expression.NumberValue;
 import com.core.sqlTool.model.expression.*;
 import com.core.sqlTool.model.resolver.Resolver;
 import com.core.sqlTool.utils.ModelUtils;
@@ -27,7 +26,7 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
     }
 
     @Override
-    public Value<?> visit(ValueList list) {
+    public Value<?> visit(ExpressionList list) {
         throw new UnexpectedExpressionException(list);
     }
 
@@ -178,7 +177,7 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
 
         if (operation.operator() == Operator.IN) {
 
-            if (operation.right() instanceof ValueList list) {
+            if (operation.right() instanceof ExpressionList list) {
                 return Optional.of(processInListOperation(operation.left().accept(this), list));
             }
 
@@ -191,7 +190,7 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
         return Optional.empty();
     }
 
-    private BooleanValue processInTableOperation(Value<?> value, LazyTable lazyTable) {
+    private BooleanValue processInTableOperation(Expression expression, LazyTable lazyTable) {
         var columnsCount = lazyTable.columns().size();
 
         if (columnsCount != 1) {
@@ -199,23 +198,21 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
         }
 
         var columnData = lazyTable.dataStream()
-                .map(row -> (Value<?>) row.values().get(0))
+                .map(row -> row.values().get(0))
                 .toList();
 
-        var type = lazyTable.columns().get(0).getColumnType();
-
-        return processInListOperation(value, new ValueList(columnData, type));
+        return processInListOperation(expression, new ExpressionList(columnData));
     }
 
-    private BooleanValue processInListOperation(Value<?> value, ValueList list) {
+    private BooleanValue processInListOperation(Expression expression, ExpressionList list) {
         if (list.expressions().isEmpty()) {
             return new BooleanValue(false);
         }
 
-        ModelUtils.theSameClasses(value.getClass(), list.expressions().get(0).getClass());
-
+        var value = expression.accept(this);
         var presents = list.expressions().stream()
-                .anyMatch(ex -> ex.equals(value));
+                .map(e -> e.accept(this))
+                .anyMatch(val -> val.equals(value));
 
         return new BooleanValue(presents);
     }

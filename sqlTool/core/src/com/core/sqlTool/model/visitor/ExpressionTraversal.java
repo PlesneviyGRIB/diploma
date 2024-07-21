@@ -7,7 +7,7 @@ import com.core.sqlTool.model.expression.*;
 public class ExpressionTraversal implements Expression.Visitor<Void> {
 
     @Override
-    public Void visit(ValueList list) {
+    public Void visit(ExpressionList list) {
         list.expressions().forEach(expression -> expression.accept(this));
         return null;
     }

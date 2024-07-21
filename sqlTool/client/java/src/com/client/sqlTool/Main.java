@@ -9,6 +9,7 @@ import com.core.sqlTool.utils.printer.TablePrinter;
 import java.sql.SQLException;
 
 import static com.client.sqlTool.domain.AggregationType.MAX;
+import static com.client.sqlTool.domain.AggregationType.MIN;
 
 public class Main {
 
@@ -17,7 +18,10 @@ public class Main {
 
         var query = Query.from("courses").as("c")
                 .select(Column.of("c", "id"), Column.of("c", "name"))
-                .groupBy(Column.of("c", "name")).aggregate(Aggregation.of(Column.of("c", "id"), MAX))
+                .groupBy(Column.of("c", "name")).aggregate(
+                        Aggregation.of(Column.of("c", "id"), MAX),
+                        Aggregation.of(Column.of("c", "id"), MIN)
+                )
                 .limit(20);
 
 

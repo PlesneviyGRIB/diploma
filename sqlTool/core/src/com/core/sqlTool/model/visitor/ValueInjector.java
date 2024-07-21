@@ -19,7 +19,7 @@ public class ValueInjector implements Expression.Visitor<Expression> {
     }
 
     @Override
-    public Expression visit(ValueList list) {
+    public Expression visit(ExpressionList list) {
         return list;
     }
 

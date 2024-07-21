@@ -6,12 +6,12 @@ import com.core.sqlTool.exception.IncorrectOperatorUsageException;
 import com.core.sqlTool.exception.UnsupportedTypeException;
 import com.core.sqlTool.model.domain.Column;
 import com.core.sqlTool.model.domain.ExternalHeaderRow;
-import com.core.sqlTool.model.expression.NumberValue;
 import com.core.sqlTool.model.expression.*;
 import com.core.sqlTool.utils.ModelUtils;
 import com.core.sqlTool.utils.OperatorUtils;
 import org.apache.commons.collections4.ListUtils;
 
+import java.lang.reflect.ParameterizedType;
 import java.util.List;
 
 public class ExpressionValidator implements Expression.Visitor<Class<? extends Value<?>>> {
@@ -24,16 +24,9 @@ public class ExpressionValidator implements Expression.Visitor<Class<? extends V
     }
 
     @Override
-    public Class<? extends Value<?>> visit(ValueList list) {
-        var argsClasses = list.expressions().stream()
-                .map(expression -> expression.getClass())
-                .toList();
-        if (!argsClasses.isEmpty()) {
-            var argType = (Class<? extends Value<?>>) list.expressions().get(0).getClass();
-            assertSameClass(list, argType, list.type());
-            assertSameClass(list, argsClasses.toArray(Class[]::new));
-        }
-        return list.type();
+    public Class<? extends Value<?>> visit(ExpressionList expressionList) {
+        var type = ((ParameterizedType) expressionList.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+        return (Class<? extends Value<?>>) type;
     }
 
     @Override
@@ -69,8 +62,8 @@ public class ExpressionValidator implements Expression.Visitor<Class<? extends V
             throw new IncorrectOperatorUsageException(operation.operator(), operation);
         }
 
-        if (operation.operator() == Operator.IN && (operation.right() instanceof SubTable || operation.right() instanceof ValueList)) {
-            if (operation.right() instanceof ValueList list) {
+        if (operation.operator() == Operator.IN && (operation.right() instanceof SubTable || operation.right() instanceof ExpressionList)) {
+            if (operation.right() instanceof ExpressionList list) {
                 var left = operation.left().accept(this);
                 var right = operation.right().accept(this);
                 assertSameClass(list, left, right);

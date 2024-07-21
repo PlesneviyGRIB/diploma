@@ -8,7 +8,8 @@ public interface Expression {
     <T> T accept(Visitor<T> visitor);
 
     interface Visitor<T> {
-        T visit(ValueList list);
+
+        T visit(ExpressionList list);
 
         T visit(SubTable table);
 
@@ -31,6 +32,7 @@ public interface Expression {
         T visit(FloatNumberValue value);
 
         T visit(TimestampValue value);
+
     }
 
     default String stringify() {

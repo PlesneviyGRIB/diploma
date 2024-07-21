@@ -1,11 +1,12 @@
 package com.core.sqlTool.model.command.aggregation;
 
-import com.core.sqlTool.model.expression.ValueList;
 import com.core.sqlTool.model.expression.Value;
 
-@FunctionalInterface
-public interface AggregationFunction {
+import java.util.List;
 
-    Value<?> aggregate(ValueList list);
+public sealed interface AggregationFunction permits Average, Count, Max, Min, Sum {
+
+    Value<?> aggregate(List<Value<?>> values);
+
 
 }

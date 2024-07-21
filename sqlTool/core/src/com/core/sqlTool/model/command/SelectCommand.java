@@ -2,6 +2,7 @@ package com.core.sqlTool.model.command;
 
 import com.core.sqlTool.model.complexity.CalculatorEntry;
 import com.core.sqlTool.model.domain.*;
+import com.core.sqlTool.model.domain.Column;
 import com.core.sqlTool.model.expression.Expression;
 import com.core.sqlTool.model.resolver.Resolver;
 import com.core.sqlTool.model.visitor.ContextSensitiveExpressionQualifier;

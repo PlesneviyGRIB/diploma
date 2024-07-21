@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Getter
 @EqualsAndHashCode(exclude = {"columnType"})
-public class Column implements Expression {
+public final class Column implements Expression {
 
     private final String tableName;
 
