@@ -9,12 +9,12 @@ import com.core.sqlTool.model.expression.*;
 
 public class ValueInjector implements Expression.Visitor<Expression> {
 
-    private final HeaderRow HeaderRow;
+    private final HeaderRow headerRow;
 
     private final ExternalHeaderRow externalRow;
 
-    public ValueInjector(HeaderRow HeaderRow, ExternalHeaderRow externalRow) {
-        this.HeaderRow = HeaderRow;
+    public ValueInjector(HeaderRow headerRow, ExternalHeaderRow externalRow) {
+        this.headerRow = headerRow;
         this.externalRow = externalRow;
     }
 
@@ -30,7 +30,7 @@ public class ValueInjector implements Expression.Visitor<Expression> {
 
     @Override
     public Expression visit(Column column) {
-        return HeaderRow.getValue(column).or(() -> externalRow.getValue(column)).orElseThrow(UnexpectedException::new);
+        return headerRow.getValue(column).or(() -> externalRow.getValue(column)).orElseThrow(UnexpectedException::new);
     }
 
     @Override

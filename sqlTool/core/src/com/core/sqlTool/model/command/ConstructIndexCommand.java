@@ -1,6 +1,5 @@
 package com.core.sqlTool.model.command;
 
-import com.core.sqlTool.model.command.domain.SimpleCalculatedCommand;
 import com.core.sqlTool.model.complexity.CalculatorEntry;
 import com.core.sqlTool.model.domain.LazyTable;
 import com.core.sqlTool.model.domain.Projection;
@@ -11,9 +10,11 @@ public record ConstructIndexCommand(Index index) implements SimpleCalculatedComm
     @Override
     public LazyTable run(LazyTable lazyTable, Projection projection, CalculatorEntry calculatorEntry) {
 
-        //index.getColumns().forEach(column -> ModelUtils.resolveColumn(lazyTable.columns(), column));
+        throw new UnsupportedOperationException("Not implemented yet");
 
-        return lazyTable;
+//        //index.getColumns().forEach(column -> ModelUtils.resolveColumn(lazyTable.columns(), column));
+//
+//        return lazyTable;
     }
 
 }

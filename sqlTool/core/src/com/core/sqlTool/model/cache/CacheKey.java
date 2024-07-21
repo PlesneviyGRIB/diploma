@@ -1,6 +1,6 @@
 package com.core.sqlTool.model.cache;
 
-import com.core.sqlTool.model.command.domain.Command;
+import com.core.sqlTool.model.command.Command;
 import com.core.sqlTool.model.domain.ExternalHeaderRow;
 
 import java.util.List;

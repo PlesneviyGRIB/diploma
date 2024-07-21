@@ -1,6 +1,5 @@
 package com.core.sqlTool.model.command;
 
-import com.core.sqlTool.model.command.domain.ComplexCalculatedCommand;
 import com.core.sqlTool.model.complexity.CalculatorEntry;
 import com.core.sqlTool.model.domain.*;
 import com.core.sqlTool.model.expression.Expression;
@@ -9,6 +8,7 @@ import com.core.sqlTool.model.visitor.ContextSensitiveExpressionQualifier;
 import com.core.sqlTool.model.visitor.ExpressionCalculator;
 import com.core.sqlTool.model.visitor.ExpressionValidator;
 import com.core.sqlTool.model.visitor.ValueInjector;
+import com.core.sqlTool.utils.ModelUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
@@ -24,7 +24,7 @@ public record SelectCommand(List<Expression> expressions) implements ComplexCalc
     public LazyTable run(LazyTable lazyTable, Projection projection, Resolver resolver, CalculatorEntry calculatorEntry) {
 
         var expressionValidator = new ExpressionValidator(lazyTable.columns(), lazyTable.externalRow());
-        var columns = getColumns(lazyTable.name(), expressions, expressionValidator);
+        var columns = getColumns(expressions, expressionValidator, lazyTable);
 
         var calculatedValueByExpressionMap = expressions.stream()
                 .map(expression -> {
@@ -46,20 +46,18 @@ public record SelectCommand(List<Expression> expressions) implements ComplexCalc
 
         Function<Row, Row> mapper = row -> {
 
-            var headerRow = new HeaderRow(columns, row);
+            var headerRow = new HeaderRow(lazyTable.columns(), row);
+            var externalRow = lazyTable.externalRow();
 
             return expressions.stream()
                     .map(expression -> {
-
                         var value = calculatedValueByExpressionMap.get(expression);
                         if (value != null) {
                             return value;
                         }
-
                         return expression
-                                .accept(new ValueInjector(headerRow, lazyTable.externalRow()))
-                                .accept(new ExpressionCalculator(resolver, HeaderRow.empty(), lazyTable.externalRow()));
-
+                                .accept(new ValueInjector(headerRow, externalRow))
+                                .accept(new ExpressionCalculator(resolver, headerRow, externalRow));
                     })
                     .collect(Collectors.collectingAndThen(Collectors.toList(), Row::new));
         };
@@ -67,7 +65,7 @@ public record SelectCommand(List<Expression> expressions) implements ComplexCalc
         return new LazyTable(lazyTable.name(), columns, lazyTable.dataStream().map(mapper), lazyTable.externalRow());
     }
 
-    private List<Column> getColumns(String tableName, List<Expression> expressions, ExpressionValidator expressionValidator) {
+    private List<Column> getColumns(List<Expression> expressions, ExpressionValidator expressionValidator, LazyTable lazyTable) {
 
         var index = new AtomicInteger(0);
 
@@ -75,13 +73,13 @@ public record SelectCommand(List<Expression> expressions) implements ComplexCalc
                 .map((expression) -> {
 
                     if (expression instanceof Column column) {
-                        return new Column(column.tableName(), column.columnName(), column.columnType());
+                        return ModelUtils.resolveColumn(lazyTable.columns(), column);
                     }
 
                     var columnName = "column_%s".formatted(index.getAndIncrement());
                     var columnType = expression.accept(expressionValidator);
 
-                    return new Column(tableName, columnName, columnType);
+                    return new Column(lazyTable.name(), columnName, columnType);
                 })
                 .toList();
     }

@@ -60,7 +60,7 @@ public class DatabaseReader {
                 var row = new LinkedList<Value<?>>();
 
                 for (int i = 1; i < columnsCount + 1; i++) {
-                    var type = columns.get(i - 1).columnType();
+                    var type = columns.get(i - 1).getColumnType();
                     var entry = ModelUtils.readEntry(resultSet.getString(i), type);
                     row.add(entry);
                 }
@@ -118,7 +118,7 @@ public class DatabaseReader {
 
                     var targetColumns = data.stream()
                             .map(r -> r.get(1))
-                            .map(columnName -> columns.stream().filter(c -> c.columnName().equals(columnName)).findFirst().get())
+                            .map(columnName -> columns.stream().filter(c -> c.getColumnName().equals(columnName)).findFirst().get())
                             .toList();
 
                     if (rawIndexData.get(3).equals("2")) {

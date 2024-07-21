@@ -1,30 +1,28 @@
 package com.core.sqlTool.utils;
 
 import com.client.sqlTool.command.*;
-import com.client.sqlTool.domain.Aggregation;
+import com.client.sqlTool.domain.AggregationType;
 import com.client.sqlTool.domain.JoinStrategy;
 import com.client.sqlTool.expression.Number;
 import com.client.sqlTool.expression.*;
-import com.core.sqlTool.exception.ColumnNotFoundException;
 import com.core.sqlTool.exception.UnexpectedException;
+import com.core.sqlTool.model.command.Command;
 import com.core.sqlTool.model.command.*;
-import com.core.sqlTool.model.command.domain.Command;
-import com.core.sqlTool.model.command.function.*;
+import com.core.sqlTool.model.command.aggregation.*;
 import com.core.sqlTool.model.command.join.*;
 import com.core.sqlTool.model.domain.Column;
-import com.core.sqlTool.model.domain.Projection;
 import com.core.sqlTool.model.expression.Expression;
 import com.core.sqlTool.model.expression.*;
-import com.core.sqlTool.model.index.TreeIndex;
 import com.core.sqlTool.model.index.BitmapIndex;
 import com.core.sqlTool.model.index.HashIndex;
 import com.core.sqlTool.model.index.Index;
+import com.core.sqlTool.model.index.TreeIndex;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
 import java.util.function.Function;
 
-public record DtoToModelConverter(Projection projection) {
+public record DtoToModelConverter() {
 
     public List<Command> convert(List<com.client.sqlTool.command.Command> dtoCommands) {
         return dtoCommands.stream()
@@ -47,9 +45,13 @@ public record DtoToModelConverter(Projection projection) {
                     }
 
                     if (dtoCommand instanceof GroupBy dtoGroupBy) {
-                        return new GroupByCommand(dtoGroupBy.groups().stream()
-                                .map(group -> Pair.of(convertColumn(group.getColumn()), convertAggregation(group.getAggregation())))
-                                .toList()
+                        return new GroupByCommand(
+                                dtoGroupBy.expressions().stream()
+                                        .map(this::convertExpression)
+                                        .toList(),
+                                dtoGroupBy.aggregations().stream()
+                                        .map(group -> Pair.of(convertExpression(group.getExpression()), convertAggregation(group.getAggregationType())))
+                                        .toList()
                         );
                     }
 
@@ -97,8 +99,8 @@ public record DtoToModelConverter(Projection projection) {
         };
     }
 
-    private AggregationFunction convertAggregation(Aggregation aggregation) {
-        return switch (aggregation) {
+    private AggregationFunction convertAggregation(AggregationType aggregationType) {
+        return switch (aggregationType) {
             case MAX -> new Max();
             case MIN -> new Min();
             case AVERAGE -> new Average();
@@ -108,14 +110,7 @@ public record DtoToModelConverter(Projection projection) {
     }
 
     private Column convertColumn(com.client.sqlTool.domain.Column dtoColumn) {
-
-        var columnWithoutType = new Column(dtoColumn.getTable(), dtoColumn.getColumn(), null);
-        var table = projection.getTableByName(dtoColumn.getTable());
-
-        return table.columns().stream()
-                .filter(c -> c.columnName().equals(columnWithoutType.columnName()))
-                .findFirst()
-                .orElseThrow(() -> new ColumnNotFoundException(columnWithoutType, table.columns()));
+        return new Column(dtoColumn.getTable(), dtoColumn.getColumn(), null);
     }
 
     private JoinCommand convertJoin(Join dtoJoin) {

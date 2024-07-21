@@ -104,9 +104,9 @@ public class Query {
         return this;
     }
 
-    public Query groupBy(Group group, Group... groups) {
-        commands.add(new GroupBy(union(group, groups)));
-        return this;
+    public GroupByAggregation groupBy(Expression expression, Expression... expressions) {
+        var groupBy = new GroupBy(union(expression, expressions), List.of());
+        return new GroupByAggregation(this, groupBy);
     }
 
     public Query limit(Integer limit) {
@@ -131,6 +131,24 @@ public class Query {
 
     private <T> List<T> union(T mandatoryParam, T... optionalParams) {
         return ListUtils.union(List.of(mandatoryParam), List.of(optionalParams));
+    }
+
+    public static class GroupByAggregation {
+
+        private final Query query;
+
+        private final GroupBy groupBy;
+
+        private GroupByAggregation(Query query, GroupBy groupBy) {
+            this.query = query;
+            this.groupBy = groupBy;
+        }
+
+        public Query aggregate(Aggregation... aggregations) {
+            query.commands.add(new GroupBy(groupBy.expressions(), List.of(aggregations)));
+            return query;
+        }
+
     }
 
 }

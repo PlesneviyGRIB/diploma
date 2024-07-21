@@ -10,7 +10,7 @@ public class ColumnNotFoundException extends RuntimeException {
 
     public ColumnNotFoundException(Column column, List<Column> availableColumns) {
 
-        super("Unable to find column with name '%s' in context. There is(are) only: %s"
+        super("Unable to find column with name '%s' in the context. There is(are) only: %s"
                 .formatted(column, availableColumns.stream().map(Objects::toString).collect(Collectors.joining(", "))));
 
     }

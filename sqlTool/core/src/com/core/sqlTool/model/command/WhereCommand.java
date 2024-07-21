@@ -1,6 +1,5 @@
 package com.core.sqlTool.model.command;
 
-import com.core.sqlTool.model.command.domain.ComplexCalculatedCommand;
 import com.core.sqlTool.model.complexity.CalculatorEntry;
 import com.core.sqlTool.model.domain.HeaderRow;
 import com.core.sqlTool.model.domain.LazyTable;
@@ -44,7 +43,7 @@ public record WhereCommand(Expression expression) implements ComplexCalculatedCo
             ).value();
         };
 
-        return new LazyTable(lazyTable.name(), columns, lazyTable.dataStream().peek(calculatorEntry::count).filter(predicate), externalRow);
+        return new LazyTable(lazyTable.name(), columns, lazyTable.dataStream().filter(predicate), externalRow);
     }
 
 }

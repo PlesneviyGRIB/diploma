@@ -43,7 +43,7 @@ public class ExpressionValidator implements Expression.Visitor<Class<? extends V
 
     @Override
     public Class<? extends Value<?>> visit(Column column) {
-        return ModelUtils.resolveColumn(columns, column).columnType();
+        return ModelUtils.resolveColumn(columns, column).getColumnType();
     }
 
     @Override

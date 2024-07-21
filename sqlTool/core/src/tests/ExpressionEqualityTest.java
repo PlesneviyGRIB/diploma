@@ -31,6 +31,16 @@ public class ExpressionEqualityTest {
         var expression2 = new Column("entity", "id", NumberValue.class);
 
         assertEquals(expression1, expression2);
+
+        expression1 = new Column("entity", "id", NumberValue.class);
+        expression2 = new Column("entity", "id", null);
+
+        assertEquals(expression1, expression2);
+
+        expression1 = new Column("entity", "id", NumberValue.class);
+        expression2 = new Column("entity", "id", BooleanValue.class);
+
+        assertEquals(expression1, expression2);
     }
 
     @Test

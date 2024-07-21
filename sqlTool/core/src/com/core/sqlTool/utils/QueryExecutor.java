@@ -20,7 +20,7 @@ public record QueryExecutor(Query query) {
         var connection = DriverManager.getConnection(String.format("jdbc:%s://localhost:%s/%s", Constants.DB_DRIVER, Constants.DB_PORT, Constants.DB_NAME), Constants.DB_USER, Constants.DB_PASSWORD);
         var projection = new DatabaseReader(connection).read();
 
-        var modelCommands = new DtoToModelConverter(projection).convert(query.getCommands());
+        var modelCommands = new DtoToModelConverter().convert(query.getCommands());
         var cacheContext = new CacheContext(CacheStrategy.NONE);
 
         var resolverResult = new Resolver(projection, cacheContext).resolve(modelCommands, ExternalHeaderRow.empty());

@@ -202,7 +202,7 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
                 .map(row -> (Value<?>) row.values().get(0))
                 .toList();
 
-        var type = lazyTable.columns().get(0).columnType();
+        var type = lazyTable.columns().get(0).getColumnType();
 
         return processInListOperation(value, new ExpressionList(columnData, type));
     }

@@ -1,6 +1,6 @@
 package com.core.sqlTool.model.complexity;
 
-import com.core.sqlTool.model.command.domain.ComplexCalculatedCommand;
+import com.core.sqlTool.model.command.ComplexCalculatedCommand;
 import com.core.sqlTool.utils.printer.CalculatorPrinter;
 import com.core.sqlTool.model.visitor.ExpressionPrinter;
 import org.apache.commons.lang3.StringUtils;

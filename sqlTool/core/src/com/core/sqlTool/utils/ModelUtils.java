@@ -39,9 +39,9 @@ public class ModelUtils {
                 .map(column -> {
                     var identifier = columnIdentifier.apply(column);
                     if (identityMap.get(identifier) != 1) {
-                        identifier = format("%s.%s", column.tableName(), identifier);
+                        identifier = format("%s.%s", column.getTableName(), identifier);
                     }
-                    return new Column(identifier, tableName, column.columnType());
+                    return new Column(tableName, identifier, column.getColumnType());
                 }).toList();
 
         return new LazyTable(tableName, targetColumns, lazyTable.dataStream(), lazyTable.externalRow());
@@ -58,7 +58,7 @@ public class ModelUtils {
         var columns = lazyTable.columns();
         var size = columns.size();
         var data = new ArrayList<Value<?>>(size);
-        IntStream.range(0, size).forEach(index -> data.add(index, getDefaultValueByType(columns.get(index).columnType())));
+        IntStream.range(0, size).forEach(index -> data.add(index, getDefaultValueByType(columns.get(index).getColumnType())));
         return new Row(data);
     }
 

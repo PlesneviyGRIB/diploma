@@ -37,7 +37,7 @@ public class TablePrinter extends Printer<Table> {
     private void appendColumnNames() {
         sb.append("|");
         domain.columns().stream()
-                .map(Column::columnName)
+                .map(Column::getColumnName)
                 .forEach(name -> sb.append(formatCell(new StringValue(name))).append("|"));
         sb.append("\n");
     }
@@ -45,7 +45,7 @@ public class TablePrinter extends Printer<Table> {
     private void appendColumnTypes() {
         sb.append("|");
         domain.columns().stream()
-                .map(Column::columnType)
+                .map(Column::getColumnType)
                 .forEach(type -> {
                     var typeName = type.getSimpleName()
                             .replace("Value", "")

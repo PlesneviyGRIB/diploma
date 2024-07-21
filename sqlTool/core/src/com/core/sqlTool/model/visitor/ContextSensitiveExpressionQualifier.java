@@ -1,9 +1,9 @@
 package com.core.sqlTool.model.visitor;
 
-import com.core.sqlTool.model.command.domain.Command;
-import com.core.sqlTool.model.command.domain.ComplexCalculatedCommand;
-import com.core.sqlTool.model.command.domain.SimpleCalculatedCommand;
-import com.core.sqlTool.model.command.domain.SimpleCommand;
+import com.core.sqlTool.model.command.Command;
+import com.core.sqlTool.model.command.ComplexCalculatedCommand;
+import com.core.sqlTool.model.command.SimpleCalculatedCommand;
+import com.core.sqlTool.model.command.SimpleCommand;
 import com.core.sqlTool.model.domain.Column;
 import com.core.sqlTool.model.expression.*;
 

@@ -1,7 +1,7 @@
 package tests;
 
 import com.core.sqlTool.model.command.*;
-import com.core.sqlTool.model.command.function.*;
+import com.core.sqlTool.model.command.aggregation.*;
 import com.core.sqlTool.model.command.join.*;
 import com.core.sqlTool.model.domain.Column;
 import com.core.sqlTool.model.expression.BooleanValue;
@@ -28,7 +28,7 @@ public class CommandEqualityTest {
                 new ConstructIndexCommand(new HashIndex("hash", List.of())),
                 new DistinctCommand(),
                 new FromCommand("table"),
-                new GroupByCommand(List.of(Pair.of(new Column("table", "id", NumberValue.class), new Sum()))),
+                new GroupByCommand(List.of(new Column("table", "id", NumberValue.class)), List.of(Pair.of(new Column("table", "id", NumberValue.class), new Sum()))),
                 new LimitCommand(1),
                 new OffsetCommand(1),
                 new OrderByCommand(List.of(Pair.of(new Column("table", "id", NumberValue.class), false))),
@@ -45,7 +45,7 @@ public class CommandEqualityTest {
                 new ConstructIndexCommand(new HashIndex("hash", List.of())),
                 new DistinctCommand(),
                 new FromCommand("table"),
-                new GroupByCommand(List.of(Pair.of(new Column("table", "id", NumberValue.class), new Sum()))),
+                new GroupByCommand(List.of(new Column("table", "id", NumberValue.class)), List.of(Pair.of(new Column("table", "id", NumberValue.class), new Sum()))),
                 new LimitCommand(1),
                 new OffsetCommand(1),
                 new OrderByCommand(List.of(Pair.of(new Column("table", "id", NumberValue.class), false))),

@@ -1,24 +1,22 @@
 package com.client.sqlTool;
 
+import com.client.sqlTool.command.Aggregation;
+import com.client.sqlTool.domain.AggregationType;
 import com.client.sqlTool.domain.Column;
-import com.client.sqlTool.expression.Binary;
-import com.client.sqlTool.expression.Number;
 import com.client.sqlTool.query.Query;
 import com.core.sqlTool.utils.QueryExecutor;
 import com.core.sqlTool.utils.printer.TablePrinter;
 
 import java.sql.SQLException;
 
-import static com.client.sqlTool.expression.Operator.*;
-
 public class Main {
 
     public static void main(String[] args) {
 
 
-        var query = Query.from("courses")
-                .select(Column.of("courses", "id"), Binary.of(PLUS, Column.of("courses", "id"), Column.of("courses", "id")))
-                .where(Binary.of(GREATER_OR_EQ, Column.of("courses", "id"), Number.of(5)))
+        var query = Query.from("courses").as("c")
+                .select(Column.of("c", "id"), Column.of("c", "name"))
+                .groupBy(Column.of("c", "id")).aggregate()
                 .limit(20);
 
 

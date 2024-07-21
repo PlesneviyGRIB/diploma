@@ -1,6 +1,6 @@
 package com.core.sqlTool.model.complexity;
 
-import com.core.sqlTool.model.command.domain.Command;
+import com.core.sqlTool.model.command.Command;
 
 public class SimpleCalculatorEntry extends ExecutedCalculatorEntry {
 

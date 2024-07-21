@@ -1,6 +1,6 @@
 package com.core.sqlTool.model.expression;
 
-import com.core.sqlTool.model.command.domain.Command;
+import com.core.sqlTool.model.command.Command;
 
 import java.util.List;
 

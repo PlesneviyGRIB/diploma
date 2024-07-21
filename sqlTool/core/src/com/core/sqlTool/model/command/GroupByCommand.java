@@ -1,189 +1,72 @@
 package com.core.sqlTool.model.command;
 
-import com.core.sqlTool.model.command.domain.SimpleCalculatedCommand;
-import com.core.sqlTool.model.command.function.AggregationFunction;
-import com.core.sqlTool.model.command.function.Sum;
+import com.core.sqlTool.model.command.aggregation.AggregationFunction;
 import com.core.sqlTool.model.complexity.CalculatorEntry;
-import com.core.sqlTool.model.domain.*;
-import com.core.sqlTool.model.expression.ExpressionList;
+import com.core.sqlTool.model.domain.HeaderRow;
+import com.core.sqlTool.model.domain.LazyTable;
+import com.core.sqlTool.model.domain.Projection;
+import com.core.sqlTool.model.domain.Row;
+import com.core.sqlTool.model.expression.Expression;
 import com.core.sqlTool.model.expression.Value;
+import com.core.sqlTool.model.resolver.Resolver;
+import com.core.sqlTool.model.visitor.ContextSensitiveExpressionQualifier;
+import com.core.sqlTool.model.visitor.ExpressionCalculator;
+import com.core.sqlTool.model.visitor.ValueInjector;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
-import java.util.function.BiFunction;
-import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.groupingBy;
-
-public record GroupByCommand(List<Pair<Column, AggregationFunction>> columnMapperMap) implements SimpleCalculatedCommand {
-
-    @Override
-    public LazyTable run(LazyTable lazyTable, Projection projection, CalculatorEntry calculatorEntry) {
-
-//        var table = lazyTable.fetch();
-//
-//        table.columns().stream()
-//                .filter(c -> !columnMapperMap.containsKey(c))
-//                .findAny()
-//                .ifPresent(c -> {
-//                    throw new UnexpectedException("Column '%s' does not presents in group by statement", c);
-//                });
-//
-//        var groupColumns = columnMapperMap.entrySet().stream()
-//                .filter(entry -> entry.getValue() instanceof Identity)
-//                .map(Map.Entry::getKey)
-//                .toList();
-//
-//        if (groupColumns.isEmpty()) {
-//            var pair = collapseTableToOneRow(table);
-//            IntStream.range(0, pair.getRight()).forEach(calculatorEntry::count);
-//            var targetTable = pair.getLeft();
-//            return new LazyTable(targetTable.name(), targetTable.columns(), targetTable.data().stream(), lazyTable.externalRow());
-//        }
-//
-//        var wrappedValues = table.data().stream()
-//                .map(row -> row.values().stream().map(List::<Value<?>>of).toList())
-//                .toList();
-//
-//        var functions = table.columns().stream().map(columnMapperMap::get).toList();
-//        var indexes = groupColumns.stream().map(c -> ModelUtils.resolveColumnIndex(table.columns(), c)).toList();
-//
-//        for (var index : indexes) {
-//            wrappedValues = processGroups(index, wrappedValues, functions);
-//        }
-//
-//        wrappedValues = wrappedValues.stream()
-//                .map(group -> {
-//                    BiFunction<Integer, List<List<List<Value<?>>>>, List<List<List<Value<?>>>>> tmp = (index, rows) ->
-//                            rows.stream().map(r -> {
-//                                List<List<List<Value<?>>>> targetRows = new LinkedList<>();
-//                                if (functions.get(index) instanceof Identity) {
-//                                    var list = group.get(index);
-//                                    list.forEach(value -> {
-//                                        List<List<Value<?>>> phantomRow = new ArrayList<>(group);
-//                                        phantomRow.set(index, List.of(value));
-//                                        targetRows.add(phantomRow);
-//                                    });
-//                                }
-//                                return targetRows.isEmpty() ? List.of(r) : targetRows;
-//                            }).flatMap(Collection::stream).toList();
-//
-//                    List<List<List<Value<?>>>> targetGroup = new LinkedList<>();
-//                    for (int i = 0; i < group.size(); i++) {
-//                        targetGroup = tmp.apply(i, List.of(group));
-//                    }
-//
-//                    return targetGroup.isEmpty() ? List.of(group) : targetGroup;
-//                }).flatMap(Collection::stream).toList();
-//
-//
-//        List<Row> data = wrappedValues.stream()
-//                .map(groupedRow -> {
-//                    var size = groupedRow.size();
-//                    List<Value<?>> row = new ArrayList<>(size);
-//
-//                    for (int i = 0; i < size; i++) {
-//
-//                        var list = groupedRow.get(i);
-//                        var column = table.columns().get(i);
-//                        var expressionList = new ExpressionList(list, column.columnType());
-//                        var func = functions.get(i);
-//
-//                        Value<?> value = func.apply(expressionList);
-//                        row.add(i, value);
-//                    }
-//                    return row;
-//                })
-//                .map(Row::new)
-//                .toList();
-//
-//        var complexity = table.columns().size() * table.data().size() * groupColumns.size();
-//
-//        IntStream.range(0, complexity).forEach(calculatorEntry::count);
-//
-//        return new LazyTable(table.name(), table.columns(), data.stream(), lazyTable.externalRow());
-
-        return null;
-    }
+public record GroupByCommand(List<Expression> expressions,
+                             List<Pair<Expression, AggregationFunction>> aggregations) implements ComplexCalculatedCommand {
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        GroupByCommand groupBy = (GroupByCommand) o;
-        return Objects.equals(columnMapperMap, groupBy.columnMapperMap);
-    }
+    public LazyTable run(LazyTable lazyTable, Projection projection, Resolver resolver, CalculatorEntry calculatorEntry) {
 
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(columnMapperMap);
-    }
+        var calculatedValueByExpressionMap = Stream.of(expressions.stream(), aggregations.stream().map(Pair::getLeft))
+                .flatMap(s -> s)
+                .map(expression -> {
 
-    private Pair<Table, Integer> collapseTableToOneRow(Table table) {
-        var columns = table.columns();
-        var targetColumns = new ArrayList<Column>();
-        var values = new ArrayList<Value<?>>();
-        var complexity = columns.size() * table.data().size();
+                    var isContextSensitiveExpression = expression.accept(new ContextSensitiveExpressionQualifier(lazyTable.columns()));
 
-        Function<Integer, ExpressionList> getColumnValues = index -> {
-            var list = table.data().stream()
-                    .map(row -> row.values().get(index))
-                    .toList();
-            return new ExpressionList(list, table.columns().get(index).columnType());
-        };
-//
-//        for (int i = 0; i < columns.size(); i++) {
-//            var column = columns.get(i);
-//            var function = columnMapperMap.get(column);
-//            var columnName = format("%s.%s", column.columnName(), function.getClass().getSimpleName().toUpperCase());
-//            targetColumns.add(new Column(columnName, column.tableName(), column.columnType()));
-//            values.add(function.apply(getColumnValues.apply(i)));
-//        }
+                    if (isContextSensitiveExpression) {
+                        return null;
+                    }
 
-        return Pair.of(new Table(table.name(), targetColumns, Stream.of(values).map(Row::new).toList()), complexity);
-    }
+                    var value = expression
+                            .accept(new ValueInjector(HeaderRow.empty(), lazyTable.externalRow()))
+                            .accept(new ExpressionCalculator(resolver, HeaderRow.empty(), lazyTable.externalRow()));
 
-    private List<List<List<Value<?>>>> processGroups(Integer index, List<List<List<Value<?>>>> groupedData, List<AggregationFunction> functions) {
-        return groupedData.stream()
-                .map(group -> {
-                    BiFunction<Integer, List<List<List<Value<?>>>>, List<List<List<Value<?>>>>> tmp = (index1, rows) ->
-                            rows.stream().map(r -> {
-                                List<List<List<Value<?>>>> targetRows = new LinkedList<>();
-                                if (functions.get(index1) instanceof Sum) { // TODO attention instanceof Identity
-                                    var list = group.get(index1);
-                                    list.forEach(value -> {
-                                        List<List<Value<?>>> phantomRow = new ArrayList<>(group);
-                                        phantomRow.set(index1, List.of(value));
-                                        targetRows.add(phantomRow);
-                                    });
+                    return Pair.of(expression, value);
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
+
+        var groupedRows = new HashMap<List<Value<?>>, List<Row>>();
+        lazyTable.dataStream()
+                .forEach(row -> {
+
+                    var headerRow = new HeaderRow(lazyTable.columns(), row);
+                    var externalRow = lazyTable.externalRow();
+
+                    var values = expressions.stream()
+                            .map(expression -> {
+                                var value = calculatedValueByExpressionMap.get(expression);
+                                if (value != null) {
+                                    return value;
                                 }
-                                return targetRows.isEmpty() ? List.of(r) : targetRows;
-                            }).flatMap(Collection::stream).toList();
+                                return expression
+                                        .accept(new ValueInjector(headerRow, externalRow))
+                                        .accept(new ExpressionCalculator(resolver, headerRow, externalRow));
+                            })
+                            .toList();
 
-                    List<List<List<Value<?>>>> targetGroup = new LinkedList<>();
-                    for (int i = 0; i < group.size(); i++) {
-                        targetGroup = tmp.apply(i, List.of(group));
-                    }
+                    groupedRows.putIfAbsent(values, new ArrayList<>()).add(row);
+                });
 
-                    return targetGroup.isEmpty() ? List.of(group) : targetGroup;
-                }).flatMap(Collection::stream)
-                .collect(groupingBy(row -> row.get(index).get(0)))
-                .entrySet().stream()
-                .map(entry -> {
-                    var rows = entry.getValue();
-                    var size = rows.get(0).size();
-                    List<List<Value<?>>> groupedRow = new ArrayList<>(size);
 
-                    for (int i = 0; i < size; i++) {
-                        groupedRow.add(new LinkedList<>());
-                        for (int j = 0; j < rows.size(); j++) {
-                            groupedRow.get(i).addAll(rows.get(j).get(i));
-                        }
-                    }
-
-                    groupedRow.set(index, List.of(entry.getKey()));
-                    return groupedRow;
-                }).toList();
+        return new LazyTable(table.name(), table.columns(), data.stream(), lazyTable.externalRow());
     }
+
 }
