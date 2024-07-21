@@ -31,7 +31,7 @@ public class TablePrinter extends Printer<Table> {
     }
 
     private void appendMetadata() {
-        sb.append(format("Table '%s' [%d rows]\n", domain.name().toUpperCase(), rowsCount()));
+        sb.append(format("Table '%s' [%d rows]\n", domain.name(), rowsCount()));
     }
 
     private void appendColumnNames() {

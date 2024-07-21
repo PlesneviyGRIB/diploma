@@ -110,7 +110,7 @@ public record GroupByCommand(List<Expression> expressions,
                             })
                             .toList();
 
-                    return aggregationFunction.aggregate(values);
+                    return aggregationFunction.aggregate(ModelUtils.toSingleTypeValues(values));
                 })
                 .collect(Collectors.toList());
     }

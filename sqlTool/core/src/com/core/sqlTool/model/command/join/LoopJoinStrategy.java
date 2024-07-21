@@ -56,7 +56,7 @@ public record LoopJoinStrategy() implements JoinStrategy {
 
         var inner = indexedTableDataStream
                 .flatMap(row1 -> joinedTableWrappedDataStream.getStream().map(row2 -> Pair.of(row1, row2)))
-                .peek(calculatorEntry::count)
+                //.peek(calculatorEntry::count)
                 .filter(pair -> {
                     var leftIndexedRow = pair.getLeft();
                     var rightIndexedRow = pair.getRight();

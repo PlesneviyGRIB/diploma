@@ -8,5 +8,4 @@ public sealed interface AggregationFunction permits Average, Count, Max, Min, Su
 
     Value<?> aggregate(List<Value<?>> values);
 
-
 }

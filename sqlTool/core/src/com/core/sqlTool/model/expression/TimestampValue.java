@@ -1,7 +1,6 @@
 package com.core.sqlTool.model.expression;
 
 import com.client.sqlTool.expression.Operator;
-import com.core.sqlTool.exception.UnexpectedException;
 
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -34,7 +33,8 @@ public record TimestampValue(Timestamp value) implements Value<TimestampValue> {
                 new TimestampValue(new Timestamp(calendar.getTime().getTime()));
             }
         }
-        throw new UnexpectedException();
+
+        return Value.super.processArithmetic(operator, operand);
     }
 
 }

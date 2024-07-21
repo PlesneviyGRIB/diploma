@@ -1,7 +1,6 @@
 package com.core.sqlTool.model.expression;
 
 import com.client.sqlTool.expression.Operator;
-import com.core.sqlTool.exception.UnexpectedException;
 
 public record NumberValue(Integer value) implements Value<NumberValue> {
 
@@ -35,7 +34,8 @@ public record NumberValue(Integer value) implements Value<NumberValue> {
                 return new NumberValue(this.value % val.value);
             }
         }
-        throw new UnexpectedException();
+
+        return Value.super.processArithmetic(operator, operand);
     }
 
 }

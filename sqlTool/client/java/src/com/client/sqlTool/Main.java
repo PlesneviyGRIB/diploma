@@ -1,28 +1,30 @@
 package com.client.sqlTool;
 
 import com.client.sqlTool.command.Aggregation;
+import com.client.sqlTool.command.Order;
+import com.client.sqlTool.domain.AggregationType;
 import com.client.sqlTool.domain.Column;
+import com.client.sqlTool.expression.Binary;
 import com.client.sqlTool.query.Query;
 import com.core.sqlTool.utils.QueryExecutor;
 import com.core.sqlTool.utils.printer.TablePrinter;
 
 import java.sql.SQLException;
 
-import static com.client.sqlTool.domain.AggregationType.MAX;
-import static com.client.sqlTool.domain.AggregationType.MIN;
+import static com.client.sqlTool.expression.Operator.EQ;
 
 public class Main {
 
     public static void main(String[] args) {
 
 
-        var query = Query.from("courses").as("c")
-                .select(Column.of("c", "id"), Column.of("c", "name"))
-                .groupBy(Column.of("c", "name")).aggregate(
-                        Aggregation.of(Column.of("c", "id"), MAX),
-                        Aggregation.of(Column.of("c", "id"), MIN)
-                )
-                .limit(20);
+        var query = Query.from("manufacturer").as("m")
+                .innerMergeJoin(Query.from("product").as("p"), Binary.of(EQ, Column.of("p", "bill_id"), Column.of("m", "bill_id")))
+                .orderBy(Order.of(Column.of("m_p", "price")).asc(), Order.of(Column.of("m_p", "amount")).asc())
+                .groupBy(Column.of("m_p", "ware")).aggregate(Aggregation.of(Column.of("m_p", "amount"), AggregationType.SUM))
+
+                //.limit(20)
+                ;
 
 
         executeAndPrint(query);

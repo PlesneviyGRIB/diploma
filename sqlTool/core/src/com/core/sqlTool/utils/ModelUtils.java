@@ -63,6 +63,19 @@ public class ModelUtils {
         return new Row(data);
     }
 
+    public static List<Value<?>> toSingleTypeValues(List<Value<?>> list) {
+        if (CollectionUtils.isEmpty(list)) {
+            return List.of();
+        }
+        try {
+            var wipedTypeList = (Object) list;
+            return (List<Value<?>>) wipedTypeList;
+        } catch (RuntimeException e) {
+            var f = 1;
+            throw new RuntimeException(e);
+        }
+    }
+
     public static Value<?> readEntry(String object, Class<? extends Value<?>> targetClass) {
         try {
             if (Objects.isNull(object)) {
@@ -111,6 +124,11 @@ public class ModelUtils {
         } else if (clazz.equals(Timestamp.class)) {
             return TimestampValue.class;
         }
+
+        if(clazz.equals(Object.class)) {
+            return StringValue.class;
+        }
+
         throw new UnsupportedTypeException("Unable to process value of columnType '%s'", clazz.getSimpleName());
     }
 

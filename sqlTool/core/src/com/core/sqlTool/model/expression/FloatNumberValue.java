@@ -1,7 +1,6 @@
 package com.core.sqlTool.model.expression;
 
 import com.client.sqlTool.expression.Operator;
-import com.core.sqlTool.exception.UnexpectedException;
 
 public record FloatNumberValue(Float value) implements Value<FloatNumberValue> {
 
@@ -30,7 +29,8 @@ public record FloatNumberValue(Float value) implements Value<FloatNumberValue> {
                 return new FloatNumberValue(this.value % val.value);
             }
         }
-        throw new UnexpectedException();
+
+        return Value.super.processArithmetic(operator, operand);
     }
 
     @Override
