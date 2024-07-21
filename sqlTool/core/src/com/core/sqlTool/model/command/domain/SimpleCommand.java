@@ -11,4 +11,5 @@ public interface SimpleCommand extends Command {
     default <T> T accept(Visitor<T> visitor) {
         return visitor.visit(this);
     }
+
 }

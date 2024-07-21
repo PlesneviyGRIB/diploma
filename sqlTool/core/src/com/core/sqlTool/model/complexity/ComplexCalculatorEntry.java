@@ -1,6 +1,6 @@
 package com.core.sqlTool.model.complexity;
 
-import com.core.sqlTool.model.command.domain.ComplexCalculedCommand;
+import com.core.sqlTool.model.command.domain.ComplexCalculatedCommand;
 import com.core.sqlTool.utils.printer.CalculatorPrinter;
 import com.core.sqlTool.model.visitor.ExpressionPrinter;
 import org.apache.commons.lang3.StringUtils;
@@ -16,7 +16,7 @@ public class ComplexCalculatorEntry extends ExecutedCalculatorEntry implements T
 
     protected final boolean isContextSensitive;
 
-    public ComplexCalculatorEntry(ComplexCalculedCommand command, CalculatedExpressionResult calculatedExpressionResult, boolean isContextSensitive) {
+    public ComplexCalculatorEntry(ComplexCalculatedCommand command, CalculatedExpressionResult calculatedExpressionResult, boolean isContextSensitive) {
         super(command);
         this.calculatedExpressionResult = calculatedExpressionResult;
         this.isContextSensitive = isContextSensitive;

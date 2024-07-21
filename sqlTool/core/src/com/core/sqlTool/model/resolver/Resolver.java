@@ -1,23 +1,15 @@
 package com.core.sqlTool.model.resolver;
 
-import com.core.sqlTool.exception.UnexpectedException;
 import com.core.sqlTool.model.cache.CacheContext;
 import com.core.sqlTool.model.cache.CacheStrategy;
-import com.core.sqlTool.model.command.SelectCommand;
-import com.core.sqlTool.model.command.WhereCommand;
 import com.core.sqlTool.model.command.domain.Command;
-import com.core.sqlTool.model.command.domain.ComplexCalculedCommand;
-import com.core.sqlTool.model.command.domain.SimpleCalculedCommand;
+import com.core.sqlTool.model.command.domain.ComplexCalculatedCommand;
+import com.core.sqlTool.model.command.domain.SimpleCalculatedCommand;
 import com.core.sqlTool.model.command.domain.SimpleCommand;
-import com.core.sqlTool.model.command.join.JoinCommand;
 import com.core.sqlTool.model.complexity.*;
 import com.core.sqlTool.model.domain.ExternalHeaderRow;
-import com.core.sqlTool.model.domain.HeaderRow;
 import com.core.sqlTool.model.domain.LazyTable;
 import com.core.sqlTool.model.domain.Projection;
-import com.core.sqlTool.model.visitor.ContextSensitiveExpressionQualifier;
-import com.core.sqlTool.model.visitor.ExpressionComplexityCalculator;
-import com.core.sqlTool.utils.ModelUtils;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -55,12 +47,12 @@ public record Resolver(Projection projection, CacheContext cacheContext) {
             }
 
             @Override
-            public LazyTable visit(SimpleCalculedCommand command) {
+            public LazyTable visit(SimpleCalculatedCommand command) {
                 return command.run(lazyTable, projection, calculatorEntry);
             }
 
             @Override
-            public LazyTable visit(ComplexCalculedCommand command) {
+            public LazyTable visit(ComplexCalculatedCommand command) {
                 return command.run(lazyTable, projection, Resolver.this, calculatorEntry);
             }
 
@@ -77,12 +69,12 @@ public record Resolver(Projection projection, CacheContext cacheContext) {
             }
 
             @Override
-            public CalculatorEntry visit(SimpleCalculedCommand command) {
+            public CalculatorEntry visit(SimpleCalculatedCommand command) {
                 return new SimpleCalculatorEntry(command);
             }
 
             @Override
-            public CalculatorEntry visit(ComplexCalculedCommand command) {
+            public CalculatorEntry visit(ComplexCalculatedCommand command) {
 
 //                var expressionIsContextSensitive = command.getExpression()
 //                        .accept(new ContextSensitiveExpressionQualifier(lazyTable.columns()));

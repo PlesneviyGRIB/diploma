@@ -49,7 +49,6 @@ public class TablePrinter extends Printer<Table> {
                 .forEach(type -> {
                     var typeName = type.getSimpleName()
                             .replace("Value", "")
-                            .replace("Number", "")
                             .toUpperCase();
                     sb.append(formatCell(new StringValue(typeName))).append("|");
                 });

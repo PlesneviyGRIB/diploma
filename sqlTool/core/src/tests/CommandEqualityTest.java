@@ -24,7 +24,7 @@ public class CommandEqualityTest {
     public void commandEquality() {
 
         var commands1 = List.of(
-                new AliasCommand("table"),
+                new TableAliasCommand("table"),
                 new ConstructIndexCommand(new HashIndex("hash", List.of())),
                 new DistinctCommand(),
                 new FromCommand("table"),
@@ -41,7 +41,7 @@ public class CommandEqualityTest {
         );
 
         var commands2 = List.of(
-                new AliasCommand("table"),
+                new TableAliasCommand("table"),
                 new ConstructIndexCommand(new HashIndex("hash", List.of())),
                 new DistinctCommand(),
                 new FromCommand("table"),

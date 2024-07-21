@@ -6,10 +6,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static java.lang.String.format;
-
 public class ColumnNotFoundException extends RuntimeException {
-    public ColumnNotFoundException(Column column, List<Column> columns) {
-        super(format("Unable to find columnName '%s' in context. There is(are) only [%s]", column, columns.stream().map(Objects::toString).collect(Collectors.joining(", "))));
+
+    public ColumnNotFoundException(Column column, List<Column> availableColumns) {
+
+        super("Unable to find column with name '%s' in context. There is(are) only: %s"
+                .formatted(column, availableColumns.stream().map(Objects::toString).collect(Collectors.joining(", "))));
+
     }
+
 }

@@ -1,7 +1,7 @@
 package com.core.sqlTool.model.complexity;
 
 import com.core.sqlTool.model.command.domain.SimpleCommand;
-import com.core.sqlTool.model.command.AliasCommand;
+import com.core.sqlTool.model.command.TableAliasCommand;
 import com.core.sqlTool.model.command.FromCommand;
 
 public class SimpleEntry extends ExecutedCalculatorEntry {
@@ -15,7 +15,7 @@ public class SimpleEntry extends ExecutedCalculatorEntry {
         if (getCommand() instanceof FromCommand from) {
             return toRow(prefix, "%s[%s] -", stringifyCommand(), from.getTableName());
         }
-        if (getCommand() instanceof AliasCommand alias) {
+        if (getCommand() instanceof TableAliasCommand alias) {
             return toRow(prefix, "%s[%s] -", stringifyCommand(), alias.alias());
         }
         return toRow(prefix, "%s -", stringifyCommand());

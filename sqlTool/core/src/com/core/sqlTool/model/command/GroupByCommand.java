@@ -1,6 +1,6 @@
 package com.core.sqlTool.model.command;
 
-import com.core.sqlTool.model.command.domain.SimpleCalculedCommand;
+import com.core.sqlTool.model.command.domain.SimpleCalculatedCommand;
 import com.core.sqlTool.model.command.function.AggregationFunction;
 import com.core.sqlTool.model.command.function.Sum;
 import com.core.sqlTool.model.complexity.CalculatorEntry;
@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.groupingBy;
 
-public record GroupByCommand(List<Pair<Column, AggregationFunction>> columnMapperMap) implements SimpleCalculedCommand {
+public record GroupByCommand(List<Pair<Column, AggregationFunction>> columnMapperMap) implements SimpleCalculatedCommand {
 
     @Override
     public LazyTable run(LazyTable lazyTable, Projection projection, CalculatorEntry calculatorEntry) {

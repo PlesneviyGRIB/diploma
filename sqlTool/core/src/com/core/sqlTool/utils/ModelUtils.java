@@ -24,6 +24,7 @@ import java.util.stream.IntStream;
 import static java.lang.String.format;
 
 public class ModelUtils {
+
     public static LazyTable renameTable(LazyTable lazyTable, String tableName) {
 
         Function<Column, String> columnIdentifier = column -> {

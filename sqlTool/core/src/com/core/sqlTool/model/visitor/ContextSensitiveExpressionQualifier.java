@@ -1,8 +1,8 @@
 package com.core.sqlTool.model.visitor;
 
 import com.core.sqlTool.model.command.domain.Command;
-import com.core.sqlTool.model.command.domain.ComplexCalculedCommand;
-import com.core.sqlTool.model.command.domain.SimpleCalculedCommand;
+import com.core.sqlTool.model.command.domain.ComplexCalculatedCommand;
+import com.core.sqlTool.model.command.domain.SimpleCalculatedCommand;
 import com.core.sqlTool.model.command.domain.SimpleCommand;
 import com.core.sqlTool.model.domain.Column;
 import com.core.sqlTool.model.expression.*;
@@ -32,12 +32,12 @@ public class ContextSensitiveExpressionQualifier implements Expression.Visitor<B
                     }
 
                     @Override
-                    public Boolean visit(SimpleCalculedCommand command) {
+                    public Boolean visit(SimpleCalculatedCommand command) {
                         return false;
                     }
 
                     @Override
-                    public Boolean visit(ComplexCalculedCommand command) {
+                    public Boolean visit(ComplexCalculatedCommand command) {
                         //return command.getExpression().accept(ContextSensitiveExpressionQualifier.this);
                         return false;
                     }

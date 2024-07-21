@@ -1,25 +1,17 @@
 package com.core.sqlTool.model.command;
 
-import com.core.sqlTool.exception.ValidationException;
-import com.core.sqlTool.model.command.domain.SimpleCalculedCommand;
+import com.core.sqlTool.model.command.domain.SimpleCalculatedCommand;
 import com.core.sqlTool.model.complexity.CalculatorEntry;
 import com.core.sqlTool.model.domain.Column;
 import com.core.sqlTool.model.domain.LazyTable;
 import com.core.sqlTool.model.domain.Projection;
-import com.core.sqlTool.model.domain.Row;
 import com.core.sqlTool.model.expression.StringValue;
 import com.core.sqlTool.model.expression.Value;
-import com.core.sqlTool.utils.ModelUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
-public record OrderByCommand(List<Pair<Column, Boolean>> orders) implements SimpleCalculedCommand {
+public record OrderByCommand(List<Pair<Column, Boolean>> orders) implements SimpleCalculatedCommand {
 
     @Override
     public LazyTable run(LazyTable lazyTable, Projection projection, CalculatorEntry calculatorEntry) {

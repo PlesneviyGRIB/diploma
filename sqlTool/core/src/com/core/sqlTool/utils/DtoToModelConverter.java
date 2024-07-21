@@ -31,7 +31,7 @@ public record DtoToModelConverter(Projection projection) {
                 .map(dtoCommand -> {
 
                     if (dtoCommand instanceof Alias dtoAlias) {
-                        return new AliasCommand(dtoAlias.alias());
+                        return new TableAliasCommand(dtoAlias.alias());
                     }
 
                     if (dtoCommand instanceof ConstructIndex dtoConstructIndex) {

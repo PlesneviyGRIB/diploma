@@ -1,6 +1,6 @@
 package com.core.sqlTool.model.command;
 
-import com.core.sqlTool.model.command.domain.ComplexCalculedCommand;
+import com.core.sqlTool.model.command.domain.ComplexCalculatedCommand;
 import com.core.sqlTool.model.complexity.CalculatorEntry;
 import com.core.sqlTool.model.domain.*;
 import com.core.sqlTool.model.expression.Expression;
@@ -18,7 +18,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
-public record SelectCommand(List<Expression> expressions) implements ComplexCalculedCommand {
+public record SelectCommand(List<Expression> expressions) implements ComplexCalculatedCommand {
 
     @Override
     public LazyTable run(LazyTable lazyTable, Projection projection, Resolver resolver, CalculatorEntry calculatorEntry) {
