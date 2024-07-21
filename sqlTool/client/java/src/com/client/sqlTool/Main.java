@@ -21,7 +21,10 @@ public class Main {
         var query = Query.from("manufacturer").as("m")
                 .innerMergeJoin(Query.from("product").as("p"), Binary.of(EQ, Column.of("p", "bill_id"), Column.of("m", "bill_id")))
                 .orderBy(Order.of(Column.of("m_p", "price")).asc(), Order.of(Column.of("m_p", "amount")).asc())
-                .groupBy(Column.of("m_p", "ware")).aggregate(Aggregation.of(Column.of("m_p", "amount"), AggregationType.SUM))
+                .groupBy(Column.of("m_p", "ware")).aggregate(
+                        Aggregation.of(Column.of("m_p", "amount"), AggregationType.SUM),
+                        Aggregation.of(Column.of("m_p", "price"), AggregationType.AVERAGE)
+                )
 
                 //.limit(20)
                 ;

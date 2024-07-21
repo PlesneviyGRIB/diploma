@@ -107,7 +107,7 @@ public class ModelUtils {
     }
 
     public static Class<? extends Value<?>> getWrapper(Class<?> clazz) {
-        if (clazz.equals(String.class)) {
+        if (clazz.equals(String.class) || clazz.equals(Object.class)) {
             return StringValue.class;
         } else if (clazz.equals(Boolean.class)) {
             return BooleanValue.class;
@@ -123,10 +123,6 @@ public class ModelUtils {
             return FloatNumberValue.class;
         } else if (clazz.equals(Timestamp.class)) {
             return TimestampValue.class;
-        }
-
-        if(clazz.equals(Object.class)) {
-            return StringValue.class;
         }
 
         throw new UnsupportedTypeException("Unable to process value of columnType '%s'", clazz.getSimpleName());
