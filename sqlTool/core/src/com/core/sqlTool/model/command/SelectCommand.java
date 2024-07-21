@@ -70,17 +70,7 @@ public record SelectCommand(List<Expression> expressions) implements ComplexCalc
         var index = new AtomicInteger(0);
 
         return expressions.stream()
-                .map((expression) -> {
-
-                    if (expression instanceof Column column) {
-                        return ModelUtils.resolveColumn(lazyTable.columns(), column);
-                    }
-
-                    var columnName = "column_%s".formatted(index.getAndIncrement());
-                    var columnType = expression.accept(expressionValidator);
-
-                    return new Column(lazyTable.name(), columnName, columnType);
-                })
+                .map((expression) -> ModelUtils.getColumnFromExpression(expression, lazyTable, index.getAndIncrement(), expressionValidator))
                 .toList();
     }
 

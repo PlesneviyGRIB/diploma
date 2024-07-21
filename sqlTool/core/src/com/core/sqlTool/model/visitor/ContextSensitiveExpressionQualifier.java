@@ -18,7 +18,7 @@ public class ContextSensitiveExpressionQualifier implements Expression.Visitor<B
     }
 
     @Override
-    public Boolean visit(ExpressionList list) {
+    public Boolean visit(ValueList list) {
         return false;
     }
 

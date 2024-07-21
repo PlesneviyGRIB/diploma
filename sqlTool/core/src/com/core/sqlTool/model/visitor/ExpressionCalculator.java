@@ -27,7 +27,7 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
     }
 
     @Override
-    public Value<?> visit(ExpressionList list) {
+    public Value<?> visit(ValueList list) {
         throw new UnexpectedExpressionException(list);
     }
 
@@ -178,7 +178,7 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
 
         if (operation.operator() == Operator.IN) {
 
-            if (operation.right() instanceof ExpressionList list) {
+            if (operation.right() instanceof ValueList list) {
                 return Optional.of(processInListOperation(operation.left().accept(this), list));
             }
 
@@ -204,10 +204,10 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
 
         var type = lazyTable.columns().get(0).getColumnType();
 
-        return processInListOperation(value, new ExpressionList(columnData, type));
+        return processInListOperation(value, new ValueList(columnData, type));
     }
 
-    private BooleanValue processInListOperation(Value<?> value, ExpressionList list) {
+    private BooleanValue processInListOperation(Value<?> value, ValueList list) {
         if (list.expressions().isEmpty()) {
             return new BooleanValue(false);
         }

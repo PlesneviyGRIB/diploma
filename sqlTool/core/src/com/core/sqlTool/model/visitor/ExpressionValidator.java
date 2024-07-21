@@ -24,7 +24,7 @@ public class ExpressionValidator implements Expression.Visitor<Class<? extends V
     }
 
     @Override
-    public Class<? extends Value<?>> visit(ExpressionList list) {
+    public Class<? extends Value<?>> visit(ValueList list) {
         var argsClasses = list.expressions().stream()
                 .map(expression -> expression.getClass())
                 .toList();
@@ -69,8 +69,8 @@ public class ExpressionValidator implements Expression.Visitor<Class<? extends V
             throw new IncorrectOperatorUsageException(operation.operator(), operation);
         }
 
-        if (operation.operator() == Operator.IN && (operation.right() instanceof SubTable || operation.right() instanceof ExpressionList)) {
-            if (operation.right() instanceof ExpressionList list) {
+        if (operation.operator() == Operator.IN && (operation.right() instanceof SubTable || operation.right() instanceof ValueList)) {
+            if (operation.right() instanceof ValueList list) {
                 var left = operation.left().accept(this);
                 var right = operation.right().accept(this);
                 assertSameClass(list, left, right);

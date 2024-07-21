@@ -8,7 +8,7 @@ public interface Expression {
     <T> T accept(Visitor<T> visitor);
 
     interface Visitor<T> {
-        T visit(ExpressionList list);
+        T visit(ValueList list);
 
         T visit(SubTable table);
 

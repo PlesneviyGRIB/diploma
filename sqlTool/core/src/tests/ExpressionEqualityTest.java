@@ -73,8 +73,8 @@ public class ExpressionEqualityTest {
     @Test
     public void expressionListEquality() {
 
-        var expression1 = new ExpressionList(List.of(new NumberValue(1), new NumberValue(1)), NullValue.class);
-        var expression2 = new ExpressionList(List.of(new NumberValue(1), new NumberValue(1)), NullValue.class);
+        var expression1 = new ValueList(List.of(new NumberValue(1), new NumberValue(1)), NullValue.class);
+        var expression2 = new ValueList(List.of(new NumberValue(1), new NumberValue(1)), NullValue.class);
 
         assertEquals(expression1, expression2);
     }

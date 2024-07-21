@@ -11,7 +11,7 @@ import static java.lang.String.format;
 public class ExpressionPrinter implements Expression.Visitor<String> {
 
     @Override
-    public String visit(ExpressionList list) {
+    public String visit(ValueList list) {
         var args = list.expressions().stream()
                 .map(e -> e.accept(this))
                 .collect(Collectors.joining(", "));

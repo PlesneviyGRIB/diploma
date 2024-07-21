@@ -30,7 +30,7 @@ public class ExpressionComplexityCalculator implements Expression.Visitor<Calcul
     }
 
     @Override
-    public CalculatedExpressionResult visit(ExpressionList list) {
+    public CalculatedExpressionResult visit(ValueList list) {
         return new CalculatedExpressionResult(0, List.of(), list);
     }
 
@@ -74,8 +74,8 @@ public class ExpressionComplexityCalculator implements Expression.Visitor<Calcul
 
         if (operation.operator() == Operator.IN) {
 
-            if (right.expression() instanceof ExpressionList expressionList) {
-                additionalComplexity = expressionList.expressions().size();
+            if (right.expression() instanceof ValueList valueList) {
+                additionalComplexity = valueList.expressions().size();
             }
 
             if (right.expression() instanceof SubTable subTable) {

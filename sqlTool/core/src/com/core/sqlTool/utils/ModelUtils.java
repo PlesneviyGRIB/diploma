@@ -9,6 +9,7 @@ import com.core.sqlTool.model.domain.Column;
 import com.core.sqlTool.model.domain.LazyTable;
 import com.core.sqlTool.model.domain.Row;
 import com.core.sqlTool.model.expression.*;
+import com.core.sqlTool.model.visitor.ExpressionValidator;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.math.BigDecimal;
@@ -124,6 +125,17 @@ public class ModelUtils {
     public static Column resolveColumn(List<Column> columns, Column column) {
         var index = resolveColumnIndex(columns, column);
         return columns.get(index);
+    }
+
+    public static Column getColumnFromExpression(Expression expression, LazyTable lazyTable, Integer index, ExpressionValidator expressionValidator) {
+        if (expression instanceof Column column) {
+            return ModelUtils.resolveColumn(lazyTable.columns(), column);
+        }
+
+        var columnName = "column_%s".formatted(index);
+        var columnType = expression.accept(expressionValidator);
+
+        return new Column(lazyTable.name(), columnName, columnType);
     }
 
     public static int compareValues(Value<?> value1, Value<?> value2, Class<? extends Value> targetType) {
