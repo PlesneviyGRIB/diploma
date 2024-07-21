@@ -4,7 +4,7 @@ import com.core.sqlTool.model.complexity.CalculatorEntry;
 import com.core.sqlTool.model.domain.LazyTable;
 import com.core.sqlTool.model.domain.Projection;
 
-public record DistinctCommand() implements SimpleCalculatedCommand {
+public record DistinctCommand() implements CalculatedCommand {
 
     @Override
     public LazyTable run(LazyTable lazyTable, Projection projection, CalculatorEntry calculatorEntry) {

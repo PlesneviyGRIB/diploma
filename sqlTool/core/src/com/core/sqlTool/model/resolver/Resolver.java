@@ -1,15 +1,18 @@
 package com.core.sqlTool.model.resolver;
 
+import com.core.sqlTool.exception.UnexpectedException;
 import com.core.sqlTool.model.cache.CacheContext;
 import com.core.sqlTool.model.cache.CacheStrategy;
-import com.core.sqlTool.model.command.Command;
-import com.core.sqlTool.model.command.ComplexCalculatedCommand;
-import com.core.sqlTool.model.command.SimpleCalculatedCommand;
-import com.core.sqlTool.model.command.SimpleCommand;
+import com.core.sqlTool.model.command.*;
+import com.core.sqlTool.model.command.join.JoinCommand;
 import com.core.sqlTool.model.complexity.*;
 import com.core.sqlTool.model.domain.ExternalHeaderRow;
+import com.core.sqlTool.model.domain.HeaderRow;
 import com.core.sqlTool.model.domain.LazyTable;
 import com.core.sqlTool.model.domain.Projection;
+import com.core.sqlTool.model.visitor.ContextSensitiveExpressionQualifier;
+import com.core.sqlTool.model.visitor.ExpressionComplexityCalculator;
+import com.core.sqlTool.utils.ModelUtils;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -47,12 +50,17 @@ public record Resolver(Projection projection, CacheContext cacheContext) {
             }
 
             @Override
-            public LazyTable visit(SimpleCalculatedCommand command) {
+            public LazyTable visit(CalculatedCommand command) {
                 return command.run(lazyTable, projection, calculatorEntry);
             }
 
             @Override
-            public LazyTable visit(ComplexCalculatedCommand command) {
+            public LazyTable visit(SingleExpressionCommand command) {
+                return command.run(lazyTable, projection, Resolver.this, calculatorEntry);
+            }
+
+            @Override
+            public LazyTable visit(MultipleExpressionsCommand command) {
                 return command.run(lazyTable, projection, Resolver.this, calculatorEntry);
             }
 
@@ -69,34 +77,37 @@ public record Resolver(Projection projection, CacheContext cacheContext) {
             }
 
             @Override
-            public CalculatorEntry visit(SimpleCalculatedCommand command) {
+            public CalculatorEntry visit(CalculatedCommand command) {
                 return new SimpleCalculatorEntry(command);
             }
 
             @Override
-            public CalculatorEntry visit(ComplexCalculatedCommand command) {
+            public CalculatorEntry visit(SingleExpressionCommand command) {
 
-//                var expressionIsContextSensitive = command.getExpression()
-//                        .accept(new ContextSensitiveExpressionQualifier(lazyTable.columns()));
-//
-//                // unsafe due to use `lazyTable.phonyHeaderRow()` that is not actual context row
-//                var phonyHeaderRow = new HeaderRow(lazyTable.columns(), ModelUtils.typeSafeEmptyRow(lazyTable));
-//                var calculatedExpressionEntry = command.getExpression()
-//                        .accept(new ExpressionComplexityCalculator(utilityInstance(), phonyHeaderRow, externalRow))
-//                        .normalize();
-//
-//                if (command instanceof WhereCommand where) {
-//                    return new ComplexCalculatorEntry(where, calculatedExpressionEntry, expressionIsContextSensitive);
-//                }
-//
-//                if (command instanceof JoinCommand join) {
-//                    var resolverResult = utilityInstance().resolve(join.getCommands(), externalRow);
-//                    return new JoinCalculatorEntry(join, resolverResult.calculator(), calculatedExpressionEntry, expressionIsContextSensitive);
-//                }
+                var expressionIsContextSensitive = command.getExpression()
+                        .accept(new ContextSensitiveExpressionQualifier(lazyTable.columns()));
 
-                //throw new UnexpectedException();
+                // unsafe due to use `lazyTable.phonyHeaderRow()` that is not actual context row
+                var phonyHeaderRow = new HeaderRow(lazyTable.columns(), ModelUtils.typeSafeEmptyRow(lazyTable));
+                var calculatedExpressionEntry = command.getExpression()
+                        .accept(new ExpressionComplexityCalculator(utilityInstance(), phonyHeaderRow, externalRow))
+                        .normalize();
 
-                return null;
+                if (command instanceof WhereCommand where) {
+                    return new ComplexCalculatorEntry(where, calculatedExpressionEntry, expressionIsContextSensitive);
+                }
+
+                if (command instanceof JoinCommand join) {
+                    var resolverResult = utilityInstance().resolve(join.getCommands(), externalRow);
+                    return new JoinCalculatorEntry(join, resolverResult.calculator(), calculatedExpressionEntry, expressionIsContextSensitive);
+                }
+
+                throw new UnexpectedException();
+            }
+
+            @Override
+            public CalculatorEntry visit(MultipleExpressionsCommand command) {
+                return new SimpleCalculatorEntry(command);
             }
 
         });

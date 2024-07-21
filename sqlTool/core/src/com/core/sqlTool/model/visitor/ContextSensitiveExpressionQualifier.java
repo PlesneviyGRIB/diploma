@@ -1,9 +1,6 @@
 package com.core.sqlTool.model.visitor;
 
-import com.core.sqlTool.model.command.Command;
-import com.core.sqlTool.model.command.ComplexCalculatedCommand;
-import com.core.sqlTool.model.command.SimpleCalculatedCommand;
-import com.core.sqlTool.model.command.SimpleCommand;
+import com.core.sqlTool.model.command.*;
 import com.core.sqlTool.model.domain.Column;
 import com.core.sqlTool.model.expression.*;
 
@@ -26,21 +23,27 @@ public class ContextSensitiveExpressionQualifier implements Expression.Visitor<B
     public Boolean visit(SubTable table) {
         return table.commands().stream()
                 .anyMatch(command -> command.accept(new Command.Visitor<>() {
+
                     @Override
                     public Boolean visit(SimpleCommand command) {
                         return false;
                     }
 
                     @Override
-                    public Boolean visit(SimpleCalculatedCommand command) {
+                    public Boolean visit(CalculatedCommand command) {
                         return false;
                     }
 
                     @Override
-                    public Boolean visit(ComplexCalculatedCommand command) {
-                        //return command.getExpression().accept(ContextSensitiveExpressionQualifier.this);
-                        return false;
+                    public Boolean visit(SingleExpressionCommand command) {
+                        return command.getExpression().accept(ContextSensitiveExpressionQualifier.this);
                     }
+
+                    @Override
+                    public Boolean visit(MultipleExpressionsCommand command) {
+                        return command.getExpressions().stream().anyMatch(expression -> expression.accept(ContextSensitiveExpressionQualifier.this));
+                    }
+
                 }));
     }
 

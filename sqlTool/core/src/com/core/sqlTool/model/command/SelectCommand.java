@@ -2,7 +2,6 @@ package com.core.sqlTool.model.command;
 
 import com.core.sqlTool.model.complexity.CalculatorEntry;
 import com.core.sqlTool.model.domain.*;
-import com.core.sqlTool.model.domain.Column;
 import com.core.sqlTool.model.expression.Expression;
 import com.core.sqlTool.model.resolver.Resolver;
 import com.core.sqlTool.model.visitor.ContextSensitiveExpressionQualifier;
@@ -19,7 +18,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
-public record SelectCommand(List<Expression> expressions) implements ComplexCalculatedCommand {
+public record SelectCommand(List<Expression> expressions) implements MultipleExpressionsCommand {
 
     @Override
     public LazyTable run(LazyTable lazyTable, Projection projection, Resolver resolver, CalculatorEntry calculatorEntry) {
@@ -64,6 +63,11 @@ public record SelectCommand(List<Expression> expressions) implements ComplexCalc
         };
 
         return new LazyTable(lazyTable.name(), columns, lazyTable.dataStream().map(mapper), lazyTable.externalRow());
+    }
+
+    @Override
+    public List<Expression> getExpressions() {
+        return expressions;
     }
 
     private List<Column> getColumns(List<Expression> expressions, ExpressionValidator expressionValidator, LazyTable lazyTable) {

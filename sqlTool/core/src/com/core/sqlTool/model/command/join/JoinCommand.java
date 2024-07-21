@@ -2,7 +2,7 @@ package com.core.sqlTool.model.command.join;
 
 import com.core.sqlTool.exception.ValidationException;
 import com.core.sqlTool.model.command.Command;
-import com.core.sqlTool.model.command.ComplexCalculatedCommand;
+import com.core.sqlTool.model.command.SingleExpressionCommand;
 import com.core.sqlTool.model.complexity.CalculatorEntry;
 import com.core.sqlTool.model.domain.LazyTable;
 import com.core.sqlTool.model.domain.Projection;
@@ -25,7 +25,7 @@ import static java.lang.String.format;
 @RequiredArgsConstructor
 @Getter
 @EqualsAndHashCode
-public abstract class JoinCommand implements ComplexCalculatedCommand {
+public abstract class JoinCommand implements SingleExpressionCommand {
 
     private final List<Command> commands;
 

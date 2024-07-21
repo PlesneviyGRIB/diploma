@@ -12,7 +12,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.IntStream;
 
-public record OrderByCommand(List<Pair<Column, Boolean>> orders) implements SimpleCalculatedCommand {
+public record OrderByCommand(List<Pair<Column, Boolean>> orders) implements CalculatedCommand {
 
     @Override
     public LazyTable run(LazyTable lazyTable, Projection projection, CalculatorEntry calculatorEntry) {

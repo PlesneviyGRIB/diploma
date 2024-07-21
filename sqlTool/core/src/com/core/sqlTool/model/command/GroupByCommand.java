@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public record GroupByCommand(List<Expression> expressions,
-                             List<Pair<Expression, AggregationFunction>> aggregations) implements ComplexCalculatedCommand {
+                             List<Pair<Expression, AggregationFunction>> aggregations) implements MultipleExpressionsCommand {
 
     @Override
     public LazyTable run(LazyTable lazyTable, Projection projection, Resolver resolver, CalculatorEntry calculatorEntry) {
@@ -78,6 +78,12 @@ public record GroupByCommand(List<Expression> expressions,
                 .toList();
 
         return new LazyTable(lazyTable.name(), columns, data.stream(), lazyTable.externalRow());
+    }
+
+    @Override
+    public List<Expression> getExpressions() {
+        var aggregationExpressions = aggregations.stream().map(Pair::getLeft).toList();
+        return ListUtils.union(expressions, aggregationExpressions);
     }
 
     private List<Column> getColumns(List<Expression> expressions, ExpressionValidator expressionValidator, LazyTable lazyTable) {

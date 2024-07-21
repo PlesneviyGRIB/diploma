@@ -16,7 +16,7 @@ import com.core.sqlTool.utils.ValidationUtils;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-public record WhereCommand(Expression expression) implements ComplexCalculatedCommand {
+public record WhereCommand(Expression expression) implements SingleExpressionCommand {
 
     @Override
     public LazyTable run(LazyTable lazyTable, Projection projection, Resolver resolver, CalculatorEntry calculatorEntry) {
@@ -44,6 +44,11 @@ public record WhereCommand(Expression expression) implements ComplexCalculatedCo
         };
 
         return new LazyTable(lazyTable.name(), columns, lazyTable.dataStream().filter(predicate), externalRow);
+    }
+
+    @Override
+    public Expression getExpression() {
+        return expression;
     }
 
 }

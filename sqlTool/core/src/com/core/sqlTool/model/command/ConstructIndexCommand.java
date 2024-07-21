@@ -5,7 +5,7 @@ import com.core.sqlTool.model.domain.LazyTable;
 import com.core.sqlTool.model.domain.Projection;
 import com.core.sqlTool.model.index.Index;
 
-public record ConstructIndexCommand(Index index) implements SimpleCalculatedCommand {
+public record ConstructIndexCommand(Index index) implements CalculatedCommand {
 
     @Override
     public LazyTable run(LazyTable lazyTable, Projection projection, CalculatorEntry calculatorEntry) {
