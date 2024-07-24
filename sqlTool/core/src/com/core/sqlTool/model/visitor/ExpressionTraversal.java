@@ -72,4 +72,10 @@ public class ExpressionTraversal implements Expression.Visitor<Void> {
     public Void visit(TimestampValue value) {
         return null;
     }
+
+    @Override
+    public Void visit(NamedExpression value) {
+        return value.expression().accept(this);
+    }
+
 }

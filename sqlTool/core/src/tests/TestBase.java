@@ -1,14 +1,13 @@
 package tests;
 
+import com.client.sqlTool.query.Query;
 import com.core.sqlTool.model.cache.CacheContext;
 import com.core.sqlTool.model.cache.CacheStrategy;
-import com.core.sqlTool.model.domain.ExternalHeaderRow;
-import com.core.sqlTool.model.domain.LazyTable;
-import com.core.sqlTool.model.domain.Projection;
-import com.core.sqlTool.model.domain.Row;
+import com.core.sqlTool.model.domain.*;
 import com.core.sqlTool.model.resolver.Resolver;
 import com.core.sqlTool.support.WrappedStream;
 import com.core.sqlTool.utils.DatabaseReader;
+import com.core.sqlTool.utils.DtoToModelConverter;
 import org.apache.commons.collections4.ListUtils;
 import org.junit.Assert;
 
@@ -22,7 +21,7 @@ public class TestBase {
 
     static {
         try {
-            var connection = DriverManager.getConnection(String.format("jdbc:%s://localhost:%s/%s", DB_DRIVER, DB_PORT, DB_NAME), DB_USER, DB_PASSWORD);
+            var connection = DriverManager.getConnection(String.format("jdbc:postgresql://localhost:%s/%s", TEST_DB_PORT, TEST_DB_NAME), TEST_DB_USER, TEST_DB_PASSWORD);
             projection = new DatabaseReader(connection).read();
             resolver = new Resolver(TestBase.projection, new CacheContext(CacheStrategy.NONE));
         } catch (SQLException e) {
@@ -33,6 +32,14 @@ public class TestBase {
     protected static final Projection projection;
 
     protected static final Resolver resolver;
+
+    public Table execute(Query query) {
+
+        var modelCommands = new DtoToModelConverter().convert(query.getCommands());
+        var resolverResult = resolver.resolve(modelCommands, ExternalHeaderRow.empty());
+
+        return resolverResult.lazyTable().fetch();
+    }
 
     void expectError(Runnable runnable, Class<? extends RuntimeException> exception) {
         try {

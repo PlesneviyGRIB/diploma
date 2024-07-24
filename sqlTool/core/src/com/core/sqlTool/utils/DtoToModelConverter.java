@@ -6,6 +6,7 @@ import com.client.sqlTool.domain.JoinStrategy;
 import com.client.sqlTool.expression.Number;
 import com.client.sqlTool.expression.*;
 import com.core.sqlTool.exception.UnexpectedException;
+import com.core.sqlTool.exception.UnnamedExpressionException;
 import com.core.sqlTool.model.command.Command;
 import com.core.sqlTool.model.command.*;
 import com.core.sqlTool.model.command.aggregation.*;
@@ -20,6 +21,7 @@ import com.core.sqlTool.model.index.TreeIndex;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 
 public record DtoToModelConverter() {
@@ -110,7 +112,8 @@ public record DtoToModelConverter() {
     }
 
     private Column convertColumn(com.client.sqlTool.domain.Column dtoColumn) {
-        return new Column(dtoColumn.getTable(), dtoColumn.getColumn(), null);
+        var pair = DtoUtils.parseTableAndColumnNames(dtoColumn);
+        return new Column(pair.getLeft(), pair.getRight(), null);
     }
 
     private JoinCommand convertJoin(Join dtoJoin) {
@@ -133,6 +136,15 @@ public record DtoToModelConverter() {
     }
 
     private Expression convertExpression(com.client.sqlTool.expression.Expression dtoExpression) {
+
+        if (Objects.isNull(dtoExpression.getExpressionName())) {
+            throw new UnnamedExpressionException(convertExpressionInternal(dtoExpression));
+        }
+
+        return new NamedExpression(convertExpressionInternal(dtoExpression), dtoExpression.getExpressionName());
+    }
+
+    private Expression convertExpressionInternal(com.client.sqlTool.expression.Expression dtoExpression) {
 
         if (dtoExpression instanceof Bool dtoBool) {
             return new BooleanValue(dtoBool.isValue());
@@ -159,18 +171,18 @@ public record DtoToModelConverter() {
         }
 
         if (dtoExpression instanceof Unary dtoUnary) {
-            return new UnaryOperation(dtoUnary.getOperator(), convertExpression(dtoUnary.getExpression()));
+            return new UnaryOperation(dtoUnary.getOperator(), convertExpressionInternal(dtoUnary.getExpression()));
         }
 
         if (dtoExpression instanceof Binary dtoBinary) {
-            return new BinaryOperation(dtoBinary.getOperator(), convertExpression(dtoBinary.getLeft()), convertExpression(dtoBinary.getRight()));
+            return new BinaryOperation(dtoBinary.getOperator(), convertExpressionInternal(dtoBinary.getLeft()), convertExpressionInternal(dtoBinary.getRight()));
         }
 
         if (dtoExpression instanceof Ternary dtoTernary) {
             return new TernaryOperation(dtoTernary.getOperator(),
-                    convertExpression(dtoTernary.getFirst()),
-                    convertExpression(dtoTernary.getSecond()),
-                    convertExpression(dtoTernary.getThird())
+                    convertExpressionInternal(dtoTernary.getFirst()),
+                    convertExpressionInternal(dtoTernary.getSecond()),
+                    convertExpressionInternal(dtoTernary.getThird())
             );
         }
 

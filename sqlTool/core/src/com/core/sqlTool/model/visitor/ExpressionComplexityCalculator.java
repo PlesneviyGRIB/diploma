@@ -141,4 +141,9 @@ public class ExpressionComplexityCalculator implements Expression.Visitor<Calcul
         return new CalculatedExpressionResult(0, List.of(), value);
     }
 
+    @Override
+    public CalculatedExpressionResult visit(NamedExpression value) {
+        return value.expression().accept(this);
+    }
+
 }

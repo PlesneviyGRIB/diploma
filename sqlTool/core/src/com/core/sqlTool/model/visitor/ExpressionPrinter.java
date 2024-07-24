@@ -78,10 +78,16 @@ public class ExpressionPrinter implements Expression.Visitor<String> {
         return value.value().toString();
     }
 
+    @Override
+    public String visit(NamedExpression value) {
+        return "%s as %s".formatted(value.expression().accept(this), value.name());
+    }
+
     private String wrapWithParentheses(Expression expression) {
         if (expression instanceof Value<?> || expression instanceof SubTable || expression instanceof Column) {
             return expression.accept(this);
         }
         return format("(%s)", expression.accept(this));
     }
+
 }

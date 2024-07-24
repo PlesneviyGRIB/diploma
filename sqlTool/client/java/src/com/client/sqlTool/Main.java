@@ -5,6 +5,7 @@ import com.client.sqlTool.command.Order;
 import com.client.sqlTool.domain.AggregationType;
 import com.client.sqlTool.domain.Column;
 import com.client.sqlTool.expression.Binary;
+import com.client.sqlTool.expression.Number;
 import com.client.sqlTool.query.Query;
 import com.core.sqlTool.utils.QueryExecutor;
 import com.core.sqlTool.utils.printer.CalculatorPrinter;
@@ -13,6 +14,7 @@ import com.core.sqlTool.utils.printer.TablePrinter;
 import java.sql.SQLException;
 
 import static com.client.sqlTool.expression.Operator.EQ;
+import static com.client.sqlTool.expression.Operator.PLUS;
 
 public class Main {
 
@@ -20,14 +22,8 @@ public class Main {
 
 
         var query = Query.from("manufacturer").as("m")
-                .innerMergeJoin(Query.from("product").as("p"), Binary.of(EQ, Column.of("p", "bill_id"), Column.of("m", "bill_id")))
-                .orderBy(Order.of(Column.of("m_p", "price")).asc(), Order.of(Column.of("m_p", "amount")).asc())
-                .groupBy(Column.of("m_p", "ware")).aggregate(
-                        Aggregation.of(Column.of("m_p", "amount"), AggregationType.SUM),
-                        Aggregation.of(Column.of("m_p", "price"), AggregationType.AVERAGE)
-                )
-
-                //.limit(20)
+                .select(Column.of("bill_id"))
+                .limit(5)
                 ;
 
 
@@ -43,7 +39,7 @@ public class Main {
 
             System.out.println(tableStr);
             System.out.println();
-            System.out.println(calculatorStr);
+            //System.out.println(calculatorStr);
         } catch (RuntimeException | SQLException e) {
             System.err.println(e.getMessage());
 

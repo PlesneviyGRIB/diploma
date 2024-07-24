@@ -87,11 +87,8 @@ public record GroupByCommand(List<Expression> expressions,
     }
 
     private List<Column> getColumns(List<Expression> expressions, ExpressionValidator expressionValidator, LazyTable lazyTable) {
-
-        var index = new AtomicInteger(0);
-
         return expressions.stream()
-                .map((expression) -> ModelUtils.getColumnFromExpression(expression, lazyTable, index.getAndIncrement(), expressionValidator))
+                .map((expression) -> ModelUtils.getColumnFromExpression(expression, lazyTable, expressionValidator))
                 .toList();
     }
 

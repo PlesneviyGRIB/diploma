@@ -89,4 +89,10 @@ public class ValueInjector implements Expression.Visitor<Expression> {
     public Expression visit(TimestampValue value) {
         return value;
     }
+
+    @Override
+    public Expression visit(NamedExpression value) {
+        return value.expression().accept(this);
+    }
+
 }
