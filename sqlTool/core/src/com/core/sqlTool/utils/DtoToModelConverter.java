@@ -5,6 +5,7 @@ import com.client.sqlTool.domain.AggregationType;
 import com.client.sqlTool.domain.JoinStrategy;
 import com.client.sqlTool.expression.Number;
 import com.client.sqlTool.expression.*;
+import com.core.sqlTool.exception.InvalidTableOrColumnAliasException;
 import com.core.sqlTool.exception.UnexpectedException;
 import com.core.sqlTool.exception.UnnamedExpressionException;
 import com.core.sqlTool.model.command.Command;
@@ -31,7 +32,12 @@ public record DtoToModelConverter() {
                 .map(dtoCommand -> {
 
                     if (dtoCommand instanceof Alias dtoAlias) {
-                        return new TableAliasCommand(dtoAlias.alias());
+                        var tableAndColumnName = DtoUtils.parseTableAndColumnName(dtoAlias.alias());
+                        if (Objects.nonNull(tableAndColumnName.getLeft())) {
+                            throw new InvalidTableOrColumnAliasException(dtoAlias.alias());
+                        }
+                        // use tableAndColumnName.getRight() its right behaviour here
+                        return new TableAliasCommand(tableAndColumnName.getRight());
                     }
 
                     if (dtoCommand instanceof ConstructIndex dtoConstructIndex) {
@@ -49,10 +55,10 @@ public record DtoToModelConverter() {
                     if (dtoCommand instanceof GroupBy dtoGroupBy) {
                         return new GroupByCommand(
                                 dtoGroupBy.expressions().stream()
-                                        .map(this::convertExpression)
+                                        .map(this::convertNamedExpression)
                                         .toList(),
                                 dtoGroupBy.aggregations().stream()
-                                        .map(group -> Pair.of(convertExpression(group.getExpression()), convertAggregation(group.getAggregationType())))
+                                        .map(group -> Pair.of(convertNamedExpression(group.getExpression()), convertAggregation(group.getAggregationType())))
                                         .toList()
                         );
                     }
@@ -77,7 +83,7 @@ public record DtoToModelConverter() {
                     }
 
                     if (dtoCommand instanceof Select dtoSelect) {
-                        return new SelectCommand(dtoSelect.expressions().stream().map(this::convertExpression).toList());
+                        return new SelectCommand(dtoSelect.expressions().stream().map(this::convertNamedExpression).toList());
                     }
 
                     if (dtoCommand instanceof Where dtoWhere) {
@@ -112,7 +118,7 @@ public record DtoToModelConverter() {
     }
 
     private Column convertColumn(com.client.sqlTool.domain.Column dtoColumn) {
-        var pair = DtoUtils.parseTableAndColumnNames(dtoColumn);
+        var pair = DtoUtils.parseTableAndColumnName(dtoColumn.getColumnName());
         return new Column(pair.getLeft(), pair.getRight(), null);
     }
 
@@ -135,16 +141,23 @@ public record DtoToModelConverter() {
         };
     }
 
-    private Expression convertExpression(com.client.sqlTool.expression.Expression dtoExpression) {
+    private Expression convertNamedExpression(com.client.sqlTool.expression.Expression dtoExpression) {
 
         if (Objects.isNull(dtoExpression.getExpressionName())) {
-            throw new UnnamedExpressionException(convertExpressionInternal(dtoExpression));
+            throw new UnnamedExpressionException(convertExpression(dtoExpression));
         }
 
-        return new NamedExpression(convertExpressionInternal(dtoExpression), dtoExpression.getExpressionName());
+        var expression = convertExpression(dtoExpression);
+        var tableAndColumnName = DtoUtils.parseTableAndColumnName(dtoExpression.getExpressionName());
+
+        if (!(expression instanceof Column) && Objects.nonNull(tableAndColumnName.getLeft())) {
+            throw new InvalidTableOrColumnAliasException(dtoExpression.getExpressionName());
+        }
+
+        return new NamedExpression(expression, tableAndColumnName.getLeft(), tableAndColumnName.getRight());
     }
 
-    private Expression convertExpressionInternal(com.client.sqlTool.expression.Expression dtoExpression) {
+    private Expression convertExpression(com.client.sqlTool.expression.Expression dtoExpression) {
 
         if (dtoExpression instanceof Bool dtoBool) {
             return new BooleanValue(dtoBool.isValue());
@@ -171,18 +184,18 @@ public record DtoToModelConverter() {
         }
 
         if (dtoExpression instanceof Unary dtoUnary) {
-            return new UnaryOperation(dtoUnary.getOperator(), convertExpressionInternal(dtoUnary.getExpression()));
+            return new UnaryOperation(dtoUnary.getOperator(), convertExpression(dtoUnary.getExpression()));
         }
 
         if (dtoExpression instanceof Binary dtoBinary) {
-            return new BinaryOperation(dtoBinary.getOperator(), convertExpressionInternal(dtoBinary.getLeft()), convertExpressionInternal(dtoBinary.getRight()));
+            return new BinaryOperation(dtoBinary.getOperator(), convertExpression(dtoBinary.getLeft()), convertExpression(dtoBinary.getRight()));
         }
 
         if (dtoExpression instanceof Ternary dtoTernary) {
             return new TernaryOperation(dtoTernary.getOperator(),
-                    convertExpressionInternal(dtoTernary.getFirst()),
-                    convertExpressionInternal(dtoTernary.getSecond()),
-                    convertExpressionInternal(dtoTernary.getThird())
+                    convertExpression(dtoTernary.getFirst()),
+                    convertExpression(dtoTernary.getSecond()),
+                    convertExpression(dtoTernary.getThird())
             );
         }
 

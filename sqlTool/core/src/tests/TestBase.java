@@ -33,15 +33,15 @@ public class TestBase {
 
     protected static final Resolver resolver;
 
-    public Table execute(Query query) {
+    public LazyTable execute(Query query) {
 
         var modelCommands = new DtoToModelConverter().convert(query.getCommands());
         var resolverResult = resolver.resolve(modelCommands, ExternalHeaderRow.empty());
 
-        return resolverResult.lazyTable().fetch();
+        return resolverResult.lazyTable();
     }
 
-    void expectError(Runnable runnable, Class<? extends RuntimeException> exception) {
+    void expectException(Runnable runnable, Class<? extends RuntimeException> exception) {
         try {
             runnable.run();
             Assert.fail();

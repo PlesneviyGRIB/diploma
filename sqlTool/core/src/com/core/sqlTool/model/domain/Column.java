@@ -6,6 +6,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Objects;
+
 @RequiredArgsConstructor
 @Getter
 @EqualsAndHashCode(exclude = {"columnType"})
@@ -19,7 +21,10 @@ public final class Column implements Expression {
 
     @Override
     public String toString() {
-        return tableName + "." + columnName;
+        if (Objects.isNull(tableName)) {
+            return columnName;
+        }
+        return "%s.%s".formatted(tableName, columnName);
     }
 
     @Override

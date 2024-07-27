@@ -42,7 +42,7 @@ public record SelectCommand(List<Expression> expressions) implements MultipleExp
                     return Pair.of(expression, value);
                 })
                 .filter(Objects::nonNull)
-                .collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
+                .collect(Collectors.toMap(Pair::getLeft, Pair::getRight, (v1, v2) -> v2));
 
         Function<Row, Row> mapper = row -> {
 
