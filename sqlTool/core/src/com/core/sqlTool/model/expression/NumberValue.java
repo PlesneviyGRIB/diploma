@@ -28,7 +28,8 @@ public record NumberValue(Integer value) implements Value<NumberValue> {
                 return new NumberValue(this.value * val.value);
             }
             case DIVISION -> {
-                return new NumberValue(this.value / val.value);
+                var floatNumberValue = new FloatNumberValue((float) this.value / val.value);
+                return new NumberValue(floatNumberValue.value().intValue());
             }
             case MOD -> {
                 return new NumberValue(this.value % val.value);

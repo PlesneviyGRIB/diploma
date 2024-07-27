@@ -3,7 +3,7 @@ package com.client.sqlTool.expression;
 import lombok.Getter;
 
 @Getter
-public class Number implements Expression {
+public class Number extends Expression {
 
     private final Integer value;
 

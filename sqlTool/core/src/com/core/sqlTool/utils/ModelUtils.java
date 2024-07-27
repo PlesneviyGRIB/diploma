@@ -1,50 +1,27 @@
 package com.core.sqlTool.utils;
 
 import com.client.sqlTool.expression.Operator;
-import com.core.sqlTool.exception.ColumnNotFoundException;
-import com.core.sqlTool.exception.UnexpectedException;
-import com.core.sqlTool.exception.UnsupportedTypeException;
-import com.core.sqlTool.exception.ValidationException;
+import com.core.sqlTool.exception.*;
 import com.core.sqlTool.model.domain.Column;
 import com.core.sqlTool.model.domain.LazyTable;
 import com.core.sqlTool.model.domain.Row;
 import com.core.sqlTool.model.expression.*;
 import com.core.sqlTool.model.visitor.ExpressionValidator;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import static java.lang.String.format;
 
 public class ModelUtils {
 
     public static LazyTable renameTable(LazyTable lazyTable, String tableName) {
-
-        Function<Column, String> columnIdentifier = column -> {
-            var tokens = Arrays.asList(column.toString().split("\\."));
-            return String.join(".", tokens.subList(1, tokens.size()));
-        };
-
-        var identityMap = lazyTable.columns().stream()
-                .collect(Collectors.toMap(columnIdentifier, c -> 1, Integer::sum));
-
         var targetColumns = lazyTable.columns().stream()
-                .map(column -> {
-                    var identifier = columnIdentifier.apply(column);
-                    if (identityMap.get(identifier) != 1) {
-                        identifier = format("%s.%s", column.getTableName(), identifier);
-                    }
-                    return new Column(tableName, identifier, column.getColumnType());
-                }).toList();
-
+                .map(column -> new Column(tableName, column.getColumnName(), column.getColumnType()))
+                .toList();
         return new LazyTable(tableName, targetColumns, lazyTable.dataStream(), lazyTable.externalRow());
     }
 
@@ -128,12 +105,32 @@ public class ModelUtils {
         throw new UnsupportedTypeException("Unable to process value of columnType '%s'", clazz.getSimpleName());
     }
 
-    public static int resolveColumnIndex(List<Column> columns, Column column) {
-        var index = columns.indexOf(column);
-        if (index == -1) {
-            throw new ColumnNotFoundException(column, columns);
+    public static Optional<Integer> columnIndex(List<Column> columns, Column column) {
+        var filteredColumns = columns.stream()
+                .filter(c -> {
+                    if (Objects.isNull(c.getTableName()) || Objects.isNull(column.getTableName())) {
+                        return c.getColumnName().equals(column.getColumnName());
+                    }
+                    return c.getTableName().equals(column.getTableName()) && c.getColumnName().equals(column.getColumnName());
+                })
+                .toList();
+
+        if (filteredColumns.size() > 1) {
+            throw new AmbiguousColumnReferenceException(column, columns);
         }
-        return index;
+
+        if (filteredColumns.isEmpty()) {
+            return Optional.empty();
+        }
+
+        var index = columns.indexOf(filteredColumns.get(0));
+
+        return Optional.of(index);
+    }
+
+    public static int resolveColumnIndex(List<Column> columns, Column column) {
+        var columnIndexOpt = columnIndex(columns, column);
+        return columnIndexOpt.orElseThrow(() -> new ColumnNotFoundException(column, columns));
     }
 
     public static Column resolveColumn(List<Column> columns, Column column) {
@@ -141,15 +138,26 @@ public class ModelUtils {
         return columns.get(index);
     }
 
-    public static Column getColumnFromExpression(Expression expression, LazyTable lazyTable, Integer index, ExpressionValidator expressionValidator) {
+    public static Column getColumnFromExpression(Expression expression, LazyTable lazyTable, ExpressionValidator expressionValidator) {
         if (expression instanceof Column column) {
             return ModelUtils.resolveColumn(lazyTable.columns(), column);
         }
 
-        var columnName = "column_%s".formatted(index);
-        var columnType = expression.accept(expressionValidator);
+        if (expression instanceof NamedExpression namedExpression) {
 
-        return new Column(lazyTable.name(), columnName, columnType);
+            var columnType = expression.accept(expressionValidator);
+            var tableName = ObjectUtils.firstNonNull(namedExpression.tableName(), lazyTable.name());
+
+            if (namedExpression.expression() instanceof Column column) {
+                var resolvedColumn = getColumnFromExpression(column, lazyTable, expressionValidator);
+                var resolvedTableName = ObjectUtils.firstNonNull(tableName, resolvedColumn.getTableName());
+                return new Column(resolvedTableName, namedExpression.columnName(), resolvedColumn.getColumnType());
+            }
+
+            return new Column(tableName, namedExpression.columnName(), columnType);
+        }
+
+        throw new UnnamedExpressionException(expression);
     }
 
     public static int compareValues(Value<?> value1, Value<?> value2, Class<? extends Value> targetType) {

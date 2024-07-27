@@ -4,18 +4,18 @@ import com.client.sqlTool.expression.Expression;
 import lombok.Getter;
 
 @Getter
-public class Column implements Expression {
+public class Column extends Expression {
 
-    private final String table;
+    private final String columnName;
 
-    private final String column;
-
-    private Column(String table, String column) {
-        this.table = table;
-        this.column = column;
+    private Column(String columnName) {
+        this.columnName = columnName;
     }
 
-    public static Column of(String table, String column) {
-        return new Column(table, column);
+    public static Column of(String name) {
+        var column = new Column(name);
+        column.as(name);
+        return column;
     }
+
 }

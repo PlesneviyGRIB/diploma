@@ -32,7 +32,7 @@ public class DatabaseReader {
 
     public Projection read() throws SQLException {
         var metaData = connection.getMetaData();
-        var jdbcTables = metaData.getTables(Constants.DB_NAME, Constants.DB_SCHEMA, "%", new String[]{"TABLE"});
+        var jdbcTables = metaData.getTables(Constants.DB_NAME, Constants.DB_DEFAULT_SCHEMA, "%", new String[]{"TABLE"});
 
         var tables = new LinkedList<Table>();
 
@@ -92,7 +92,7 @@ public class DatabaseReader {
 
     private List<Index> readIndices(String tableName, List<Column> columns) throws SQLException {
         var metaData = connection.getMetaData();
-        var resultSet = metaData.getIndexInfo(Constants.DB_NAME, Constants.DB_SCHEMA, tableName, false, false);
+        var resultSet = metaData.getIndexInfo(Constants.DB_NAME, Constants.DB_DEFAULT_SCHEMA, tableName, false, false);
         var rawData = new LinkedList<List<String>>();
 
         while (resultSet.next()) {

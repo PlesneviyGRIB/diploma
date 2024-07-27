@@ -3,7 +3,7 @@ package com.client.sqlTool.expression;
 import lombok.Getter;
 
 @Getter
-public class FloatNumber implements Expression {
+public class FloatNumber extends Expression {
 
     private final float value;
 

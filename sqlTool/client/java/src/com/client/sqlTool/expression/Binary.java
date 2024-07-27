@@ -3,7 +3,7 @@ package com.client.sqlTool.expression;
 import lombok.Getter;
 
 @Getter
-public class Binary implements Expression {
+public class Binary extends Expression {
 
     private final Operator operator;
 

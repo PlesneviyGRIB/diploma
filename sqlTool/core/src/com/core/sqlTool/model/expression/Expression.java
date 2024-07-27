@@ -33,6 +33,8 @@ public interface Expression {
 
         T visit(TimestampValue value);
 
+        T visit(NamedExpression value);
+
     }
 
     default String stringify() {

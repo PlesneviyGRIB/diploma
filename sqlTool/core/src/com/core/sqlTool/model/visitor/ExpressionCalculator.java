@@ -159,6 +159,11 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
         return value;
     }
 
+    @Override
+    public Value<?> visit(NamedExpression value) {
+        return value.expression().accept(this);
+    }
+
     private Optional<Value<BooleanValue>> handleSpecialUnaryCases(UnaryOperation operation) {
 
         if (operation.operator() == Operator.EXISTS) {
@@ -216,4 +221,5 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
 
         return new BooleanValue(presents);
     }
+
 }

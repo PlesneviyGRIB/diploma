@@ -3,6 +3,7 @@ package com.core.sqlTool.model.visitor;
 import com.core.sqlTool.model.command.*;
 import com.core.sqlTool.model.domain.Column;
 import com.core.sqlTool.model.expression.*;
+import com.core.sqlTool.utils.ModelUtils;
 
 import java.util.List;
 
@@ -49,7 +50,7 @@ public class ContextSensitiveExpressionQualifier implements Expression.Visitor<B
 
     @Override
     public Boolean visit(Column column) {
-        return columns.stream().anyMatch(c -> c.equals(column));
+        return ModelUtils.columnIndex(columns, column).isPresent();
     }
 
     @Override
@@ -97,6 +98,11 @@ public class ContextSensitiveExpressionQualifier implements Expression.Visitor<B
     @Override
     public Boolean visit(TimestampValue value) {
         return false;
+    }
+
+    @Override
+    public Boolean visit(NamedExpression value) {
+        return value.expression().accept(this);
     }
 
 }

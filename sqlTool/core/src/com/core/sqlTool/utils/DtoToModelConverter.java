@@ -5,7 +5,9 @@ import com.client.sqlTool.domain.AggregationType;
 import com.client.sqlTool.domain.JoinStrategy;
 import com.client.sqlTool.expression.Number;
 import com.client.sqlTool.expression.*;
+import com.core.sqlTool.exception.InvalidTableOrColumnAliasException;
 import com.core.sqlTool.exception.UnexpectedException;
+import com.core.sqlTool.exception.UnnamedExpressionException;
 import com.core.sqlTool.model.command.Command;
 import com.core.sqlTool.model.command.*;
 import com.core.sqlTool.model.command.aggregation.*;
@@ -20,6 +22,7 @@ import com.core.sqlTool.model.index.TreeIndex;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 
 public record DtoToModelConverter() {
@@ -29,7 +32,12 @@ public record DtoToModelConverter() {
                 .map(dtoCommand -> {
 
                     if (dtoCommand instanceof Alias dtoAlias) {
-                        return new TableAliasCommand(dtoAlias.alias());
+                        var tableAndColumnName = DtoUtils.parseTableAndColumnName(dtoAlias.alias());
+                        if (Objects.nonNull(tableAndColumnName.getLeft())) {
+                            throw new InvalidTableOrColumnAliasException(dtoAlias.alias());
+                        }
+                        // use tableAndColumnName.getRight() its right behaviour here
+                        return new TableAliasCommand(tableAndColumnName.getRight());
                     }
 
                     if (dtoCommand instanceof ConstructIndex dtoConstructIndex) {
@@ -47,10 +55,10 @@ public record DtoToModelConverter() {
                     if (dtoCommand instanceof GroupBy dtoGroupBy) {
                         return new GroupByCommand(
                                 dtoGroupBy.expressions().stream()
-                                        .map(this::convertExpression)
+                                        .map(this::convertNamedExpression)
                                         .toList(),
                                 dtoGroupBy.aggregations().stream()
-                                        .map(group -> Pair.of(convertExpression(group.getExpression()), convertAggregation(group.getAggregationType())))
+                                        .map(group -> Pair.of(convertNamedExpression(group.getExpression()), convertAggregation(group.getAggregationType())))
                                         .toList()
                         );
                     }
@@ -69,13 +77,13 @@ public record DtoToModelConverter() {
 
                     if (dtoCommand instanceof OrderBy dtoOrderBy) {
                         return new OrderByCommand(dtoOrderBy.orders().stream()
-                                .map(order -> Pair.of(convertColumn(order.getColumn()), order.isAsc()))
+                                .map(order -> Pair.of(convertExpression(order.getExpression()), order.isAsc()))
                                 .toList()
                         );
                     }
 
                     if (dtoCommand instanceof Select dtoSelect) {
-                        return new SelectCommand(dtoSelect.expressions().stream().map(this::convertExpression).toList());
+                        return new SelectCommand(dtoSelect.expressions().stream().map(this::convertNamedExpression).toList());
                     }
 
                     if (dtoCommand instanceof Where dtoWhere) {
@@ -110,7 +118,8 @@ public record DtoToModelConverter() {
     }
 
     private Column convertColumn(com.client.sqlTool.domain.Column dtoColumn) {
-        return new Column(dtoColumn.getTable(), dtoColumn.getColumn(), null);
+        var pair = DtoUtils.parseTableAndColumnName(dtoColumn.getColumnName());
+        return new Column(pair.getLeft(), pair.getRight(), null);
     }
 
     private JoinCommand convertJoin(Join dtoJoin) {
@@ -130,6 +139,22 @@ public record DtoToModelConverter() {
             case RIGHT -> new RightJoin(commands, expression, strategyResolver.apply(dtoJoin.strategy()));
             case FULL -> new FullJoin(commands, expression, strategyResolver.apply(dtoJoin.strategy()));
         };
+    }
+
+    private Expression convertNamedExpression(com.client.sqlTool.expression.Expression dtoExpression) {
+
+        if (Objects.isNull(dtoExpression.getExpressionName())) {
+            throw new UnnamedExpressionException(convertExpression(dtoExpression));
+        }
+
+        var expression = convertExpression(dtoExpression);
+        var tableAndColumnName = DtoUtils.parseTableAndColumnName(dtoExpression.getExpressionName());
+
+        if (!(expression instanceof Column) && Objects.nonNull(tableAndColumnName.getLeft())) {
+            throw new InvalidTableOrColumnAliasException(dtoExpression.getExpressionName());
+        }
+
+        return new NamedExpression(expression, tableAndColumnName.getLeft(), tableAndColumnName.getRight());
     }
 
     private Expression convertExpression(com.client.sqlTool.expression.Expression dtoExpression) {

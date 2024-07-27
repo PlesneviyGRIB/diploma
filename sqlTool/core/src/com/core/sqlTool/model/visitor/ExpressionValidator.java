@@ -128,9 +128,15 @@ public class ExpressionValidator implements Expression.Visitor<Class<? extends V
         return TimestampValue.class;
     }
 
+    @Override
+    public Class<? extends Value<?>> visit(NamedExpression value) {
+        return value.expression().accept(this);
+    }
+
     private void assertSameClass(Expression expression, Class<? extends Value<?>>... classes) {
         if (!ModelUtils.theSameClasses(classes)) {
             throw new ComputedTypeException(expression);
         }
     }
+
 }

@@ -1,4 +1,15 @@
 package com.client.sqlTool.expression;
 
-public interface Expression {
+import lombok.Getter;
+
+@Getter
+public abstract class Expression {
+
+    private String expressionName;
+
+    public Expression as(String name) {
+        this.expressionName = name;
+        return this;
+    }
+
 }

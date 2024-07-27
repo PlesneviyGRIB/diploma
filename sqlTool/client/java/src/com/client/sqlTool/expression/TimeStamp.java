@@ -5,7 +5,7 @@ import lombok.Getter;
 import java.sql.Timestamp;
 
 @Getter
-public class TimeStamp implements Expression {
+public class TimeStamp extends Expression {
 
     private final Timestamp timestamp;
 

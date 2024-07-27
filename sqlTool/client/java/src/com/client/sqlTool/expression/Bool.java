@@ -3,7 +3,7 @@ package com.client.sqlTool.expression;
 import lombok.Getter;
 
 @Getter
-public class Bool implements Expression {
+public class Bool extends Expression {
 
     private final boolean value;
 

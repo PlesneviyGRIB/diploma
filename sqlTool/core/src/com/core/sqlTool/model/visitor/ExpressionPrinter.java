@@ -1,7 +1,6 @@
 package com.core.sqlTool.model.visitor;
 
 import com.core.sqlTool.model.domain.Column;
-import com.core.sqlTool.model.expression.NumberValue;
 import com.core.sqlTool.model.expression.*;
 
 import java.util.stream.Collectors;
@@ -25,7 +24,7 @@ public class ExpressionPrinter implements Expression.Visitor<String> {
 
     @Override
     public String visit(Column column) {
-        return format("COLUMN[%s]", column.toString());
+        return format("COLUMN(%s)", column);
     }
 
     @Override
@@ -78,10 +77,20 @@ public class ExpressionPrinter implements Expression.Visitor<String> {
         return value.value().toString();
     }
 
+    @Override
+    public String visit(NamedExpression value) {
+        var isColumn = value.expression() instanceof Column;
+        if (isColumn) {
+            return value.expression().accept(this);
+        }
+        return "%s as %s".formatted(value.expression().accept(this), value.columnName());
+    }
+
     private String wrapWithParentheses(Expression expression) {
         if (expression instanceof Value<?> || expression instanceof SubTable || expression instanceof Column) {
             return expression.accept(this);
         }
         return format("(%s)", expression.accept(this));
     }
+
 }
