@@ -16,8 +16,24 @@ public class Aggregation {
         this.aggregationType = aggregationType;
     }
 
-    public static Aggregation of(Expression expression, AggregationType aggregationType) {
-        return new Aggregation(expression, aggregationType);
+    public static Aggregation max(Expression expression) {
+        return new Aggregation(expression, AggregationType.MAX);
+    }
+
+    public static Aggregation min(Expression expression) {
+        return new Aggregation(expression, AggregationType.MIN);
+    }
+
+    public static Aggregation average(Expression expression) {
+        return new Aggregation(expression, AggregationType.AVERAGE);
+    }
+
+    public static Aggregation count(Expression expression) {
+        return new Aggregation(expression, AggregationType.COUNT);
+    }
+
+    public static Aggregation sum(Expression expression) {
+        return new Aggregation(expression, AggregationType.SUM);
     }
 
 }

@@ -1,5 +1,6 @@
 package com.client.sqlTool;
 
+import com.client.sqlTool.command.Aggregation;
 import com.client.sqlTool.command.Order;
 import com.client.sqlTool.domain.Column;
 import com.client.sqlTool.query.Query;
@@ -15,9 +16,14 @@ public class Main {
 
 
         var query = Query.from("product").as("p")
-                .select(Column.of("bill_id"), Column.of("ware"), Column.of("price"))
-                .orderBy(Order.of(Column.of("price")).desc(), Order.of(Column.of("bill_id")).asc())
-                .limit(5000);
+                .select(Column.of("ware"), Column.of("price"))
+                .groupBy(Column.of("ware")).aggregate(
+                        Aggregation.sum(Column.of("price")),
+                        Aggregation.count(Column.of("p.price").as("count")),
+                        Aggregation.average(Column.of("p.price").as("tmp"))
+                )
+                .orderBy(Order.of(Column.of("price")).desc())
+                .limit(20);
 
 
         executeAndPrint(query);
