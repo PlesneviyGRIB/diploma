@@ -1,7 +1,10 @@
 package com.core.sqlTool.model.command;
 
 import com.core.sqlTool.model.complexity.CalculatorEntry;
-import com.core.sqlTool.model.domain.*;
+import com.core.sqlTool.model.domain.HeaderRow;
+import com.core.sqlTool.model.domain.LazyTable;
+import com.core.sqlTool.model.domain.Projection;
+import com.core.sqlTool.model.domain.Row;
 import com.core.sqlTool.model.expression.Expression;
 import com.core.sqlTool.model.resolver.Resolver;
 import com.core.sqlTool.model.visitor.ContextSensitiveExpressionQualifier;
@@ -13,7 +16,6 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -24,7 +26,9 @@ public record SelectCommand(List<Expression> expressions) implements MultipleExp
     public LazyTable run(LazyTable lazyTable, Projection projection, Resolver resolver, CalculatorEntry calculatorEntry) {
 
         var expressionValidator = new ExpressionValidator(lazyTable.columns(), lazyTable.externalRow());
-        var columns = getColumns(expressions, expressionValidator, lazyTable);
+        var columns = expressions.stream()
+                .map((expression) -> ModelUtils.getColumnFromExpression(expression, lazyTable, expressionValidator))
+                .toList();
 
         var calculatedValueByExpressionMap = expressions.stream()
                 .map(expression -> {
@@ -68,12 +72,6 @@ public record SelectCommand(List<Expression> expressions) implements MultipleExp
     @Override
     public List<Expression> getExpressions() {
         return expressions;
-    }
-
-    private List<Column> getColumns(List<Expression> expressions, ExpressionValidator expressionValidator, LazyTable lazyTable) {
-        return expressions.stream()
-                .map((expression) -> ModelUtils.getColumnFromExpression(expression, lazyTable, expressionValidator))
-                .toList();
     }
 
 }

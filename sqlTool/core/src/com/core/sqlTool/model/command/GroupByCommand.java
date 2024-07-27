@@ -2,7 +2,10 @@ package com.core.sqlTool.model.command;
 
 import com.core.sqlTool.model.command.aggregation.AggregationFunction;
 import com.core.sqlTool.model.complexity.CalculatorEntry;
-import com.core.sqlTool.model.domain.*;
+import com.core.sqlTool.model.domain.HeaderRow;
+import com.core.sqlTool.model.domain.LazyTable;
+import com.core.sqlTool.model.domain.Projection;
+import com.core.sqlTool.model.domain.Row;
 import com.core.sqlTool.model.expression.Expression;
 import com.core.sqlTool.model.expression.Value;
 import com.core.sqlTool.model.resolver.Resolver;
@@ -15,7 +18,6 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -27,7 +29,9 @@ public record GroupByCommand(List<Expression> expressions,
 
         var expressionValidator = new ExpressionValidator(lazyTable.columns(), lazyTable.externalRow());
         var aggregationExpressions = aggregations.stream().map(Pair::getLeft).toList();
-        var columns = getColumns(ListUtils.union(expressions, aggregationExpressions), expressionValidator, lazyTable);
+        var columns = ListUtils.union(expressions, aggregationExpressions).stream()
+                .map((expression) -> ModelUtils.getColumnFromExpression(expression, lazyTable, expressionValidator))
+                .toList();
 
         Map<Expression, Value<?>> calculatedValueByExpressionMap = Stream.of(expressions.stream(), aggregations.stream().map(Pair::getLeft))
                 .flatMap(s -> s)
@@ -84,12 +88,6 @@ public record GroupByCommand(List<Expression> expressions,
     public List<Expression> getExpressions() {
         var aggregationExpressions = aggregations.stream().map(Pair::getLeft).toList();
         return ListUtils.union(expressions, aggregationExpressions);
-    }
-
-    private List<Column> getColumns(List<Expression> expressions, ExpressionValidator expressionValidator, LazyTable lazyTable) {
-        return expressions.stream()
-                .map((expression) -> ModelUtils.getColumnFromExpression(expression, lazyTable, expressionValidator))
-                .toList();
     }
 
     private List<Value<?>> getAggregatedValues(List<Row> groupOfRows, LazyTable lazyTable, Map<Expression, Value<?>> calculatedValueByExpressionMap, Resolver resolver) {

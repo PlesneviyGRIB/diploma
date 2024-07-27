@@ -1,11 +1,7 @@
 package com.client.sqlTool;
 
-import com.client.sqlTool.command.Aggregation;
 import com.client.sqlTool.command.Order;
-import com.client.sqlTool.domain.AggregationType;
 import com.client.sqlTool.domain.Column;
-import com.client.sqlTool.expression.Binary;
-import com.client.sqlTool.expression.Number;
 import com.client.sqlTool.query.Query;
 import com.core.sqlTool.utils.QueryExecutor;
 import com.core.sqlTool.utils.printer.CalculatorPrinter;
@@ -13,18 +9,15 @@ import com.core.sqlTool.utils.printer.TablePrinter;
 
 import java.sql.SQLException;
 
-import static com.client.sqlTool.expression.Operator.EQ;
-import static com.client.sqlTool.expression.Operator.PLUS;
-
 public class Main {
 
     public static void main(String[] args) {
 
 
-        var query = Query.from("manufacturer").as("m")
-                .select(Column.of("bill_id"))
-                .limit(5)
-                ;
+        var query = Query.from("product").as("p")
+                .select(Column.of("bill_id"), Column.of("ware"), Column.of("price"))
+                .orderBy(Order.of(Column.of("price")).desc(), Order.of(Column.of("bill_id")).asc())
+                .limit(5000);
 
 
         executeAndPrint(query);

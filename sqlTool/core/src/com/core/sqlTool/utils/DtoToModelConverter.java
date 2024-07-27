@@ -77,7 +77,7 @@ public record DtoToModelConverter() {
 
                     if (dtoCommand instanceof OrderBy dtoOrderBy) {
                         return new OrderByCommand(dtoOrderBy.orders().stream()
-                                .map(order -> Pair.of(convertColumn(order.getColumn()), order.isAsc()))
+                                .map(order -> Pair.of(convertExpression(order.getExpression()), order.isAsc()))
                                 .toList()
                         );
                     }
