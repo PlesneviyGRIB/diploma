@@ -1,16 +1,6 @@
-package tests;
+package tests.old;
 
-import com.core.sqlTool.model.cache.CacheContext;
-import com.core.sqlTool.model.cache.CacheStrategy;
-import com.client.sqlTool.domain.JoinStrategy;
-import com.core.sqlTool.model.expression.SubTable;
-import com.core.sqlTool.model.resolver.Resolver;
-import com.client.sqlTool.query.Query;
-import org.apache.commons.lang3.tuple.Pair;
-import org.junit.Assert;
-import org.junit.Test;
-
-import java.util.List;
+import tests.TestBase;
 
 public class CacheTest extends TestBase {
 

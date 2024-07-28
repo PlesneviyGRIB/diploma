@@ -1,4 +1,6 @@
-package tests;
+package tests.old;
+
+import tests.TestBase;
 
 import static org.junit.Assert.assertEquals;
 

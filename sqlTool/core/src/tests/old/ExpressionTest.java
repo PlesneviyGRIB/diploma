@@ -1,4 +1,6 @@
-package tests;
+package tests.old;
+
+import tests.TestBase;
 
 public class ExpressionTest extends TestBase {
 
