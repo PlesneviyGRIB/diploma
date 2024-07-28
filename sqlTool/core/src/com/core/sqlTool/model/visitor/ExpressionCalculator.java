@@ -22,7 +22,7 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
 
     public ExpressionCalculator(Resolver resolver, HeaderRow headerRow, ExternalHeaderRow externalRow) {
         this.resolver = resolver;
-        this.mergedExternalHeaderRow = externalRow.merge(new ExternalHeaderRow(headerRow.getColumns(), headerRow.getRow()));
+        this.mergedExternalHeaderRow = externalRow.merge(new ExternalHeaderRow(headerRow.columns(), headerRow.row()));
     }
 
     @Override

@@ -2,34 +2,14 @@ package com.core.sqlTool.model.domain;
 
 import com.core.sqlTool.model.expression.Value;
 import com.core.sqlTool.utils.ModelUtils;
-import lombok.Getter;
 
 import java.util.List;
 import java.util.Optional;
 
-@Getter
-public class HeaderRow {
-
-    private final List<Column> columns;
-
-    private final Row row;
-
-    public HeaderRow(List<Column> columns, Row row) {
-        this.columns = columns;
-        this.row = row;
-    }
+public record HeaderRow(List<Column> columns, Row row) {
 
     public Optional<Value<?>> getValue(Column column) {
-
-        var indexOpt = ModelUtils.columnIndex(columns, column);
-        if (indexOpt.isEmpty()) {
-            return Optional.empty();
-        }
-
-        var index = indexOpt.get();
-        var value = row.values().get(index);
-
-        return Optional.of(value);
+        return ModelUtils.columnIndex(columns, column).map(index -> row.values().get(index));
     }
 
     public static HeaderRow empty() {

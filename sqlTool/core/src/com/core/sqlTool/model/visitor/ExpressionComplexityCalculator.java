@@ -26,7 +26,7 @@ public class ExpressionComplexityCalculator implements Expression.Visitor<Calcul
         this.resolver = resolver;
         this.headerRow = headerRow;
         this.externalRow = externalRow;
-        this.mergedExternalRow = externalRow.merge(new ExternalHeaderRow(headerRow.getColumns(), headerRow.getRow()));
+        this.mergedExternalRow = externalRow.merge(new ExternalHeaderRow(headerRow.columns(), headerRow.row()));
     }
 
     @Override
