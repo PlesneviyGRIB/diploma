@@ -12,7 +12,7 @@ import com.core.sqlTool.exception.ColumnNotFoundException;
 import com.core.sqlTool.model.command.SelectCommand;
 import com.core.sqlTool.model.domain.ExternalHeaderRow;
 import com.core.sqlTool.model.domain.LazyTable;
-import com.core.sqlTool.model.visitor.ExpressionValidator;
+import com.core.sqlTool.model.visitor.ExpressionResultTypeResolver;
 import com.core.sqlTool.utils.DtoToModelConverter;
 import com.core.sqlTool.utils.ModelUtils;
 import org.junit.Test;
@@ -112,8 +112,8 @@ public class ColumnNameTest extends TestBase {
             var selectCommand = (SelectCommand) commands.get(0);
             var expression = selectCommand.expressions().get(0);
 
-            var expressionValidator = new ExpressionValidator(lazyTable.columns(), ExternalHeaderRow.empty());
-            var resolvedColumn = ModelUtils.getColumnFromExpression(expression, lazyTable, expressionValidator);
+            var expressionResultTypeResolver = new ExpressionResultTypeResolver(lazyTable.columns(), ExternalHeaderRow.empty());
+            var resolvedColumn = ModelUtils.getColumnFromExpression(expression, lazyTable, expressionResultTypeResolver);
             ModelUtils.resolveColumn(lazyTable.columns(), resolvedColumn);
         });
     }

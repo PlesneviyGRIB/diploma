@@ -3,35 +3,39 @@ package com.core.sqlTool.model.visitor;
 import com.client.sqlTool.expression.Operator;
 import com.core.sqlTool.exception.ComputedTypeException;
 import com.core.sqlTool.exception.IncorrectOperatorUsageException;
-import com.core.sqlTool.exception.UnsupportedTypeException;
+import com.core.sqlTool.exception.UnexpectedExpressionException;
 import com.core.sqlTool.model.domain.Column;
 import com.core.sqlTool.model.domain.ExternalHeaderRow;
 import com.core.sqlTool.model.expression.*;
 import com.core.sqlTool.utils.ModelUtils;
 import com.core.sqlTool.utils.OperatorUtils;
+import com.core.sqlTool.utils.ValidationUtils;
+import com.google.gson.reflect.TypeToken;
 import org.apache.commons.collections4.ListUtils;
 
 import java.lang.reflect.ParameterizedType;
+import java.util.Arrays;
 import java.util.List;
 
-public class ExpressionValidator implements Expression.Visitor<Class<? extends Value<?>>> {
+public class ExpressionResultTypeResolver implements Expression.Visitor<Class<? extends Value<?>>> {
 
     private final List<Column> columns;
 
-    public ExpressionValidator(List<Column> columns, ExternalHeaderRow externalRow) {
-        ModelUtils.assertDifferentColumns(columns, externalRow.columns());
+    public ExpressionResultTypeResolver(List<Column> columns, ExternalHeaderRow externalRow) {
+        ValidationUtils.assertDifferentColumns(columns, externalRow.columns());
         this.columns = ListUtils.union(columns, externalRow.columns());
     }
 
     @Override
     public Class<? extends Value<?>> visit(ExpressionList expressionList) {
-        var type = ((ParameterizedType) expressionList.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
-        return (Class<? extends Value<?>>) type;
+        var type = ((ParameterizedType) expressionList.expressions().getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+        var rawType = TypeToken.get(type).getRawType();
+        return (Class<? extends Value<?>>) rawType;
     }
 
     @Override
     public Class<? extends Value<?>> visit(SubTable table) {
-        throw new UnsupportedTypeException("Can not process columnType of '%s' in such context", table.stringify());
+        throw new UnexpectedExpressionException(table);
     }
 
     @Override
@@ -133,8 +137,13 @@ public class ExpressionValidator implements Expression.Visitor<Class<? extends V
         return value.expression().accept(this);
     }
 
+    @SafeVarargs
     private void assertSameClass(Expression expression, Class<? extends Value<?>>... classes) {
-        if (!ModelUtils.theSameClasses(classes)) {
+
+        var type = (Class<?>) Arrays.stream(classes).toArray()[0];
+        var classesAreSame = Arrays.stream(classes).allMatch(c -> c.equals(type));
+
+        if (!classesAreSame) {
             throw new ComputedTypeException(expression);
         }
     }

@@ -10,4 +10,5 @@ public class UnexpectedException extends RuntimeException {
     public UnexpectedException(String format, Object... objects) {
         super(format(format, objects));
     }
+
 }

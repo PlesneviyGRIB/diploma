@@ -7,6 +7,7 @@ import com.core.sqlTool.model.domain.ExternalHeaderRow;
 import com.core.sqlTool.model.domain.LazyTable;
 import com.core.sqlTool.model.domain.Projection;
 import com.core.sqlTool.model.domain.Row;
+import com.core.sqlTool.model.expression.NumberValue;
 import com.core.sqlTool.model.resolver.Resolver;
 import com.core.sqlTool.support.WrappedStream;
 import com.core.sqlTool.utils.DatabaseReader;
@@ -16,6 +17,7 @@ import org.junit.Assert;
 
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.List;
 
 import static com.core.sqlTool.config.Constants.*;
 import static java.lang.String.format;
@@ -44,7 +46,7 @@ public class TestBase {
         return resolverResult.lazyTable();
     }
 
-    void expectException(Runnable runnable, Class<? extends RuntimeException> exception) {
+    protected void expectException(Runnable runnable, Class<? extends RuntimeException> exception) {
         try {
             runnable.run();
             Assert.fail();
@@ -64,12 +66,12 @@ public class TestBase {
         return new LazyTable(tableName, columns, data, ExternalHeaderRow.empty());
     }
 
-//    protected List<Long> retrieveIds(List<Row> data) {
-//        return data.stream()
-//                .map(row -> row.values().get(0))
-//                .filter(value -> value instanceof LongNumber)
-//                .map(ln -> ((LongNumber) ln).value())
-//                .toList();
-//    }
+    protected List<Integer> retrieveIds(List<Row> data) {
+        return data.stream()
+                .map(row -> row.values().get(0))
+                .filter(value -> value instanceof NumberValue)
+                .map(ln -> ((NumberValue) ln).value())
+                .toList();
+    }
 
 }

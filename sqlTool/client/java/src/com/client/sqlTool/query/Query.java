@@ -12,7 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 @Getter
-public class Query {
+public class Query extends Expression {
 
     private final List<Command> commands = new LinkedList<>();
 

@@ -29,19 +29,19 @@ public class ExpressionPrinter implements Expression.Visitor<String> {
 
     @Override
     public String visit(UnaryOperation operation) {
-        return String.format("%s(%s)", operation.operator().designator.toUpperCase(), operation.expression().accept(this));
+        return String.format("%s(%s)", operation.operator().getDesignator().toUpperCase(), operation.expression().accept(this));
     }
 
     @Override
     public String visit(BinaryOperation operation) {
-        return String.format("%s %s %s", wrapWithParentheses(operation.left()), operation.operator().designator.toUpperCase(), wrapWithParentheses(operation.right()));
+        return String.format("%s %s %s", wrapWithParentheses(operation.left()), operation.operator().getDesignator().toUpperCase(), wrapWithParentheses(operation.right()));
     }
 
     @Override
     public String visit(TernaryOperation operation) {
         return String.format("%s %s(%s and %s)",
                 wrapWithParentheses(operation.first()),
-                operation.operator().designator.toUpperCase(),
+                operation.operator().getDesignator().toUpperCase(),
                 wrapWithParentheses(operation.second()),
                 wrapWithParentheses(operation.third())
         );

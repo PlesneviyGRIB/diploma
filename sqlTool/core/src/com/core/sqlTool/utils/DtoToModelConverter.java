@@ -4,7 +4,9 @@ import com.client.sqlTool.command.*;
 import com.client.sqlTool.domain.AggregationType;
 import com.client.sqlTool.domain.JoinStrategy;
 import com.client.sqlTool.expression.Number;
+import com.client.sqlTool.expression.String;
 import com.client.sqlTool.expression.*;
+import com.client.sqlTool.query.Query;
 import com.core.sqlTool.exception.InvalidTableOrColumnAliasException;
 import com.core.sqlTool.exception.UnexpectedException;
 import com.core.sqlTool.exception.UnnamedExpressionException;
@@ -175,8 +177,8 @@ public record DtoToModelConverter() {
             return new NumberValue(dtoNumber.getValue());
         }
 
-        if (dtoExpression instanceof Str dtoStr) {
-            return new StringValue(dtoStr.getValue());
+        if (dtoExpression instanceof String dtoString) {
+            return new StringValue(dtoString.getValue());
         }
 
         if (dtoExpression instanceof TimeStamp dtoTimeStamp) {
@@ -201,6 +203,16 @@ public record DtoToModelConverter() {
 
         if (dtoExpression instanceof com.client.sqlTool.domain.Column dtoColumn) {
             return convertColumn(dtoColumn);
+        }
+
+        if (dtoExpression instanceof com.client.sqlTool.expression.List dtoList) {
+            var expressions = dtoList.getExpressions().stream().map(this::convertExpression).toList();
+            return new ExpressionList(expressions);
+        }
+
+        if (dtoExpression instanceof Query dtoSubQuery) {
+            var commands = convert(dtoSubQuery.getCommands());
+            return new SubTable(commands);
         }
 
         throw new UnexpectedException();

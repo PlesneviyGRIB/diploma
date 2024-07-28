@@ -10,7 +10,7 @@ import com.core.sqlTool.model.expression.Expression;
 import com.core.sqlTool.model.expression.Value;
 import com.core.sqlTool.model.resolver.Resolver;
 import com.core.sqlTool.model.visitor.ExpressionCalculator;
-import com.core.sqlTool.model.visitor.ExpressionValidator;
+import com.core.sqlTool.model.visitor.ExpressionResultTypeResolver;
 import com.core.sqlTool.model.visitor.ValueInjector;
 import com.core.sqlTool.utils.ExpressionUtils;
 import com.core.sqlTool.utils.ModelUtils;
@@ -29,10 +29,10 @@ public record GroupByCommand(List<Expression> expressions,
     @Override
     public LazyTable run(LazyTable lazyTable, Projection projection, Resolver resolver, CalculatorEntry calculatorEntry) {
 
-        var expressionValidator = new ExpressionValidator(lazyTable.columns(), lazyTable.externalRow());
+        var expressionResultTypeResolver = new ExpressionResultTypeResolver(lazyTable.columns(), lazyTable.externalRow());
         var aggregationExpressions = aggregations.stream().map(Pair::getLeft).toList();
         var columns = ListUtils.union(expressions, aggregationExpressions).stream()
-                .map((expression) -> ModelUtils.getColumnFromExpression(expression, lazyTable, expressionValidator))
+                .map((expression) -> ModelUtils.getColumnFromExpression(expression, lazyTable, expressionResultTypeResolver))
                 .toList();
 
         var allExpressions = ListUtils.union(expressions, aggregations.stream().map(Pair::getLeft).toList());

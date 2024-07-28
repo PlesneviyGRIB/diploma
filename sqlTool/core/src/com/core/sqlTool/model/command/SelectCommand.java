@@ -7,7 +7,7 @@ import com.core.sqlTool.model.domain.Projection;
 import com.core.sqlTool.model.domain.Row;
 import com.core.sqlTool.model.expression.Expression;
 import com.core.sqlTool.model.resolver.Resolver;
-import com.core.sqlTool.model.visitor.ExpressionValidator;
+import com.core.sqlTool.model.visitor.ExpressionResultTypeResolver;
 import com.core.sqlTool.utils.ExpressionUtils;
 import com.core.sqlTool.utils.ModelUtils;
 
@@ -21,9 +21,9 @@ public record SelectCommand(List<Expression> expressions) implements MultipleExp
     @Override
     public LazyTable run(LazyTable lazyTable, Projection projection, Resolver resolver, CalculatorEntry calculatorEntry) {
 
-        var expressionValidator = new ExpressionValidator(lazyTable.columns(), lazyTable.externalRow());
+        var expressionResultTypeResolver = new ExpressionResultTypeResolver(lazyTable.columns(), lazyTable.externalRow());
         var columns = expressions.stream()
-                .map((expression) -> ModelUtils.getColumnFromExpression(expression, lazyTable, expressionValidator))
+                .map((expression) -> ModelUtils.getColumnFromExpression(expression, lazyTable, expressionResultTypeResolver))
                 .toList();
 
         var calculatedValueByExpressionMap = ExpressionUtils.calculateContextInsensitiveExpressions(expressions, lazyTable, resolver);

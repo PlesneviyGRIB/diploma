@@ -1,5 +1,8 @@
 package com.client.sqlTool.expression;
 
+import lombok.Getter;
+
+@Getter
 public enum Operator {
 
     AND("and"),
@@ -24,9 +27,9 @@ public enum Operator {
     DIVISION("/"),
     MOD("%");
 
-    public final String designator;
+    private final java.lang.String designator;
 
-    Operator(String designator) {
+    Operator(java.lang.String designator) {
         this.designator = designator;
     }
 

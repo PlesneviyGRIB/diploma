@@ -1,6 +1,5 @@
 package com.core.sqlTool.model.visitor;
 
-import com.client.sqlTool.expression.Operator;
 import com.core.sqlTool.exception.UnexpectedException;
 import com.core.sqlTool.exception.UnexpectedExpressionException;
 import com.core.sqlTool.model.domain.Column;
@@ -10,20 +9,21 @@ import com.core.sqlTool.model.domain.LazyTable;
 import com.core.sqlTool.model.expression.*;
 import com.core.sqlTool.model.resolver.Resolver;
 import com.core.sqlTool.utils.ModelUtils;
+import lombok.RequiredArgsConstructor;
 
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.client.sqlTool.expression.Operator.*;
+
+@RequiredArgsConstructor
 public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
 
     private final Resolver resolver;
 
-    private final ExternalHeaderRow mergedExternalHeaderRow;
+    private final HeaderRow headerRow;
 
-    public ExpressionCalculator(Resolver resolver, HeaderRow headerRow, ExternalHeaderRow externalRow) {
-        this.resolver = resolver;
-        this.mergedExternalHeaderRow = externalRow.merge(new ExternalHeaderRow(headerRow.columns(), headerRow.row()));
-    }
+    private final ExternalHeaderRow externalRow;
 
     @Override
     public Value<?> visit(ExpressionList list) {
@@ -43,20 +43,20 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
     @Override
     public Value<BooleanValue> visit(UnaryOperation operation) {
 
-        var specialResult = handleSpecialUnaryCases(operation).orElse(null);
-        if (Objects.nonNull(specialResult)) {
-            return specialResult;
+        var specialResultOpt = handleSpecialUnaryCases(operation);
+        if (specialResultOpt.isPresent()) {
+            return specialResultOpt.get();
         }
 
-        var op = operation.operator();
+        var operator = operation.operator();
         var value = operation.expression().accept(this);
-        if (op == Operator.EXISTS) {
+        if (operator == EXISTS) {
             return new BooleanValue(!(value instanceof NullValue));
         }
-        if (op == Operator.IS_NULL) {
+        if (operator == IS_NULL) {
             return new BooleanValue(value instanceof NullValue);
         }
-        if (op == Operator.NOT) {
+        if (operator == NOT) {
             var prevValue = ((BooleanValue) value).value();
             return new BooleanValue(!prevValue);
         }
@@ -166,10 +166,10 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
 
     private Optional<Value<BooleanValue>> handleSpecialUnaryCases(UnaryOperation operation) {
 
-        if (operation.operator() == Operator.EXISTS) {
+        if (operation.operator() == EXISTS) {
 
             if (operation.expression() instanceof SubTable subTable) {
-                var table = resolver.resolve(subTable.commands(), mergedExternalHeaderRow).lazyTable();
+                var table = resolver.resolve(subTable.commands(), getMergedExternalHeaderRow()).lazyTable();
                 return Optional.of(new BooleanValue(table.dataStream().findAny().isPresent()));
             }
 
@@ -180,14 +180,14 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
 
     private Optional<Value<?>> handleSpecialBinaryCases(BinaryOperation operation) {
 
-        if (operation.operator() == Operator.IN) {
+        if (operation.operator() == IN) {
 
             if (operation.right() instanceof ExpressionList list) {
                 return Optional.of(processInListOperation(operation.left().accept(this), list));
             }
 
             if (operation.right() instanceof SubTable subTable) {
-                var table = resolver.resolve(subTable.commands(), mergedExternalHeaderRow).lazyTable();
+                var table = resolver.resolve(subTable.commands(), getMergedExternalHeaderRow()).lazyTable();
                 return Optional.of(processInTableOperation(operation.left().accept(this), table));
             }
         }
@@ -220,6 +220,10 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
                 .anyMatch(val -> val.equals(value));
 
         return new BooleanValue(presents);
+    }
+
+    private ExternalHeaderRow getMergedExternalHeaderRow() {
+        return externalRow.merge(new ExternalHeaderRow(headerRow.columns(), headerRow.row()));
     }
 
 }
