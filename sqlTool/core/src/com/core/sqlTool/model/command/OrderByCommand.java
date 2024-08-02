@@ -8,7 +8,7 @@ import com.core.sqlTool.model.domain.Projection;
 import com.core.sqlTool.model.domain.Row;
 import com.core.sqlTool.model.expression.Expression;
 import com.core.sqlTool.model.resolver.Resolver;
-import com.core.sqlTool.model.visitor.ExpressionValidator;
+import com.core.sqlTool.model.visitor.ExpressionResultTypeResolver;
 import com.core.sqlTool.utils.ExpressionUtils;
 import com.core.sqlTool.utils.ModelUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -35,8 +35,8 @@ public record OrderByCommand(List<Pair<Expression, Boolean>> orders) implements 
                     var value1 = ExpressionUtils.calculateExpression(expression, headerRow1, lazyTable.externalRow(), resolver, calculatedValueByExpressionMap);
                     var value2 = ExpressionUtils.calculateExpression(expression, headerRow2, lazyTable.externalRow(), resolver, calculatedValueByExpressionMap);
 
-                    var expressionValidator = new ExpressionValidator(lazyTable.columns(), lazyTable.externalRow());
-                    var valueType = expression.accept(expressionValidator);
+                    var expressionResultTypeResolver = new ExpressionResultTypeResolver(lazyTable.columns(), lazyTable.externalRow());
+                    var valueType = expression.accept(expressionResultTypeResolver);
 
                     var res = ModelUtils.compareValues(value1, value2, valueType);
                     if (!order.getRight()) {

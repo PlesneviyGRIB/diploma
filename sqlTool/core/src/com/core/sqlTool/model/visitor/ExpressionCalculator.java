@@ -1,8 +1,8 @@
 package com.core.sqlTool.model.visitor;
 
-import com.client.sqlTool.expression.Operator;
-import com.core.sqlTool.exception.UnexpectedException;
+import com.core.sqlTool.exception.MoreThanOneColumnInSubQueryException;
 import com.core.sqlTool.exception.UnexpectedExpressionException;
+import com.core.sqlTool.model.complexity.CalculatedExpressionResult;
 import com.core.sqlTool.model.domain.Column;
 import com.core.sqlTool.model.domain.ExternalHeaderRow;
 import com.core.sqlTool.model.domain.HeaderRow;
@@ -10,61 +10,74 @@ import com.core.sqlTool.model.domain.LazyTable;
 import com.core.sqlTool.model.expression.*;
 import com.core.sqlTool.model.resolver.Resolver;
 import com.core.sqlTool.utils.ModelUtils;
+import lombok.RequiredArgsConstructor;
 
+import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
-public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
+import static com.client.sqlTool.expression.Operator.*;
+
+@RequiredArgsConstructor
+public class ExpressionCalculator implements Expression.Visitor<CalculatedExpressionResult> {
 
     private final Resolver resolver;
 
-    private final ExternalHeaderRow mergedExternalHeaderRow;
+    private final HeaderRow headerRow;
 
-    public ExpressionCalculator(Resolver resolver, HeaderRow headerRow, ExternalHeaderRow externalRow) {
-        this.resolver = resolver;
-        this.mergedExternalHeaderRow = externalRow.merge(new ExternalHeaderRow(headerRow.getColumns(), headerRow.getRow()));
-    }
+    private final ExternalHeaderRow externalRow;
 
     @Override
-    public Value<?> visit(ExpressionList list) {
+    public CalculatedExpressionResult visit(ExpressionList list) {
         throw new UnexpectedExpressionException(list);
     }
 
     @Override
-    public Value<?> visit(SubTable table) {
+    public CalculatedExpressionResult visit(SubQuery table) {
         throw new UnexpectedExpressionException(table);
     }
 
     @Override
-    public Value<Column> visit(Column column) {
-        throw new UnexpectedExpressionException(column);
+    public CalculatedExpressionResult visit(Column column) {
+
+        var value = headerRow.getValue(column)
+                .or(() -> externalRow.getValue(column))
+                .orElseThrow(() -> new UnexpectedExpressionException(column));
+
+        return CalculatedExpressionResult.eager(value, 1);
     }
 
     @Override
-    public Value<BooleanValue> visit(UnaryOperation operation) {
+    public CalculatedExpressionResult visit(UnaryOperation operation) {
 
-        var specialResult = handleSpecialUnaryCases(operation).orElse(null);
-        if (Objects.nonNull(specialResult)) {
-            return specialResult;
+        var specialResultOpt = handleSpecialUnaryCases(operation);
+        if (specialResultOpt.isPresent()) {
+            return specialResultOpt.get();
         }
 
-        var op = operation.operator();
-        var value = operation.expression().accept(this);
-        if (op == Operator.EXISTS) {
-            return new BooleanValue(!(value instanceof NullValue));
+        var operator = operation.operator();
+        var calculatedExpressionResult = operation.expression().accept(this);
+        var value = calculatedExpressionResult.getValue();
+
+        if (operator == IS_NOT_NULL) {
+            return CalculatedExpressionResult.eager(new BooleanValue(!(value instanceof NullValue)), 1).merge(calculatedExpressionResult);
         }
-        if (op == Operator.IS_NULL) {
-            return new BooleanValue(value instanceof NullValue);
+        if (operator == IS_NULL) {
+            return CalculatedExpressionResult.eager(new BooleanValue(value instanceof NullValue), 1).merge(calculatedExpressionResult);
         }
-        if (op == Operator.NOT) {
+        if (operator == NOT) {
             var prevValue = ((BooleanValue) value).value();
-            return new BooleanValue(!prevValue);
+            return CalculatedExpressionResult.eager(new BooleanValue(!prevValue), 1).merge(calculatedExpressionResult);
         }
+
         throw new UnexpectedExpressionException(operation);
     }
 
     @Override
-    public Value<?> visit(BinaryOperation operation) {
+    public CalculatedExpressionResult visit(BinaryOperation operation) {
 
         var specialResult = handleSpecialBinaryCases(operation).orElse(null);
         if (Objects.nonNull(specialResult)) {
@@ -72,105 +85,126 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
         }
 
         var left = operation.left().accept(this);
-        var right = operation.right().accept(this);
-        var targetClass = left.getClass();
-        var l = targetClass.cast(left);
-        var r = targetClass.cast(right);
+        var right = CalculatedExpressionResult.lazy(() -> operation.right().accept(this));
+
+        Function<Predicate<Integer>, CalculatedExpressionResult> comparison = predicate -> {
+            var complexity = 1;
+
+            if (left.getValue() instanceof StringValue stringValue1) {
+                var stringValue2 = ((StringValue) right.getValue());
+                complexity = Math.min(stringValue1.value().length(), stringValue2.value().length());
+            }
+
+            var value = predicate.test(((Value) left.getValue()).compareTo(right.getValue()));
+            return CalculatedExpressionResult.eager(new BooleanValue(value), complexity).merge(left).merge(right);
+        };
 
         switch (operation.operator()) {
             case AND -> {
-                var val1 = BooleanValue.class.cast(left);
-                var val2 = BooleanValue.class.cast(right);
-                return new BooleanValue(val1.value() && val2.value());
+                var value = BooleanValue.class.cast(left.getValue()).value() && BooleanValue.class.cast(right.getValue()).value();
+                return CalculatedExpressionResult.eager(new BooleanValue(value), 1).merge(left).merge(right);
             }
             case OR -> {
-                var val1 = BooleanValue.class.cast(left);
-                var val2 = BooleanValue.class.cast(right);
-                return new BooleanValue(val1.value() || val2.value());
+                var value = BooleanValue.class.cast(left.getValue()).value() || BooleanValue.class.cast(right.getValue()).value();
+                return CalculatedExpressionResult.eager(new BooleanValue(value), 1).merge(left).merge(right);
             }
             case EQ -> {
-                return new BooleanValue(l.compareTo(r) == 0);
+                return comparison.apply(comparisonResult -> comparisonResult == 0);
             }
             case NOT_EQ -> {
-                return new BooleanValue(l.compareTo(r) != 0);
+                return comparison.apply(comparisonResult -> comparisonResult != 0);
             }
             case GREATER_OR_EQ -> {
-                return new BooleanValue(l.compareTo(r) >= 0);
+                return comparison.apply(comparisonResult -> comparisonResult >= 0);
             }
             case LESS_OR_EQ -> {
-                return new BooleanValue(l.compareTo(r) <= 0);
+                return comparison.apply(comparisonResult -> comparisonResult <= 0);
             }
             case GREATER -> {
-                return new BooleanValue(l.compareTo(r) > 0);
+                return comparison.apply(comparisonResult -> comparisonResult > 0);
             }
             case LESS -> {
-                return new BooleanValue(l.compareTo(r) < 0);
+                return comparison.apply(comparisonResult -> comparisonResult < 0);
             }
             case PLUS, MINUS, MULTIPLY, DIVISION, MOD -> {
-                return l.processArithmetic(operation.operator(), r);
+                var value = ((Value) left.getValue()).processArithmetic(operation.operator(), right.getValue());
+                return CalculatedExpressionResult.eager(value, 1).merge(left).merge(right);
             }
             case LIKE -> {
-                var target = ((StringValue) l).value();
-                var pattern = ((StringValue) r).value();
+                var target = ((StringValue) left.getValue()).value();
+                var pattern = ((StringValue) right.getValue()).value();
                 var matches = target.matches(ModelUtils.sqlPatternToJavaPattern(pattern));
-                return new BooleanValue(matches);
+                var complexity = target.length();
+
+                return CalculatedExpressionResult.eager(new BooleanValue(matches), complexity).merge(left).merge(right);
             }
             default -> throw new UnexpectedExpressionException(operation);
         }
     }
 
     @Override
-    public Value<BooleanValue> visit(TernaryOperation operation) {
-        var f = operation.first().accept(this);
-        var targetClass = f.getClass();
-        var first = targetClass.cast(f);
-        var second = targetClass.cast(operation.second().accept(this));
-        var third = targetClass.cast(operation.third().accept(this));
-        return new BooleanValue(second.compareTo(first) <= 0 && first.compareTo(third) < 0);
+    public CalculatedExpressionResult visit(TernaryOperation operation) {
+
+        if (operation.operator() != BETWEEN) {
+            throw new UnexpectedExpressionException(operation);
+        }
+
+        var first = operation.first().accept(this);
+        var second = CalculatedExpressionResult.lazy(() -> operation.second().accept(this));
+        var third = CalculatedExpressionResult.lazy(() -> operation.third().accept(this));
+
+        var value = ((Value) second.getValue()).compareTo(first.getValue()) <= 0 && ((Value) third.getValue()).compareTo(first.getValue()) >= 0;
+
+        return CalculatedExpressionResult.eager(new BooleanValue(value), 2).merge(first).merge(second).merge(third);
     }
 
     @Override
-    public Value<Object> visit(NullValue value) {
-        return value;
+    public CalculatedExpressionResult visit(NullValue value) {
+        return CalculatedExpressionResult.eager(value, 0);
     }
 
     @Override
-    public Value<StringValue> visit(StringValue value) {
-        return value;
+    public CalculatedExpressionResult visit(StringValue value) {
+        return CalculatedExpressionResult.eager(value, 0);
     }
 
     @Override
-    public Value<BooleanValue> visit(BooleanValue value) {
-        return value;
+    public CalculatedExpressionResult visit(BooleanValue value) {
+        return CalculatedExpressionResult.eager(value, 0);
     }
 
     @Override
-    public Value<NumberValue> visit(NumberValue value) {
-        return value;
+    public CalculatedExpressionResult visit(NumberValue value) {
+        return CalculatedExpressionResult.eager(value, 0);
     }
 
     @Override
-    public Value<FloatNumberValue> visit(FloatNumberValue value) {
-        return value;
+    public CalculatedExpressionResult visit(FloatNumberValue value) {
+        return CalculatedExpressionResult.eager(value, 0);
     }
 
     @Override
-    public Value<TimestampValue> visit(TimestampValue value) {
-        return value;
+    public CalculatedExpressionResult visit(TimestampValue value) {
+        return CalculatedExpressionResult.eager(value, 0);
     }
 
     @Override
-    public Value<?> visit(NamedExpression value) {
+    public CalculatedExpressionResult visit(NamedExpression value) {
         return value.expression().accept(this);
     }
 
-    private Optional<Value<BooleanValue>> handleSpecialUnaryCases(UnaryOperation operation) {
+    private Optional<CalculatedExpressionResult> handleSpecialUnaryCases(UnaryOperation operation) {
 
-        if (operation.operator() == Operator.EXISTS) {
+        if (operation.operator() == EXISTS) {
 
-            if (operation.expression() instanceof SubTable subTable) {
-                var table = resolver.resolve(subTable.commands(), mergedExternalHeaderRow).lazyTable();
-                return Optional.of(new BooleanValue(table.dataStream().findAny().isPresent()));
+            if (operation.expression() instanceof SubQuery subQuery) {
+
+                var resolverResult = resolver.resolve(subQuery.commands(), getMergedExternalHeaderRow());
+                var table = resolverResult.lazyTable();
+                var tableComplexity = resolverResult.calculator().getTotalComplexity();
+                var value = table.dataStream().findAny().isPresent();
+
+                return Optional.of(CalculatedExpressionResult.eager(new BooleanValue(value), 1 + tableComplexity));
             }
 
         }
@@ -178,48 +212,62 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
         return Optional.empty();
     }
 
-    private Optional<Value<?>> handleSpecialBinaryCases(BinaryOperation operation) {
+    private Optional<CalculatedExpressionResult> handleSpecialBinaryCases(BinaryOperation operation) {
 
-        if (operation.operator() == Operator.IN) {
+        if (operation.operator() == IN) {
+
+            var calculatedExpressionResult = operation.left().accept(this);
 
             if (operation.right() instanceof ExpressionList list) {
-                return Optional.of(processInListOperation(operation.left().accept(this), list));
+                return Optional.of(processInStreamOperation(calculatedExpressionResult.getValue(), list.expressions().stream()).merge(calculatedExpressionResult));
             }
 
-            if (operation.right() instanceof SubTable subTable) {
-                var table = resolver.resolve(subTable.commands(), mergedExternalHeaderRow).lazyTable();
-                return Optional.of(processInTableOperation(operation.left().accept(this), table));
+            if (operation.right() instanceof SubQuery subQuery) {
+
+                var resolverResult = resolver.resolve(subQuery.commands(), getMergedExternalHeaderRow());
+                var table = resolverResult.lazyTable();
+                var tableComplexity = resolverResult.calculator().getTotalComplexity();
+
+                return Optional.of(processInTableOperation(calculatedExpressionResult.getValue(), table).merge(CalculatedExpressionResult.eager(null, tableComplexity)).merge(calculatedExpressionResult));
             }
         }
 
         return Optional.empty();
     }
 
-    private BooleanValue processInTableOperation(Expression expression, LazyTable lazyTable) {
-        var columnsCount = lazyTable.columns().size();
+    private CalculatedExpressionResult processInTableOperation(Value<?> value, LazyTable lazyTable) {
 
-        if (columnsCount != 1) {
-            throw new UnexpectedException("Expected exactly one columnName in tableName '%s'", lazyTable.name());
+        if (lazyTable.columns().size() != 1) {
+            throw new MoreThanOneColumnInSubQueryException(lazyTable.columns());
         }
 
-        var columnData = lazyTable.dataStream()
-                .map(row -> row.values().get(0))
-                .toList();
-
-        return processInListOperation(expression, new ExpressionList(columnData));
+        return processInStreamOperation(value, lazyTable.dataStream().map(row -> row.values().get(0)));
     }
 
-    private BooleanValue processInListOperation(Expression expression, ExpressionList list) {
-        if (list.expressions().isEmpty()) {
-            return new BooleanValue(false);
-        }
+    private CalculatedExpressionResult processInStreamOperation(Value<?> value, Stream<Expression> expressionStream) {
 
-        var value = expression.accept(this);
-        var presents = list.expressions().stream()
-                .map(e -> e.accept(this))
-                .anyMatch(val -> val.equals(value));
+        var usedCalculatedExpressionResults = new LinkedList<CalculatedExpressionResult>();
 
-        return new BooleanValue(presents);
+        var presents = expressionStream
+                .map(expression -> expression.accept(this))
+                .anyMatch(expressionResult -> {
+
+                    var eqOperation = new BinaryOperation(EQ, value, expressionResult.getValue());
+                    var calculatedExpressionResult = eqOperation.accept(this);
+
+                    usedCalculatedExpressionResults.add(calculatedExpressionResult.merge(expressionResult));
+
+                    return ((BooleanValue) calculatedExpressionResult.getValue()).value();
+                });
+
+        var calculatedExpressionResult = usedCalculatedExpressionResults.stream()
+                .reduce(CalculatedExpressionResult.eager(null, 0), CalculatedExpressionResult::merge);
+
+        return CalculatedExpressionResult.eager(new BooleanValue(presents), 0).merge(calculatedExpressionResult);
+    }
+
+    private ExternalHeaderRow getMergedExternalHeaderRow() {
+        return externalRow.merge(new ExternalHeaderRow(headerRow.columns(), headerRow.row()));
     }
 
 }

@@ -5,9 +5,9 @@ import lombok.Getter;
 @Getter
 public abstract class Expression {
 
-    private String expressionName;
+    private java.lang.String expressionName;
 
-    public Expression as(String name) {
+    public Expression as(java.lang.String name) {
         this.expressionName = name;
         return this;
     }

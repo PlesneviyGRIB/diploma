@@ -13,7 +13,7 @@ public class ExpressionTraversal implements Expression.Visitor<Void> {
     }
 
     @Override
-    public Void visit(SubTable table) {
+    public Void visit(SubQuery table) {
         return null;
     }
 

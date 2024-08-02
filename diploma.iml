@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="JAVA_MODULE" version="4">
   <component name="NewModuleRootManager">
-    <output url="file://$MODULE_DIR$sqlTool/out/production/diploma/sqlTool" />
+    <output url="file://$MODULE_DIR$/../diplomasqlTool/out/production/diploma/sqlTool" />
     <output-test url="file://$MODULE_DIR$/out/test/diploma/sqlTool" />
     <exclude-output />
     <content url="file://$MODULE_DIR$">
@@ -16,5 +16,6 @@
     <orderEntry type="library" name="junit" level="project" />
     <orderEntry type="library" name="lombok-1.18.34" level="project" />
     <orderEntry type="library" name="sqlite-jdbc-3.34.0" level="project" />
+    <orderEntry type="library" name="gson-2.11.0" level="project" />
   </component>
 </module>

@@ -9,9 +9,7 @@ import com.core.sqlTool.model.domain.Row;
 import com.core.sqlTool.model.expression.Expression;
 import com.core.sqlTool.model.expression.Value;
 import com.core.sqlTool.model.resolver.Resolver;
-import com.core.sqlTool.model.visitor.ExpressionCalculator;
-import com.core.sqlTool.model.visitor.ExpressionValidator;
-import com.core.sqlTool.model.visitor.ValueInjector;
+import com.core.sqlTool.model.visitor.ExpressionResultTypeResolver;
 import com.core.sqlTool.utils.ExpressionUtils;
 import com.core.sqlTool.utils.ModelUtils;
 import org.apache.commons.collections4.ListUtils;
@@ -29,10 +27,10 @@ public record GroupByCommand(List<Expression> expressions,
     @Override
     public LazyTable run(LazyTable lazyTable, Projection projection, Resolver resolver, CalculatorEntry calculatorEntry) {
 
-        var expressionValidator = new ExpressionValidator(lazyTable.columns(), lazyTable.externalRow());
+        var expressionResultTypeResolver = new ExpressionResultTypeResolver(lazyTable.columns(), lazyTable.externalRow());
         var aggregationExpressions = aggregations.stream().map(Pair::getLeft).toList();
         var columns = ListUtils.union(expressions, aggregationExpressions).stream()
-                .map((expression) -> ModelUtils.getColumnFromExpression(expression, lazyTable, expressionValidator))
+                .map((expression) -> ModelUtils.getColumnFromExpression(expression, lazyTable, expressionResultTypeResolver))
                 .toList();
 
         var allExpressions = ListUtils.union(expressions, aggregations.stream().map(Pair::getLeft).toList());
@@ -73,21 +71,15 @@ public record GroupByCommand(List<Expression> expressions,
                 .map(aggregation -> {
 
                     var expression = aggregation.getLeft();
+                    var externalRow = lazyTable.externalRow();
                     var aggregationFunction = aggregation.getRight();
 
                     List<Value<?>> values = groupOfRows.stream()
                             .map(row -> {
-
-                                var value = calculatedValueByExpressionMap.get(expression);
-                                if (value != null) {
-                                    return value;
-                                }
                                 var headerRow = new HeaderRow(lazyTable.columns(), row);
-                                return expression
-                                        .accept(new ValueInjector(headerRow, lazyTable.externalRow()))
-                                        .accept(new ExpressionCalculator(resolver, headerRow, lazyTable.externalRow()));
+                                return ExpressionUtils.calculateExpression(expression, headerRow, externalRow, resolver, calculatedValueByExpressionMap);
                             })
-                            .toList();
+                            .collect(Collectors.toList());
 
                     return aggregationFunction.aggregate(ModelUtils.toSingleTypeValues(values));
                 })

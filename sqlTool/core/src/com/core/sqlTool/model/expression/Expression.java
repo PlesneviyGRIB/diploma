@@ -11,7 +11,7 @@ public interface Expression {
 
         T visit(ExpressionList list);
 
-        T visit(SubTable table);
+        T visit(SubQuery table);
 
         T visit(Column column);
 

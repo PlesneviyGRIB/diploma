@@ -6,13 +6,16 @@ import com.core.sqlTool.model.domain.Column;
 import com.core.sqlTool.model.domain.LazyTable;
 import com.core.sqlTool.model.domain.Row;
 import com.core.sqlTool.model.expression.*;
-import com.core.sqlTool.model.visitor.ExpressionValidator;
+import com.core.sqlTool.model.visitor.ExpressionResultTypeResolver;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
@@ -29,14 +32,6 @@ public class ModelUtils {
         var size = lazyTable.columns().size();
         var data = new ArrayList<Value<?>>(size);
         IntStream.range(0, size).forEach(index -> data.add(index, new NullValue()));
-        return new Row(data);
-    }
-
-    public static Row typeSafeEmptyRow(LazyTable lazyTable) {
-        var columns = lazyTable.columns();
-        var size = columns.size();
-        var data = new ArrayList<Value<?>>(size);
-        IntStream.range(0, size).forEach(index -> data.add(index, getDefaultValueByType(columns.get(index).getColumnType())));
         return new Row(data);
     }
 
@@ -102,7 +97,7 @@ public class ModelUtils {
             return TimestampValue.class;
         }
 
-        throw new UnsupportedTypeException("Unable to process value of columnType '%s'", clazz.getSimpleName());
+        throw new UnsupportedTypeException(clazz);
     }
 
     public static Optional<Integer> columnIndex(List<Column> columns, Column column) {
@@ -138,18 +133,18 @@ public class ModelUtils {
         return columns.get(index);
     }
 
-    public static Column getColumnFromExpression(Expression expression, LazyTable lazyTable, ExpressionValidator expressionValidator) {
+    public static Column getColumnFromExpression(Expression expression, LazyTable lazyTable, ExpressionResultTypeResolver expressionResultTypeResolver) {
         if (expression instanceof Column column) {
             return ModelUtils.resolveColumn(lazyTable.columns(), column);
         }
 
         if (expression instanceof NamedExpression namedExpression) {
 
-            var columnType = expression.accept(expressionValidator);
+            var columnType = expression.accept(expressionResultTypeResolver);
             var tableName = ObjectUtils.firstNonNull(namedExpression.tableName(), lazyTable.name());
 
             if (namedExpression.expression() instanceof Column column) {
-                var resolvedColumn = getColumnFromExpression(column, lazyTable, expressionValidator);
+                var resolvedColumn = getColumnFromExpression(column, lazyTable, expressionResultTypeResolver);
                 var resolvedTableName = ObjectUtils.firstNonNull(tableName, resolvedColumn.getTableName());
                 return new Column(resolvedTableName, namedExpression.columnName(), resolvedColumn.getColumnType());
             }
@@ -199,22 +194,6 @@ public class ModelUtils {
         throw new ValidationException("Unexpected columnType '%s'", clazz.getTypeName());
     }
 
-    public static boolean theSameClasses(Class... classes) {
-        var type = (Class) Arrays.stream(classes).toArray()[0];
-        return Arrays.stream(classes).allMatch(c -> c.equals(type));
-    }
-
-    public static void assertDifferentColumns(List<Column> columns1, List<Column> columns2) {
-        columns1.stream()
-                .filter(columns2::contains)
-                .findAny()
-                .ifPresent(c -> {
-                    throw new UnexpectedException(
-                            "Ambiguity found: Column columnName for sub tableName and parent tableName is the same '%s'. Try to rename sub or parent tableName",
-                            c.stringify());
-                });
-    }
-
     public static String sqlPatternToJavaPattern(String pattern) {
         return pattern
                 .replace(".", "\\.")
@@ -234,7 +213,7 @@ public class ModelUtils {
         } else if (valueClass.equals(TimestampValue.class)) {
             return new TimestampValue(new Timestamp(0));
         }
-        throw new UnsupportedTypeException("Unable to process value of columnType '%s'", valueClass.getSimpleName());
+        throw new UnexpectedException();
     }
 
 }

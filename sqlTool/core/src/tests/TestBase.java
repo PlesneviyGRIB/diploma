@@ -3,7 +3,12 @@ package tests;
 import com.client.sqlTool.query.Query;
 import com.core.sqlTool.model.cache.CacheContext;
 import com.core.sqlTool.model.cache.CacheStrategy;
-import com.core.sqlTool.model.domain.*;
+import com.core.sqlTool.model.domain.ExternalHeaderRow;
+import com.core.sqlTool.model.domain.LazyTable;
+import com.core.sqlTool.model.domain.Projection;
+import com.core.sqlTool.model.domain.Row;
+import com.core.sqlTool.model.expression.Expression;
+import com.core.sqlTool.model.expression.NumberValue;
 import com.core.sqlTool.model.resolver.Resolver;
 import com.core.sqlTool.support.WrappedStream;
 import com.core.sqlTool.utils.DatabaseReader;
@@ -13,6 +18,7 @@ import org.junit.Assert;
 
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.List;
 
 import static com.core.sqlTool.config.Constants.*;
 import static java.lang.String.format;
@@ -41,7 +47,7 @@ public class TestBase {
         return resolverResult.lazyTable();
     }
 
-    void expectException(Runnable runnable, Class<? extends RuntimeException> exception) {
+    protected void expectException(Runnable runnable, Class<? extends RuntimeException> exception) {
         try {
             runnable.run();
             Assert.fail();
@@ -53,20 +59,31 @@ public class TestBase {
     }
 
     protected LazyTable cartesianProduct(LazyTable lazyTable1, LazyTable lazyTable2) {
+
         var data1 = lazyTable1.dataStream();
         var data2 = new WrappedStream<>(lazyTable2.dataStream());
         var data = data1.flatMap(prefix -> data2.getStream().map(postfix -> Row.merge(prefix, postfix)));
-        var tableName = format("%s_%s", lazyTable1.name(), lazyTable2.name());
         var columns = ListUtils.union(lazyTable1.columns(), lazyTable2.columns());
-        return new LazyTable(tableName, columns, data, ExternalHeaderRow.empty());
+
+        return new LazyTable(null, columns, data, ExternalHeaderRow.empty());
     }
 
-//    protected List<Long> retrieveIds(List<Row> data) {
-//        return data.stream()
-//                .map(row -> row.values().get(0))
-//                .filter(value -> value instanceof LongNumber)
-//                .map(ln -> ((LongNumber) ln).value())
-//                .toList();
-//    }
+    protected List<Integer> retrieveIds(List<Row> data) {
+        return data.stream()
+                .map(row -> row.values().get(0))
+                .filter(value -> value instanceof NumberValue)
+                .map(ln -> ((NumberValue) ln).value())
+                .toList();
+    }
+
+    protected Expression convertExpression(com.client.sqlTool.expression.Expression expression) {
+        try {
+            var convertExpressionMethod = DtoToModelConverter.class.getDeclaredMethod("convertExpression", com.client.sqlTool.expression.Expression.class);
+            convertExpressionMethod.setAccessible(true);
+            return (Expression) convertExpressionMethod.invoke(new DtoToModelConverter(), expression);
+        } catch (Exception e) {
+            throw new RuntimeException();
+        }
+    }
 
 }
