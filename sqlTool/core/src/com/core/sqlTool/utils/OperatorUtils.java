@@ -20,7 +20,7 @@ public class OperatorUtils {
     }
 
     public static boolean isUnary(Operator operator) {
-        var operatorStream = Stream.of(EXISTS, IS_NULL, NOT);
+        var operatorStream = Stream.of(EXISTS, IS_NULL, IS_NOT_NULL, NOT);
         return operatorStream.anyMatch(o -> o.equals(operator));
     }
 

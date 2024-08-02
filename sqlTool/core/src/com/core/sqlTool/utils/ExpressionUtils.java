@@ -11,7 +11,6 @@ import com.core.sqlTool.model.resolver.Resolver;
 import com.core.sqlTool.model.visitor.ContextSensitiveExpressionQualifier;
 import com.core.sqlTool.model.visitor.ExpressionCalculator;
 import com.core.sqlTool.model.visitor.ExpressionTraversal;
-import com.core.sqlTool.model.visitor.ValueInjector;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
@@ -50,9 +49,7 @@ public class ExpressionUtils {
                         return null;
                     }
 
-                    var value = expression
-                            .accept(new ValueInjector(HeaderRow.empty(), lazyTable.externalRow()))
-                            .accept(new ExpressionCalculator(resolver, HeaderRow.empty(), lazyTable.externalRow()));
+                    var value = expression.accept(new ExpressionCalculator(resolver, HeaderRow.empty(), lazyTable.externalRow()));
 
                     return Pair.<Expression, Value<?>>of(expression, value);
                 })
@@ -65,9 +62,7 @@ public class ExpressionUtils {
         if (value != null) {
             return value;
         }
-        return expression
-                .accept(new ValueInjector(headerRow, externalRow))
-                .accept(new ExpressionCalculator(resolver, headerRow, externalRow));
+        return expression.accept(new ExpressionCalculator(resolver, headerRow, externalRow));
     }
 
 }

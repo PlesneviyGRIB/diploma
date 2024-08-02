@@ -10,7 +10,6 @@ import com.core.sqlTool.model.expression.Value;
 import com.core.sqlTool.model.resolver.Resolver;
 import com.core.sqlTool.model.visitor.ContextSensitiveExpressionQualifier;
 import com.core.sqlTool.model.visitor.ExpressionCalculator;
-import com.core.sqlTool.model.visitor.ValueInjector;
 import com.core.sqlTool.support.IndexedData;
 import com.core.sqlTool.support.JoinStreams;
 import com.core.sqlTool.support.WrappedStream;
@@ -35,10 +34,7 @@ public record LoopJoinStrategy() implements JoinStrategy {
 
         Optional<Value<?>> valueProvider = isContextSensitiveExpression ?
                 Optional.empty() :
-                Optional.of(expression
-                        .accept(new ValueInjector(HeaderRow.empty(), lazyTable.externalRow()))
-                        .accept(new ExpressionCalculator(resolver, HeaderRow.empty(), lazyTable.externalRow()))
-                );
+                Optional.of(expression.accept(new ExpressionCalculator(resolver, HeaderRow.empty(), lazyTable.externalRow())));
 
         var usedLeft = new HashSet<Integer>();
         var usedRight = new HashSet<Integer>();
@@ -65,10 +61,7 @@ public record LoopJoinStrategy() implements JoinStrategy {
                     var externalRow = lazyTable.externalRow();
 
                     var joined = !ExpressionUtils.columnsContainsNulls(headerRow, externalRow, expression) &&
-                            ((BooleanValue) valueProvider.orElseGet(() -> expression
-                                    .accept(new ValueInjector(headerRow, externalRow))
-                                    .accept(new ExpressionCalculator(resolver, headerRow, externalRow))
-                            )).value();
+                            ((BooleanValue) valueProvider.orElseGet(() -> expression.accept(new ExpressionCalculator(resolver, headerRow, externalRow)))).value();
 
                     if (joined) {
                         usedLeft.add(leftIndexedRow.index());

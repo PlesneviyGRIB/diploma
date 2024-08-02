@@ -10,7 +10,6 @@ import com.core.sqlTool.model.expression.Expression;
 import com.core.sqlTool.model.resolver.Resolver;
 import com.core.sqlTool.model.visitor.ContextSensitiveExpressionQualifier;
 import com.core.sqlTool.model.visitor.ExpressionCalculator;
-import com.core.sqlTool.model.visitor.ValueInjector;
 import com.core.sqlTool.utils.ValidationUtils;
 
 import java.util.Optional;
@@ -30,16 +29,12 @@ public record WhereCommand(Expression expression) implements SingleExpressionCom
 
         var valueProvider = isContextSensitiveExpression ?
                 Optional.<BooleanValue>empty() :
-                Optional.of((BooleanValue) expression
-                        .accept(new ValueInjector(HeaderRow.empty(), externalRow))
-                        .accept(new ExpressionCalculator(resolver, HeaderRow.empty(), externalRow)));
+                Optional.of((BooleanValue) expression.accept(new ExpressionCalculator(resolver, HeaderRow.empty(), externalRow)));
 
         Predicate<Row> predicate = row -> {
             var headerRow = new HeaderRow(columns, row);
             return valueProvider.orElseGet(
-                    () -> (BooleanValue) expression
-                            .accept(new ValueInjector(headerRow, externalRow))
-                            .accept(new ExpressionCalculator(resolver, headerRow, externalRow))
+                    () -> (BooleanValue) expression.accept(new ExpressionCalculator(resolver, headerRow, externalRow))
             ).value();
         };
 

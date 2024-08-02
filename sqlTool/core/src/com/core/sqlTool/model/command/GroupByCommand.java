@@ -11,7 +11,6 @@ import com.core.sqlTool.model.expression.Value;
 import com.core.sqlTool.model.resolver.Resolver;
 import com.core.sqlTool.model.visitor.ExpressionCalculator;
 import com.core.sqlTool.model.visitor.ExpressionResultTypeResolver;
-import com.core.sqlTool.model.visitor.ValueInjector;
 import com.core.sqlTool.utils.ExpressionUtils;
 import com.core.sqlTool.utils.ModelUtils;
 import org.apache.commons.collections4.ListUtils;
@@ -83,9 +82,7 @@ public record GroupByCommand(List<Expression> expressions,
                                     return value;
                                 }
                                 var headerRow = new HeaderRow(lazyTable.columns(), row);
-                                return expression
-                                        .accept(new ValueInjector(headerRow, lazyTable.externalRow()))
-                                        .accept(new ExpressionCalculator(resolver, headerRow, lazyTable.externalRow()));
+                                return expression.accept(new ExpressionCalculator(resolver, headerRow, lazyTable.externalRow()));
                             })
                             .toList();
 

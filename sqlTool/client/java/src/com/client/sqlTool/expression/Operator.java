@@ -12,6 +12,7 @@ public enum Operator {
     IN("in"),
     OR("or"),
     IS_NULL("is null"),
+    IS_NOT_NULL("is not null"),
     LIKE("like"),
 
     EQ("="),

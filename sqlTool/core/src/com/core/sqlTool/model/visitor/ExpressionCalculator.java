@@ -1,6 +1,6 @@
 package com.core.sqlTool.model.visitor;
 
-import com.core.sqlTool.exception.UnexpectedException;
+import com.core.sqlTool.exception.MoreThanOneColumnInSubQueryException;
 import com.core.sqlTool.exception.UnexpectedExpressionException;
 import com.core.sqlTool.model.domain.Column;
 import com.core.sqlTool.model.domain.ExternalHeaderRow;
@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import static com.client.sqlTool.expression.Operator.*;
 
@@ -36,12 +37,14 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
     }
 
     @Override
-    public Value<Column> visit(Column column) {
-        throw new UnexpectedExpressionException(column);
+    public Value<?> visit(Column column) {
+        return headerRow.getValue(column)
+                .or(() -> externalRow.getValue(column))
+                .orElseThrow(() -> new UnexpectedExpressionException(column));
     }
 
     @Override
-    public Value<BooleanValue> visit(UnaryOperation operation) {
+    public BooleanValue visit(UnaryOperation operation) {
 
         var specialResultOpt = handleSpecialUnaryCases(operation);
         if (specialResultOpt.isPresent()) {
@@ -50,7 +53,8 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
 
         var operator = operation.operator();
         var value = operation.expression().accept(this);
-        if (operator == EXISTS) {
+
+        if (operator == IS_NOT_NULL) {
             return new BooleanValue(!(value instanceof NullValue));
         }
         if (operator == IS_NULL) {
@@ -60,6 +64,7 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
             var prevValue = ((BooleanValue) value).value();
             return new BooleanValue(!prevValue);
         }
+
         throw new UnexpectedExpressionException(operation);
     }
 
@@ -71,47 +76,46 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
             return specialResult;
         }
 
-        var left = operation.left().accept(this);
-        var right = operation.right().accept(this);
-        var targetClass = left.getClass();
-        var l = targetClass.cast(left);
-        var r = targetClass.cast(right);
+        Supplier<Value<?>> leftSupplier = () -> operation.left().accept(this);
+        Supplier<Value<?>> rightSupplier = () -> operation.right().accept(this);
 
         switch (operation.operator()) {
             case AND -> {
-                var val1 = BooleanValue.class.cast(left);
-                var val2 = BooleanValue.class.cast(right);
-                return new BooleanValue(val1.value() && val2.value());
+                return new BooleanValue(
+                        BooleanValue.class.cast(leftSupplier.get()).value()
+                                && BooleanValue.class.cast(rightSupplier.get()).value()
+                );
             }
             case OR -> {
-                var val1 = BooleanValue.class.cast(left);
-                var val2 = BooleanValue.class.cast(right);
-                return new BooleanValue(val1.value() || val2.value());
+                return new BooleanValue(
+                        BooleanValue.class.cast(leftSupplier.get()).value()
+                                || BooleanValue.class.cast(rightSupplier.get()).value()
+                );
             }
             case EQ -> {
-                return new BooleanValue(l.compareTo(r) == 0);
+                return new BooleanValue(((Value) leftSupplier.get()).compareTo(rightSupplier.get()) == 0);
             }
             case NOT_EQ -> {
-                return new BooleanValue(l.compareTo(r) != 0);
+                return new BooleanValue(((Value) leftSupplier.get()).compareTo(rightSupplier.get()) != 0);
             }
             case GREATER_OR_EQ -> {
-                return new BooleanValue(l.compareTo(r) >= 0);
+                return new BooleanValue(((Value) leftSupplier.get()).compareTo(rightSupplier.get()) >= 0);
             }
             case LESS_OR_EQ -> {
-                return new BooleanValue(l.compareTo(r) <= 0);
+                return new BooleanValue(((Value) leftSupplier.get()).compareTo(rightSupplier.get()) <= 0);
             }
             case GREATER -> {
-                return new BooleanValue(l.compareTo(r) > 0);
+                return new BooleanValue(((Value) leftSupplier.get()).compareTo(rightSupplier.get()) > 0);
             }
             case LESS -> {
-                return new BooleanValue(l.compareTo(r) < 0);
+                return new BooleanValue(((Value) leftSupplier.get()).compareTo(rightSupplier.get()) < 0);
             }
             case PLUS, MINUS, MULTIPLY, DIVISION, MOD -> {
-                return l.processArithmetic(operation.operator(), r);
+                return ((Value) leftSupplier.get()).processArithmetic(operation.operator(), rightSupplier.get());
             }
             case LIKE -> {
-                var target = ((StringValue) l).value();
-                var pattern = ((StringValue) r).value();
+                var target = ((StringValue) leftSupplier.get()).value();
+                var pattern = ((StringValue) rightSupplier.get()).value();
                 var matches = target.matches(ModelUtils.sqlPatternToJavaPattern(pattern));
                 return new BooleanValue(matches);
             }
@@ -120,42 +124,47 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
     }
 
     @Override
-    public Value<BooleanValue> visit(TernaryOperation operation) {
-        var f = operation.first().accept(this);
-        var targetClass = f.getClass();
-        var first = targetClass.cast(f);
-        var second = targetClass.cast(operation.second().accept(this));
-        var third = targetClass.cast(operation.third().accept(this));
-        return new BooleanValue(second.compareTo(first) <= 0 && first.compareTo(third) < 0);
+    public BooleanValue visit(TernaryOperation operation) {
+
+        if (operation.operator() != BETWEEN) {
+            throw new UnexpectedExpressionException(operation);
+        }
+
+        var value = operation.first().accept(this);
+
+        return new BooleanValue(
+                ((Value) operation.second().accept(this)).compareTo(value) <= 0 &&
+                        ((Value) operation.third().accept(this)).compareTo(value) >= 0
+        );
     }
 
     @Override
-    public Value<Object> visit(NullValue value) {
+    public NullValue visit(NullValue value) {
         return value;
     }
 
     @Override
-    public Value<StringValue> visit(StringValue value) {
+    public StringValue visit(StringValue value) {
         return value;
     }
 
     @Override
-    public Value<BooleanValue> visit(BooleanValue value) {
+    public BooleanValue visit(BooleanValue value) {
         return value;
     }
 
     @Override
-    public Value<NumberValue> visit(NumberValue value) {
+    public NumberValue visit(NumberValue value) {
         return value;
     }
 
     @Override
-    public Value<FloatNumberValue> visit(FloatNumberValue value) {
+    public FloatNumberValue visit(FloatNumberValue value) {
         return value;
     }
 
     @Override
-    public Value<TimestampValue> visit(TimestampValue value) {
+    public TimestampValue visit(TimestampValue value) {
         return value;
     }
 
@@ -164,7 +173,7 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
         return value.expression().accept(this);
     }
 
-    private Optional<Value<BooleanValue>> handleSpecialUnaryCases(UnaryOperation operation) {
+    private Optional<BooleanValue> handleSpecialUnaryCases(UnaryOperation operation) {
 
         if (operation.operator() == EXISTS) {
 
@@ -195,26 +204,21 @@ public class ExpressionCalculator implements Expression.Visitor<Value<?>> {
         return Optional.empty();
     }
 
-    private BooleanValue processInTableOperation(Expression expression, LazyTable lazyTable) {
-        var columnsCount = lazyTable.columns().size();
+    private BooleanValue processInTableOperation(Value<?> value, LazyTable lazyTable) {
 
-        if (columnsCount != 1) {
-            throw new UnexpectedException("Expected exactly one columnName in tableName '%s'", lazyTable.name());
+        if (lazyTable.columns().size() != 1) {
+            throw new MoreThanOneColumnInSubQueryException(lazyTable.columns());
         }
 
         var columnData = lazyTable.dataStream()
                 .map(row -> row.values().get(0))
                 .toList();
 
-        return processInListOperation(expression, new ExpressionList(columnData));
+        return processInListOperation(value, new ExpressionList(columnData));
     }
 
-    private BooleanValue processInListOperation(Expression expression, ExpressionList list) {
-        if (list.expressions().isEmpty()) {
-            return new BooleanValue(false);
-        }
+    private BooleanValue processInListOperation(Value<?> value, ExpressionList list) {
 
-        var value = expression.accept(this);
         var presents = list.expressions().stream()
                 .map(e -> e.accept(this))
                 .anyMatch(val -> val.equals(value));
