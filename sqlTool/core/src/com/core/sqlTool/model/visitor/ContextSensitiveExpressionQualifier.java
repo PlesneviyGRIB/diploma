@@ -4,6 +4,8 @@ import com.core.sqlTool.model.command.*;
 import com.core.sqlTool.model.domain.Column;
 import com.core.sqlTool.model.expression.*;
 import com.core.sqlTool.utils.ModelUtils;
+import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
 
@@ -26,23 +28,62 @@ public class ContextSensitiveExpressionQualifier implements Expression.Visitor<B
                 .anyMatch(command -> command.accept(new Command.Visitor<>() {
 
                     @Override
-                    public Boolean visit(SimpleCommand command) {
+                    public Boolean visit(ConstructIndexCommand command) {
                         return false;
                     }
 
                     @Override
-                    public Boolean visit(CalculatedCommand command) {
+                    public Boolean visit(DistinctCommand command) {
                         return false;
                     }
 
                     @Override
-                    public Boolean visit(SingleExpressionCommand command) {
+                    public Boolean visit(FromCommand command) {
+                        return false;
+                    }
+
+                    @Override
+                    public Boolean visit(GroupByCommand command) {
+                        return ListUtils.union(command.expressions(), command.aggregations().stream().map(Pair::getKey).toList()).stream()
+                                .anyMatch(expression -> expression.accept(ContextSensitiveExpressionQualifier.this));
+                    }
+
+                    @Override
+                    public Boolean visit(LimitCommand command) {
+                        return false;
+                    }
+
+                    @Override
+                    public Boolean visit(OffsetCommand command) {
+                        return false;
+                    }
+
+                    @Override
+                    public Boolean visit(OrderByCommand command) {
+                        return command.orders().stream()
+                                .map(Pair::getKey)
+                                .anyMatch(expression -> expression.accept(ContextSensitiveExpressionQualifier.this));
+                    }
+
+                    @Override
+                    public Boolean visit(SelectCommand command) {
+                        return command.expressions().stream()
+                                .anyMatch(expression -> expression.accept(ContextSensitiveExpressionQualifier.this));
+                    }
+
+                    @Override
+                    public Boolean visit(TableAliasCommand command) {
+                        return false;
+                    }
+
+                    @Override
+                    public Boolean visit(WhereCommand command) {
+                        return command.expression().accept(ContextSensitiveExpressionQualifier.this);
+                    }
+
+                    @Override
+                    public Boolean visit(JoinCommand command) {
                         return command.getExpression().accept(ContextSensitiveExpressionQualifier.this);
-                    }
-
-                    @Override
-                    public Boolean visit(MultipleExpressionsCommand command) {
-                        return command.getExpressions().stream().anyMatch(expression -> expression.accept(ContextSensitiveExpressionQualifier.this));
                     }
 
                 }));

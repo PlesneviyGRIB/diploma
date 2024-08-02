@@ -7,9 +7,6 @@ import com.client.sqlTool.expression.Bool;
 import com.client.sqlTool.expression.Number;
 import com.client.sqlTool.expression.Unary;
 import com.client.sqlTool.query.Query;
-import com.core.sqlTool.model.command.FromCommand;
-import com.core.sqlTool.model.domain.ExternalHeaderRow;
-import com.core.sqlTool.model.domain.LazyTable;
 import org.junit.Test;
 
 import java.util.List;
@@ -139,10 +136,8 @@ public class CommandTest extends TestBase {
         var tableSize = execute(Query.from("content").fullLoopJoin(Query.from("content_descriptor"), Bool.TRUE))
                 .dataStream().count();
 
-        var emptyTable = new LazyTable(null, null, null, ExternalHeaderRow.empty());
-
-        var mathElementsTable = new FromCommand("content").run(emptyTable, projection);
-        var finalAnswersTable = new FromCommand("content_descriptor").run(emptyTable, projection);
+        var mathElementsTable = execute(Query.from("content"));
+        var finalAnswersTable = execute(Query.from("content_descriptor"));
 
         var cartesianProduct = cartesianProduct(mathElementsTable, finalAnswersTable);
 

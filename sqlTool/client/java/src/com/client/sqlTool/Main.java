@@ -3,6 +3,7 @@ package com.client.sqlTool;
 import com.client.sqlTool.command.Aggregation;
 import com.client.sqlTool.command.Order;
 import com.client.sqlTool.domain.Column;
+import com.client.sqlTool.expression.Bool;
 import com.client.sqlTool.query.Query;
 import com.core.sqlTool.utils.QueryExecutor;
 import com.core.sqlTool.utils.printer.CalculatorPrinter;
@@ -23,6 +24,7 @@ public class Main {
                         Aggregation.average(Column.of("p.price").as("tmp"))
                 )
                 .orderBy(Order.of(Column.of("price")).desc())
+                .fullLoopJoin(Query.from("product"), Bool.TRUE)
                 .limit(20);
 
 
@@ -33,10 +35,10 @@ public class Main {
         try {
             var result = new QueryExecutor(query).execute();
 
-            var tableStr = new TablePrinter(result.getLeft()).stringify();
-            var calculatorStr = new CalculatorPrinter(result.getRight()).stringify();
+            var tablePrinter = new TablePrinter(result.getLeft(), 20, 200);
+            var calculatorStr = new CalculatorPrinter(result.getRight());
 
-            System.out.println(tableStr);
+            System.out.println(tablePrinter);
             System.out.println();
             //System.out.println(calculatorStr);
         } catch (RuntimeException | SQLException e) {

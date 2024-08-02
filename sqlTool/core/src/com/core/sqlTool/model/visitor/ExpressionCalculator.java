@@ -201,7 +201,7 @@ public class ExpressionCalculator implements Expression.Visitor<CalculatedExpres
 
                 var resolverResult = resolver.resolve(subQuery.commands(), getMergedExternalHeaderRow());
                 var table = resolverResult.lazyTable();
-                var tableComplexity = resolverResult.calculator().getTotalComplexity();
+                var tableComplexity = resolverResult.calculator().getComplexity();
                 var value = table.dataStream().findAny().isPresent();
 
                 return Optional.of(CalculatedExpressionResult.eager(new BooleanValue(value), 1 + tableComplexity));
@@ -226,7 +226,7 @@ public class ExpressionCalculator implements Expression.Visitor<CalculatedExpres
 
                 var resolverResult = resolver.resolve(subQuery.commands(), getMergedExternalHeaderRow());
                 var table = resolverResult.lazyTable();
-                var tableComplexity = resolverResult.calculator().getTotalComplexity();
+                var tableComplexity = resolverResult.calculator().getComplexity();
 
                 return Optional.of(processInTableOperation(calculatedExpressionResult.getValue(), table).merge(CalculatedExpressionResult.eager(null, tableComplexity)).merge(calculatedExpressionResult));
             }

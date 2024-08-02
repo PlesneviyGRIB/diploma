@@ -16,7 +16,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
-public record SelectCommand(List<Expression> expressions) implements MultipleExpressionsCommand {
+public record SelectCommand(List<Expression> expressions) implements Command {
 
     @Override
     public LazyTable run(LazyTable lazyTable, Projection projection, Resolver resolver, CalculatorEntry calculatorEntry) {
@@ -42,8 +42,8 @@ public record SelectCommand(List<Expression> expressions) implements MultipleExp
     }
 
     @Override
-    public List<Expression> getExpressions() {
-        return expressions;
+    public  <T> T accept(Visitor<T> visitor) {
+        return visitor.visit(this);
     }
 
 }

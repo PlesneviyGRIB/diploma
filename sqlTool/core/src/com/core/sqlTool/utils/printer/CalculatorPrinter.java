@@ -1,37 +1,39 @@
 package com.core.sqlTool.utils.printer;
 
 import com.core.sqlTool.model.complexity.Calculator;
+import com.core.sqlTool.utils.PrinterUtils;
+import lombok.RequiredArgsConstructor;
 
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
-public class CalculatorPrinter extends Printer<Calculator> {
+@RequiredArgsConstructor
+public class CalculatorPrinter {
 
     public enum TableType {
         PRIMARY, JOIN, INNER
     }
 
+    private final Calculator calculator;
+
+    private final StringBuilder sb = new StringBuilder();
+
     private final String prefix;
 
     private final TableType tableType;
 
-    public CalculatorPrinter(Calculator domain) {
-        super(domain);
+    public CalculatorPrinter(Calculator calculator) {
+        this.calculator = calculator;
         this.prefix = "| ";
         this.tableType = TableType.PRIMARY;
     }
 
-    public CalculatorPrinter(Calculator domain, String prefix, TableType tableType) {
-        super(domain);
-        this.prefix = prefix;
-        this.tableType = tableType;
-    }
-
     @Override
-    protected void buildString() {
+    public String toString() {
+        sb.setLength(0);
+
         appendHeader();
         appendInfo();
 
@@ -45,33 +47,28 @@ public class CalculatorPrinter extends Printer<Calculator> {
         sb.append("\n");
         appendInfo();
         delimiterRow(length);
+
+        return sb.toString();
     }
 
     private void appendHeader() {
-        var totalComplexity = domain.getTotalComplexity();
+        var totalComplexity = 0;
 
         switch (tableType) {
-            case PRIMARY -> sb.append(format("%sTOTAL COMPLEXITY: %s", prefix, red(totalComplexity)));
-            case JOIN -> sb.append(format("%sJOINED TABLE COMPLEXITY: %s", prefix, blue(totalComplexity)));
-            case INNER -> sb.append(format("%sSUB TABLE COMPLEXITY: %s", prefix, blue(totalComplexity)));
-        }
-
-        var fullComplexity = domain.getFullComplexity();
-        var cacheDelta = fullComplexity - totalComplexity;
-
-        if (cacheDelta > 0) {
-            sb.append(green(format("    CACHE INFLUENCE: %s (%s -> %s)", cacheDelta, fullComplexity, totalComplexity)));
+            case PRIMARY -> sb.append(format("%sTOTAL COMPLEXITY: %s", prefix, PrinterUtils.red(totalComplexity)));
+            case JOIN -> sb.append(format("%sJOINED TABLE COMPLEXITY: %s", prefix, PrinterUtils.blue(totalComplexity)));
+            case INNER -> sb.append(format("%sSUB TABLE COMPLEXITY: %s", prefix, PrinterUtils.blue(totalComplexity)));
         }
 
         sb.append("\n");
     }
 
     private void appendInfo() {
-        var data = domain.getEntries().stream()
-                .map(c -> c.stringify(prefix))
-                .collect(Collectors.joining("\n"));
-
-        sb.append(data).append("\n");
+//        var data = calculator.entries().stream()
+//                .map(c -> c.stringify(prefix))
+//                .collect(Collectors.joining("\n"));
+//
+//        sb.append(data).append("\n");
     }
 
     private void delimiterRow(int length) {

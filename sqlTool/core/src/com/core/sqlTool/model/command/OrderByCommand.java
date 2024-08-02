@@ -16,7 +16,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.Comparator;
 import java.util.List;
 
-public record OrderByCommand(List<Pair<Expression, Boolean>> orders) implements MultipleExpressionsCommand {
+public record OrderByCommand(List<Pair<Expression, Boolean>> orders) implements Command {
 
     @Override
     public LazyTable run(LazyTable lazyTable, Projection projection, Resolver resolver, CalculatorEntry calculatorEntry) {
@@ -51,8 +51,8 @@ public record OrderByCommand(List<Pair<Expression, Boolean>> orders) implements 
     }
 
     @Override
-    public List<Expression> getExpressions() {
-        return orders.stream().map(Pair::getLeft).toList();
+    public  <T> T accept(Visitor<T> visitor) {
+        return visitor.visit(this);
     }
 
 }

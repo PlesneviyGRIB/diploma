@@ -1,15 +1,20 @@
 package com.core.sqlTool.model.complexity;
 
-import static java.lang.String.format;
+import com.core.sqlTool.model.command.Command;
+import com.core.sqlTool.model.domain.Row;
+import lombok.RequiredArgsConstructor;
 
-public interface CalculatorEntry extends TotalCalculated {
+import java.util.concurrent.atomic.AtomicInteger;
 
-    String stringify(String prefix);
+@RequiredArgsConstructor
+public class CalculatorEntry {
 
-    default String toRow(String prefix, String template, Object... values) {
-        return format(format("%s", prefix) + template, values);
+    private final Command command;
+
+    private final AtomicInteger counter = new AtomicInteger(0);
+
+    public void count(Row row) {
+        counter.incrementAndGet();
     }
-
-    void count(Object object);
 
 }
