@@ -9,7 +9,6 @@ import com.core.sqlTool.model.domain.Row;
 import com.core.sqlTool.model.expression.Expression;
 import com.core.sqlTool.model.expression.Value;
 import com.core.sqlTool.model.resolver.Resolver;
-import com.core.sqlTool.model.visitor.ExpressionCalculator;
 import com.core.sqlTool.model.visitor.ExpressionResultTypeResolver;
 import com.core.sqlTool.utils.ExpressionUtils;
 import com.core.sqlTool.utils.ModelUtils;
@@ -72,19 +71,15 @@ public record GroupByCommand(List<Expression> expressions,
                 .map(aggregation -> {
 
                     var expression = aggregation.getLeft();
+                    var externalRow = lazyTable.externalRow();
                     var aggregationFunction = aggregation.getRight();
 
                     List<Value<?>> values = groupOfRows.stream()
                             .map(row -> {
-
-                                var value = calculatedValueByExpressionMap.get(expression);
-                                if (value != null) {
-                                    return value;
-                                }
                                 var headerRow = new HeaderRow(lazyTable.columns(), row);
-                                return expression.accept(new ExpressionCalculator(resolver, headerRow, lazyTable.externalRow()));
+                                return ExpressionUtils.calculateExpression(expression, headerRow, externalRow, resolver, calculatedValueByExpressionMap);
                             })
-                            .toList();
+                            .collect(Collectors.toList());
 
                     return aggregationFunction.aggregate(ModelUtils.toSingleTypeValues(values));
                 })
