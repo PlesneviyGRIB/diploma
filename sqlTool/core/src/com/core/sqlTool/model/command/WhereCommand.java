@@ -29,12 +29,12 @@ public record WhereCommand(Expression expression) implements SingleExpressionCom
 
         var valueProvider = isContextSensitiveExpression ?
                 Optional.<BooleanValue>empty() :
-                Optional.of((BooleanValue) expression.accept(new ExpressionCalculator(resolver, HeaderRow.empty(), externalRow)));
+                Optional.of((BooleanValue) expression.accept(new ExpressionCalculator(resolver, HeaderRow.empty(), externalRow)).getValue());
 
         Predicate<Row> predicate = row -> {
             var headerRow = new HeaderRow(columns, row);
             return valueProvider.orElseGet(
-                    () -> (BooleanValue) expression.accept(new ExpressionCalculator(resolver, headerRow, externalRow))
+                    () -> (BooleanValue) expression.accept(new ExpressionCalculator(resolver, headerRow, externalRow)).getValue()
             ).value();
         };
 

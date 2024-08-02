@@ -82,8 +82,8 @@ public class ExpressionEqualityTest {
     @Test
     public void subTableEquality() {
 
-        var expression1 = new SubTable(List.of(new SelectCommand(List.of()), new WhereCommand(new NullValue())));
-        var expression2 = new SubTable(List.of(new SelectCommand(List.of()), new WhereCommand(new NullValue())));
+        var expression1 = new SubQuery(List.of(new SelectCommand(List.of()), new WhereCommand(new NullValue())));
+        var expression2 = new SubQuery(List.of(new SelectCommand(List.of()), new WhereCommand(new NullValue())));
 
         assertEquals(expression1, expression2);
     }

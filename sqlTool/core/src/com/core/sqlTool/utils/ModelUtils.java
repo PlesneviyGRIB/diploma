@@ -35,14 +35,6 @@ public class ModelUtils {
         return new Row(data);
     }
 
-    public static Row typeSafeEmptyRow(LazyTable lazyTable) {
-        var columns = lazyTable.columns();
-        var size = columns.size();
-        var data = new ArrayList<Value<?>>(size);
-        IntStream.range(0, size).forEach(index -> data.add(index, getDefaultValueByType(columns.get(index).getColumnType())));
-        return new Row(data);
-    }
-
     public static List<Value<?>> toSingleTypeValues(List<Value<?>> list) {
         if (CollectionUtils.isEmpty(list)) {
             return List.of();

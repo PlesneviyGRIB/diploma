@@ -31,8 +31,8 @@ public class ComplexCalculatorEntry extends ExecutedCalculatorEntry implements T
                             %s (expression complexity) %s %s (number of calculations) = %s (total)"""
                         .formatted(
                                 stringifyCommand(), getTotalComplexity(),
-                                calculatedExpressionResult.expression().accept(new ExpressionPrinter()),
-                                calculatedExpressionResult.complexity(), getSign(), counter.get(), getTotalComplexity()
+                                calculatedExpressionResult.getValue().accept(new ExpressionPrinter()),
+                                calculatedExpressionResult.getComplexity(), getSign(), counter.get(), getTotalComplexity()
                         );
 
         var text = Arrays.stream(template.split("\n"))
@@ -40,33 +40,35 @@ public class ComplexCalculatorEntry extends ExecutedCalculatorEntry implements T
                 .collect(Collectors.joining("\n"));
 
         var prefixRorSubTable = toRow(prefix, "%s", "    | ");
-        var subTablesVerbose = calculatedExpressionResult.calculators().stream()
-                .map(c -> new CalculatorPrinter(c, prefixRorSubTable, CalculatorPrinter.TableType.INNER).stringify())
-                .collect(Collectors.joining(format("\n%s\n", prefix)));
-
-        if (StringUtils.isNoneBlank(subTablesVerbose)) {
-            text += format("\n%s\n%s", prefix, subTablesVerbose);
-        }
+//        var subTablesVerbose = calculatedExpressionResult.calculators().stream()
+//                .map(c -> new CalculatorPrinter(c, prefixRorSubTable, CalculatorPrinter.TableType.INNER).stringify())
+//                .collect(Collectors.joining(format("\n%s\n", prefix)));
+//
+//        if (StringUtils.isNoneBlank(subTablesVerbose)) {
+//            text += format("\n%s\n%s", prefix, subTablesVerbose);
+//        }
 
         return text;
     }
 
     @Override
     public Integer getTotalComplexity() {
-        return isContextSensitive ?
-                calculatedExpressionResult.complexity() * counter.get() :
-                calculatedExpressionResult.complexity() + counter.get();
+        return null;
+//        return isContextSensitive ?
+//                calculatedExpressionResult.complexity() * counter.get() :
+//                calculatedExpressionResult.complexity() + counter.get();
     }
 
     @Override
     public Integer getFullComplexity() {
-        var expressionComplexity = calculatedExpressionResult.calculators().stream()
-                .map(c -> c.getFullComplexity() - c.getTotalComplexity())
-                .reduce(0, Integer::sum) + calculatedExpressionResult.complexity();
-
-        return isContextSensitive ?
-                expressionComplexity * counter.get() :
-                expressionComplexity + counter.get();
+//        var expressionComplexity = calculatedExpressionResult.calculators().stream()
+//                .map(c -> c.getFullComplexity() - c.getTotalComplexity())
+//                .reduce(0, Integer::sum) + calculatedExpressionResult.complexity();
+//
+//        return isContextSensitive ?
+//                expressionComplexity * counter.get() :
+//                expressionComplexity + counter.get();
+        return null;
     }
 
     protected String getSign() {

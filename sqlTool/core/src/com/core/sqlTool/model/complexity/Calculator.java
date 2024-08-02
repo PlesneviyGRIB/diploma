@@ -17,16 +17,18 @@ public class Calculator implements TotalCalculated {
 
     @Override
     public Integer getTotalComplexity() {
-        return entries.stream()
-                .map(TotalCalculated::getTotalComplexity)
-                .reduce(0, Integer::sum);
+        return 0;
+//        return entries.stream()
+//                .map(TotalCalculated::getTotalComplexity)
+//                .reduce(0, Integer::sum);
     }
 
     @Override
     public Integer getFullComplexity() {
-        return entries.stream()
-                .map(TotalCalculated::getFullComplexity)
-                .reduce(0, Integer::sum);
+        return 0;
+//        return entries.stream()
+//                .map(TotalCalculated::getFullComplexity)
+//                .reduce(0, Integer::sum);
     }
 
     public Calculator withLaziness() {

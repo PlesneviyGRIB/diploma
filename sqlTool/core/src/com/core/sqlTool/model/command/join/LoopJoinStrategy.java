@@ -34,7 +34,7 @@ public record LoopJoinStrategy() implements JoinStrategy {
 
         Optional<Value<?>> valueProvider = isContextSensitiveExpression ?
                 Optional.empty() :
-                Optional.of(expression.accept(new ExpressionCalculator(resolver, HeaderRow.empty(), lazyTable.externalRow())));
+                Optional.of(expression.accept(new ExpressionCalculator(resolver, HeaderRow.empty(), lazyTable.externalRow())).getValue());
 
         var usedLeft = new HashSet<Integer>();
         var usedRight = new HashSet<Integer>();
@@ -61,7 +61,7 @@ public record LoopJoinStrategy() implements JoinStrategy {
                     var externalRow = lazyTable.externalRow();
 
                     var joined = !ExpressionUtils.columnsContainsNulls(headerRow, externalRow, expression) &&
-                            ((BooleanValue) valueProvider.orElseGet(() -> expression.accept(new ExpressionCalculator(resolver, headerRow, externalRow)))).value();
+                            ((BooleanValue) valueProvider.orElseGet(() -> expression.accept(new ExpressionCalculator(resolver, headerRow, externalRow)).getValue())).value();
 
                     if (joined) {
                         usedLeft.add(leftIndexedRow.index());

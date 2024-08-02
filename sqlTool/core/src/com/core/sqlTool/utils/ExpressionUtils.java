@@ -49,7 +49,7 @@ public class ExpressionUtils {
                         return null;
                     }
 
-                    var value = expression.accept(new ExpressionCalculator(resolver, HeaderRow.empty(), lazyTable.externalRow()));
+                    var value = expression.accept(new ExpressionCalculator(resolver, HeaderRow.empty(), lazyTable.externalRow())).getValue();
 
                     return Pair.<Expression, Value<?>>of(expression, value);
                 })
@@ -62,7 +62,7 @@ public class ExpressionUtils {
         if (value != null) {
             return value;
         }
-        return expression.accept(new ExpressionCalculator(resolver, headerRow, externalRow));
+        return expression.accept(new ExpressionCalculator(resolver, headerRow, externalRow)).getValue();
     }
 
 }

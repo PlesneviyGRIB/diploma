@@ -212,7 +212,7 @@ public record DtoToModelConverter() {
 
         if (dtoExpression instanceof Query dtoSubQuery) {
             var commands = convert(dtoSubQuery.getCommands());
-            return new SubTable(commands);
+            return new SubQuery(commands);
         }
 
         throw new UnexpectedException();

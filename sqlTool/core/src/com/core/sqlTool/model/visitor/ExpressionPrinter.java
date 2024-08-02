@@ -18,7 +18,7 @@ public class ExpressionPrinter implements Expression.Visitor<String> {
     }
 
     @Override
-    public String visit(SubTable table) {
+    public String visit(SubQuery table) {
         return "SUB_TABLE[?]";
     }
 
@@ -87,7 +87,7 @@ public class ExpressionPrinter implements Expression.Visitor<String> {
     }
 
     private String wrapWithParentheses(Expression expression) {
-        if (expression instanceof Value<?> || expression instanceof SubTable || expression instanceof Column) {
+        if (expression instanceof Value<?> || expression instanceof SubQuery || expression instanceof Column) {
             return expression.accept(this);
         }
         return format("(%s)", expression.accept(this));

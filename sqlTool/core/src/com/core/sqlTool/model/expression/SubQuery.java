@@ -4,7 +4,7 @@ import com.core.sqlTool.model.command.Command;
 
 import java.util.List;
 
-public record SubTable(List<Command> commands) implements Expression {
+public record SubQuery(List<Command> commands) implements Expression {
 
     @Override
     public <T> T accept(Visitor<T> visitor) {

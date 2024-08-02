@@ -7,12 +7,9 @@ import com.core.sqlTool.model.command.*;
 import com.core.sqlTool.model.command.join.JoinCommand;
 import com.core.sqlTool.model.complexity.*;
 import com.core.sqlTool.model.domain.ExternalHeaderRow;
-import com.core.sqlTool.model.domain.HeaderRow;
 import com.core.sqlTool.model.domain.LazyTable;
 import com.core.sqlTool.model.domain.Projection;
 import com.core.sqlTool.model.visitor.ContextSensitiveExpressionQualifier;
-import com.core.sqlTool.model.visitor.ExpressionComplexityCalculator;
-import com.core.sqlTool.utils.ModelUtils;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -87,11 +84,7 @@ public record Resolver(Projection projection, CacheContext cacheContext) {
                 var expressionIsContextSensitive = command.getExpression()
                         .accept(new ContextSensitiveExpressionQualifier(lazyTable.columns()));
 
-                // unsafe due to use `lazyTable.phonyHeaderRow()` that is not actual context row
-                var phonyHeaderRow = new HeaderRow(lazyTable.columns(), ModelUtils.typeSafeEmptyRow(lazyTable));
-                var calculatedExpressionEntry = command.getExpression()
-                        .accept(new ExpressionComplexityCalculator(utilityInstance(), phonyHeaderRow, externalRow))
-                        .normalize();
+                var calculatedExpressionEntry = CalculatedExpressionResult.eager(null, 0);
 
                 if (command instanceof WhereCommand where) {
                     return new ComplexCalculatorEntry(where, calculatedExpressionEntry, expressionIsContextSensitive);

@@ -21,7 +21,7 @@ public class ContextSensitiveExpressionQualifier implements Expression.Visitor<B
     }
 
     @Override
-    public Boolean visit(SubTable table) {
+    public Boolean visit(SubQuery table) {
         return table.commands().stream()
                 .anyMatch(command -> command.accept(new Command.Visitor<>() {
 

@@ -7,6 +7,7 @@ import com.core.sqlTool.model.domain.ExternalHeaderRow;
 import com.core.sqlTool.model.domain.LazyTable;
 import com.core.sqlTool.model.domain.Projection;
 import com.core.sqlTool.model.domain.Row;
+import com.core.sqlTool.model.expression.Expression;
 import com.core.sqlTool.model.expression.NumberValue;
 import com.core.sqlTool.model.resolver.Resolver;
 import com.core.sqlTool.support.WrappedStream;
@@ -72,6 +73,16 @@ public class TestBase {
                 .filter(value -> value instanceof NumberValue)
                 .map(ln -> ((NumberValue) ln).value())
                 .toList();
+    }
+
+    protected Expression convertExpression(com.client.sqlTool.expression.Expression expression) {
+        try {
+            var convertExpressionMethod = DtoToModelConverter.class.getDeclaredMethod("convertExpression", com.client.sqlTool.expression.Expression.class);
+            convertExpressionMethod.setAccessible(true);
+            return (Expression) convertExpressionMethod.invoke(new DtoToModelConverter(), expression);
+        } catch (Exception e) {
+            throw new RuntimeException();
+        }
     }
 
 }

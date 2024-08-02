@@ -34,7 +34,7 @@ public class ExpressionResultTypeResolver implements Expression.Visitor<Class<? 
     }
 
     @Override
-    public Class<? extends Value<?>> visit(SubTable table) {
+    public Class<? extends Value<?>> visit(SubQuery table) {
         throw new UnexpectedExpressionException(table);
     }
 
@@ -49,7 +49,7 @@ public class ExpressionResultTypeResolver implements Expression.Visitor<Class<? 
             throw new IncorrectOperatorUsageException(operation.operator(), operation);
         }
 
-        if (operation.operator() == Operator.EXISTS && operation.expression() instanceof SubTable) {
+        if (operation.operator() == Operator.EXISTS && operation.expression() instanceof SubQuery) {
             return BooleanValue.class;
         }
 
@@ -66,7 +66,7 @@ public class ExpressionResultTypeResolver implements Expression.Visitor<Class<? 
             throw new IncorrectOperatorUsageException(operation.operator(), operation);
         }
 
-        if (operation.operator() == Operator.IN && (operation.right() instanceof SubTable || operation.right() instanceof ExpressionList)) {
+        if (operation.operator() == Operator.IN && (operation.right() instanceof SubQuery || operation.right() instanceof ExpressionList)) {
             if (operation.right() instanceof ExpressionList list) {
                 var left = operation.left().accept(this);
                 var right = operation.right().accept(this);
