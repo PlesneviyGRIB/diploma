@@ -1,16 +1,16 @@
-package tests.old;
+package tests;
 
 import com.client.sqlTool.domain.Column;
-import com.client.sqlTool.expression.Binary;
 import com.client.sqlTool.expression.Number;
 import com.client.sqlTool.expression.String;
-import com.client.sqlTool.expression.Unary;
+import com.client.sqlTool.expression.*;
 import com.client.sqlTool.query.Query;
+import com.core.sqlTool.exception.ComputedTypeException;
 import com.core.sqlTool.model.domain.LazyTable;
 import org.junit.Test;
-import tests.TestBase;
 
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static com.client.sqlTool.expression.Operator.*;
@@ -20,19 +20,18 @@ public class ExpressionTest extends TestBase {
 
     @Test
     public void expectSingleTypeInList() {
-//        Consumer<Expression> executeExpression = expression -> execute(Query.from("courses").select(expression.as("tmp")));
-//
-//        expectException(() -> executeExpression.accept(Binary.of(IN, Number.of(1),
-//                        com.client.sqlTool.expression.List.of(Number.of(1), Number.of(2)))),
-//                ComputedTypeException.class
-//        );
+        Consumer<Expression> executeExpression = expression -> execute(Query.from("courses").select(expression.as("tmp")));
+
+        expectException(() -> executeExpression.accept(Binary.of(IN, Number.of(1),
+                        com.client.sqlTool.expression.List.of(Number.of(1), Number.of(2)))),
+                ComputedTypeException.class
+        );
     }
 
     @Test
     public void inSubTable() {
 
-        var data = execute(Query
-                .from("courses")
+        var data = execute(Query.from("courses")
                 .where(Binary.of(IN, Column.of("id"), Query.from("course_users").select(Column.of("course_id"))))
                 .select(Column.of("id"))
         ).dataStream().toList();
@@ -44,8 +43,7 @@ public class ExpressionTest extends TestBase {
     @Test
     public void notInSubTable() {
 
-        var data = execute(Query
-                .from("courses")
+        var data = execute(Query.from("courses")
                 .where(Unary.of(NOT, Binary.of(IN, Column.of("id"), Query
                         .from("course_users")
                         .select(Column.of("course_id")))))
@@ -85,6 +83,21 @@ public class ExpressionTest extends TestBase {
         assertEquals(418, resultProvider.apply("\\{\\}").dataStream().toList().size());
         assertEquals(409, resultProvider.apply("%finalAnswerPlaceholderId%").dataStream().toList().size());
         assertEquals(50, resultProvider.apply("%c5666703-4b9f-40f6-9268-8f92619d1199%").dataStream().toList().size());
+    }
+
+    @Test
+    public void expressionPrinter() {
+
+        var dtoExpression = Binary.of(OR,
+                Binary.of(
+                        LESS_OR_EQ,
+                        Column.of("id"),
+                        Binary.of(MULTIPLY, Number.of(1), Number.of(1042))
+                ),
+                Binary.of(EQ, Column.of("action_id"), String.of("addRow"))
+        );
+
+        assertEquals("(COLUMN(id) <= (1 * 1042)) OR (COLUMN(action_id) = addRow)", convertExpression(dtoExpression).stringify());
     }
 
 }

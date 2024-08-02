@@ -59,12 +59,13 @@ public class TestBase {
     }
 
     protected LazyTable cartesianProduct(LazyTable lazyTable1, LazyTable lazyTable2) {
+
         var data1 = lazyTable1.dataStream();
         var data2 = new WrappedStream<>(lazyTable2.dataStream());
         var data = data1.flatMap(prefix -> data2.getStream().map(postfix -> Row.merge(prefix, postfix)));
-        var tableName = format("%s_%s", lazyTable1.name(), lazyTable2.name());
         var columns = ListUtils.union(lazyTable1.columns(), lazyTable2.columns());
-        return new LazyTable(tableName, columns, data, ExternalHeaderRow.empty());
+
+        return new LazyTable(null, columns, data, ExternalHeaderRow.empty());
     }
 
     protected List<Integer> retrieveIds(List<Row> data) {
