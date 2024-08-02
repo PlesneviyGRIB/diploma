@@ -88,8 +88,15 @@ public class ExpressionCalculator implements Expression.Visitor<CalculatedExpres
         var right = CalculatedExpressionResult.lazy(() -> operation.right().accept(this));
 
         Function<Predicate<Integer>, CalculatedExpressionResult> comparison = predicate -> {
+            var complexity = 1;
+
+            if (left.getValue() instanceof StringValue stringValue1) {
+                var stringValue2 = ((StringValue) right.getValue());
+                complexity = Math.min(stringValue1.value().length(), stringValue2.value().length());
+            }
+
             var value = predicate.test(((Value) left.getValue()).compareTo(right.getValue()));
-            return CalculatedExpressionResult.eager(new BooleanValue(value), 1).merge(left).merge(right);
+            return CalculatedExpressionResult.eager(new BooleanValue(value), complexity).merge(left).merge(right);
         };
 
         switch (operation.operator()) {

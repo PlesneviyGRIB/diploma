@@ -40,7 +40,7 @@ public class ExpressionComplexityCalculationTest extends TestBase {
     public void binaryOperationCalculation() {
         calculate(Binary.of(AND, Bool.TRUE, Bool.FALSE), 1, Bool.FALSE);
         calculate(Binary.of(IN, Number.of(3), List.of(Number.of(1), Number.of(2), Number.of(3))), 3, Bool.TRUE);
-        calculate(Binary.of(EQ, String.of("12345"), String.of("12345")), 1, Bool.TRUE);
+        calculate(Binary.of(EQ, String.of("12345"), String.of("12345")), 5, Bool.TRUE);
         calculate(Binary.of(LIKE, String.of("1234567"), String.of("???45%")), 7, Bool.TRUE);
     }
 
