@@ -19,12 +19,12 @@ public class ExpressionPrinter implements Expression.Visitor<String> {
 
     @Override
     public String visit(SubQuery table) {
-        return "SUB_TABLE[?]";
+        return "Query[?]";
     }
 
     @Override
     public String visit(Column column) {
-        return format("COLUMN(%s)", column);
+        return format("%s", column);
     }
 
     @Override
@@ -83,7 +83,7 @@ public class ExpressionPrinter implements Expression.Visitor<String> {
         if (isColumn) {
             return value.expression().accept(this);
         }
-        return "%s as %s".formatted(value.expression().accept(this), value.columnName());
+        return "%s as '%s'".formatted(value.expression().accept(this), value.columnName());
     }
 
     private String wrapWithParentheses(Expression expression) {

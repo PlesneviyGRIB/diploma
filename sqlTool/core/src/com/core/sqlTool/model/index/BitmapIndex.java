@@ -11,4 +11,9 @@ public record BitmapIndex(String name, List<Column> columns) implements Index {
 
     }
 
+    @Override
+    public String getName() {
+        return name;
+    }
+
 }

@@ -1,13 +1,12 @@
 package com.core.sqlTool.utils.printer;
 
 import com.core.sqlTool.model.complexity.Calculator;
+import com.core.sqlTool.model.visitor.CalculatorEntryCommandVisitor;
 import com.core.sqlTool.utils.PrinterUtils;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Arrays;
-import java.util.Comparator;
-
-import static java.lang.String.format;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class CalculatorPrinter {
@@ -18,7 +17,7 @@ public class CalculatorPrinter {
 
     private final Calculator calculator;
 
-    private final StringBuilder sb = new StringBuilder();
+    private final StringBuilder stringBuilder = new StringBuilder();
 
     private final String prefix;
 
@@ -32,53 +31,64 @@ public class CalculatorPrinter {
 
     @Override
     public String toString() {
-        sb.setLength(0);
-
-        appendHeader();
-        appendInfo();
-
-        int length = Math.max(getMaxRowLength() - prefix.length(), 0);
-        sb.setLength(0);
+        int length = getMaxRowLength();
 
         delimiterRow(length);
-        sb.append("\n");
         appendHeader();
         delimiterRow(length);
-        sb.append("\n");
         appendInfo();
         delimiterRow(length);
 
-        return sb.toString();
+        return applyPrefix(stringBuilder.toString());
     }
 
     private void appendHeader() {
         var totalComplexity = 0;
 
         switch (tableType) {
-            case PRIMARY -> sb.append(format("%sTOTAL COMPLEXITY: %s", prefix, PrinterUtils.red(totalComplexity)));
-            case JOIN -> sb.append(format("%sJOINED TABLE COMPLEXITY: %s", prefix, PrinterUtils.blue(totalComplexity)));
-            case INNER -> sb.append(format("%sSUB TABLE COMPLEXITY: %s", prefix, PrinterUtils.blue(totalComplexity)));
+            case PRIMARY -> stringBuilder.append("TOTAL COMPLEXITY: ").append(PrinterUtils.red(totalComplexity));
+            case INNER -> stringBuilder.append("SUB TABLE COMPLEXITY: ").append(PrinterUtils.blue(totalComplexity));
+            case JOIN -> stringBuilder.append("JOINED TABLE COMPLEXITY: ").append(PrinterUtils.blue(totalComplexity));
         }
 
-        sb.append("\n");
+        stringBuilder.append("\n");
     }
 
     private void appendInfo() {
-//        var data = calculator.entries().stream()
-//                .map(c -> c.stringify(prefix))
-//                .collect(Collectors.joining("\n"));
-//
-//        sb.append(data).append("\n");
+        var data = calculator.entries().stream()
+                .map(calculatorEntry -> calculatorEntry.getCommand().accept(new CalculatorEntryCommandVisitor(calculatorEntry)))
+                .collect(Collectors.joining("\n"));
+
+        stringBuilder.append(data).append("\n");
     }
 
     private void delimiterRow(int length) {
-        sb.append(prefix).append("~".repeat(length));
+        stringBuilder.append("~".repeat(length)).append("\n");
     }
 
     private Integer getMaxRowLength() {
-        return Arrays.stream(sb.toString().split("\n"))
-                .map(String::length)
-                .max(Comparator.naturalOrder()).orElse(0);
+        appendHeader();
+        var text = stringBuilder.toString();
+        var headerLength = Arrays.stream(text.split("\n"))
+                .mapToInt(String::length)
+                .max().orElse(0) - 9;
+        stringBuilder.setLength(0);
+
+
+        appendInfo();
+        var text1 = stringBuilder.toString();
+        var infoLength = Arrays.stream(text1.split("\n"))
+                .mapToInt(String::length)
+                .max().orElse(0);
+        stringBuilder.setLength(0);
+
+        return Math.max(headerLength, infoLength);
+    }
+
+    private String applyPrefix(String text) {
+        return Arrays.stream(text.split("\n"))
+                .map(line -> "%s%s".formatted(prefix, line))
+                .collect(Collectors.joining("\n"));
     }
 
 }
