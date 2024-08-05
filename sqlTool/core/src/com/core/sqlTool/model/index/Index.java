@@ -4,4 +4,6 @@ public interface Index {
 
     void construct();
 
+    String getName();
+
 }

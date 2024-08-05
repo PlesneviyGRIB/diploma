@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public record GroupByCommand(List<Expression> expressions,
-                             List<Pair<Expression, AggregationFunction>> aggregations) implements MultipleExpressionsCommand {
+                             List<Pair<Expression, AggregationFunction>> aggregations) implements Command {
 
     @Override
     public LazyTable run(LazyTable lazyTable, Projection projection, Resolver resolver, CalculatorEntry calculatorEntry) {
@@ -60,12 +60,6 @@ public record GroupByCommand(List<Expression> expressions,
         return new LazyTable(lazyTable.name(), columns, data.stream(), lazyTable.externalRow());
     }
 
-    @Override
-    public List<Expression> getExpressions() {
-        var aggregationExpressions = aggregations.stream().map(Pair::getLeft).toList();
-        return ListUtils.union(expressions, aggregationExpressions);
-    }
-
     private List<Value<?>> getAggregatedValues(List<Row> groupOfRows, LazyTable lazyTable, Map<Expression, Value<?>> calculatedValueByExpressionMap, Resolver resolver) {
         return aggregations.stream()
                 .map(aggregation -> {
@@ -84,6 +78,11 @@ public record GroupByCommand(List<Expression> expressions,
                     return aggregationFunction.aggregate(ModelUtils.toSingleTypeValues(values));
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public  <T> T accept(Visitor<T> visitor) {
+        return visitor.visit(this);
     }
 
 }

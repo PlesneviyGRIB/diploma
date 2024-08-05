@@ -15,7 +15,7 @@ import com.core.sqlTool.utils.ValidationUtils;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-public record WhereCommand(Expression expression) implements SingleExpressionCommand {
+public record WhereCommand(Expression expression) implements Command {
 
     @Override
     public LazyTable run(LazyTable lazyTable, Projection projection, Resolver resolver, CalculatorEntry calculatorEntry) {
@@ -42,8 +42,8 @@ public record WhereCommand(Expression expression) implements SingleExpressionCom
     }
 
     @Override
-    public Expression getExpression() {
-        return expression;
+    public  <T> T accept(Visitor<T> visitor) {
+        return visitor.visit(this);
     }
 
 }

@@ -1,87 +1,94 @@
 package com.core.sqlTool.utils.printer;
 
 import com.core.sqlTool.model.complexity.Calculator;
+import com.core.sqlTool.model.visitor.CalculatorEntryCommandVisitor;
+import com.core.sqlTool.utils.PrinterUtils;
+import lombok.RequiredArgsConstructor;
 
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.stream.Collectors;
 
-import static java.lang.String.format;
-
-public class CalculatorPrinter extends Printer<Calculator> {
+@RequiredArgsConstructor
+public class CalculatorPrinter {
 
     public enum TableType {
         PRIMARY, JOIN, INNER
     }
 
+    private final Calculator calculator;
+
+    private final StringBuilder stringBuilder = new StringBuilder();
+
     private final String prefix;
 
     private final TableType tableType;
 
-    public CalculatorPrinter(Calculator domain) {
-        super(domain);
+    public CalculatorPrinter(Calculator calculator) {
+        this.calculator = calculator;
         this.prefix = "| ";
         this.tableType = TableType.PRIMARY;
     }
 
-    public CalculatorPrinter(Calculator domain, String prefix, TableType tableType) {
-        super(domain);
-        this.prefix = prefix;
-        this.tableType = tableType;
-    }
-
     @Override
-    protected void buildString() {
-        appendHeader();
-        appendInfo();
-
-        int length = Math.max(getMaxRowLength() - prefix.length(), 0);
-        sb.setLength(0);
+    public String toString() {
+        int length = getMaxRowLength();
 
         delimiterRow(length);
-        sb.append("\n");
         appendHeader();
         delimiterRow(length);
-        sb.append("\n");
         appendInfo();
         delimiterRow(length);
+
+        return applyPrefix(stringBuilder.toString());
     }
 
     private void appendHeader() {
-        var totalComplexity = domain.getTotalComplexity();
+        var totalComplexity = 0;
 
         switch (tableType) {
-            case PRIMARY -> sb.append(format("%sTOTAL COMPLEXITY: %s", prefix, red(totalComplexity)));
-            case JOIN -> sb.append(format("%sJOINED TABLE COMPLEXITY: %s", prefix, blue(totalComplexity)));
-            case INNER -> sb.append(format("%sSUB TABLE COMPLEXITY: %s", prefix, blue(totalComplexity)));
+            case PRIMARY -> stringBuilder.append("TOTAL COMPLEXITY: ").append(PrinterUtils.red(totalComplexity));
+            case INNER -> stringBuilder.append("SUB TABLE COMPLEXITY: ").append(PrinterUtils.blue(totalComplexity));
+            case JOIN -> stringBuilder.append("JOINED TABLE COMPLEXITY: ").append(PrinterUtils.blue(totalComplexity));
         }
 
-        var fullComplexity = domain.getFullComplexity();
-        var cacheDelta = fullComplexity - totalComplexity;
-
-        if (cacheDelta > 0) {
-            sb.append(green(format("    CACHE INFLUENCE: %s (%s -> %s)", cacheDelta, fullComplexity, totalComplexity)));
-        }
-
-        sb.append("\n");
+        stringBuilder.append("\n");
     }
 
     private void appendInfo() {
-        var data = domain.getEntries().stream()
-                .map(c -> c.stringify(prefix))
+        var data = calculator.entries().stream()
+                .map(calculatorEntry -> calculatorEntry.getCommand().accept(new CalculatorEntryCommandVisitor(calculatorEntry)))
                 .collect(Collectors.joining("\n"));
 
-        sb.append(data).append("\n");
+        stringBuilder.append(data).append("\n");
     }
 
     private void delimiterRow(int length) {
-        sb.append(prefix).append("~".repeat(length));
+        stringBuilder.append("~".repeat(length)).append("\n");
     }
 
     private Integer getMaxRowLength() {
-        return Arrays.stream(sb.toString().split("\n"))
-                .map(String::length)
-                .max(Comparator.naturalOrder()).orElse(0);
+        appendHeader();
+        var text = stringBuilder.toString();
+        var headerLength = Arrays.stream(text.split("\n"))
+                .mapToInt(String::length)
+                .max().orElse(0) - 9;
+        stringBuilder.setLength(0);
+
+
+        appendInfo();
+        var text1 = stringBuilder.toString();
+        var infoLength = Arrays.stream(text1.split("\n"))
+                .mapToInt(String::length)
+                .max().orElse(0);
+        stringBuilder.setLength(0);
+
+        return Math.max(headerLength, infoLength);
+    }
+
+    private String applyPrefix(String text) {
+        return Arrays.stream(text.split("\n"))
+                .map(line -> "%s%s".formatted(prefix, line))
+                .collect(Collectors.joining("\n"));
     }
 
 }

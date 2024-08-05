@@ -1,8 +1,7 @@
-package com.core.sqlTool.model.command.join;
+package com.core.sqlTool.model.command;
 
 import com.core.sqlTool.exception.TableSpecifiedTwiceException;
-import com.core.sqlTool.model.command.Command;
-import com.core.sqlTool.model.command.SingleExpressionCommand;
+import com.core.sqlTool.model.command.join.JoinStrategy;
 import com.core.sqlTool.model.complexity.CalculatorEntry;
 import com.core.sqlTool.model.domain.Column;
 import com.core.sqlTool.model.domain.LazyTable;
@@ -25,7 +24,7 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 @Getter
 @EqualsAndHashCode
-public abstract class JoinCommand implements SingleExpressionCommand {
+public abstract sealed class JoinCommand implements Command permits InnerJoin, LeftJoin, RightJoin, FullJoin {
 
     private final List<Command> commands;
 
@@ -48,6 +47,11 @@ public abstract class JoinCommand implements SingleExpressionCommand {
         var targetDataStream = run(strategy.run(lazyTable, joinedTable, expression, resolver, calculatorEntry));
 
         return new LazyTable(null, mergedColumns, targetDataStream, lazyTable.externalRow());
+    }
+
+    @Override
+    public <T> T accept(Visitor<T> visitor) {
+        return visitor.visit(this);
     }
 
     private void validate(LazyTable table, LazyTable joinedTable) {
