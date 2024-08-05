@@ -18,9 +18,9 @@ public record QueryExecutor(Query query) {
     public Pair<Table, Calculator> execute() throws SQLException {
 
         // sqlite
-        //var connection = DriverManager.getConnection("jdbc:sqlite:/home/egor/IdeaProjects/diploma/sqlTool/database/sqlite/db_from_course.sqlite3");
+        //var connection = DriverManager.getConnection("jdbc:sqlite:/sqlTool/database/sqlite/db_from_course.sqlite3");
 
-        //postgres
+        // postgres
         var connection = DriverManager.getConnection(String.format("jdbc:postgresql://localhost:%s/%s", Constants.DB_PORT, Constants.DB_NAME), Constants.DB_USER, Constants.DB_PASSWORD);
         var projection = new DatabaseReader(connection).read();
 

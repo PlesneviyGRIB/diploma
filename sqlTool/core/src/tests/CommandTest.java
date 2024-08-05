@@ -7,12 +7,12 @@ import com.client.sqlTool.expression.Bool;
 import com.client.sqlTool.expression.Number;
 import com.client.sqlTool.expression.Unary;
 import com.client.sqlTool.query.Query;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static com.client.sqlTool.expression.Operator.*;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CommandTest extends TestBase {
 

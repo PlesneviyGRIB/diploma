@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="6a7d0718-5d9a-4fdd-ae2b-b69d10222dee" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/commons.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/gson_2_11_0.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/jackson.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/jars.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/junit.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/lombok_1_18_34.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/slf4j.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/sqlite_jdbc_3_34_0.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/uiDesigner.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/diploma.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sqlTool/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/sqlTool/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sqlTool/Readme.md" beforeDir="false" afterPath="$PROJECT_DIR$/sqlTool/Readme.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sqlTool/client/java/src/com/client/sqlTool/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/sqlTool/client/java/src/com/client/sqlTool/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sqlTool/core/src/com/core/sqlTool/utils/QueryExecutor.java" beforeDir="false" afterPath="$PROJECT_DIR$/sqlTool/core/src/com/core/sqlTool/utils/QueryExecutor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sqlTool/core/src/tests/ColumnNameTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/sqlTool/core/src/tests/ColumnNameTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sqlTool/core/src/tests/CommandEqualityTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/sqlTool/core/src/tests/CommandEqualityTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sqlTool/core/src/tests/CommandTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/sqlTool/core/src/tests/CommandTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sqlTool/core/src/tests/ExpressionComplexityCalculationTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/sqlTool/core/src/tests/ExpressionComplexityCalculationTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sqlTool/core/src/tests/ExpressionEqualityTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/sqlTool/core/src/tests/ExpressionEqualityTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sqlTool/core/src/tests/ExpressionStructureTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/sqlTool/core/src/tests/ExpressionStructureTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sqlTool/core/src/tests/ExpressionTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/sqlTool/core/src/tests/ExpressionTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sqlTool/core/src/tests/TestBase.java" beforeDir="false" afterPath="$PROJECT_DIR$/sqlTool/core/src/tests/TestBase.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sqlTool/database/postgres/init.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sqlTool/jars/classmate-1.5.1.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sqlTool/jars/commons/commons-collections4-4.1.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sqlTool/jars/commons/commons-lang3-3.14.0.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sqlTool/jars/gson-2.11.0.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sqlTool/jars/jackson/jackson-annotations-2.14.2.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sqlTool/jars/jackson/jackson-core-2.14.2.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sqlTool/jars/jackson/jackson-databind-2.14.2.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sqlTool/jars/jsonschema-generator-4.35.0.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sqlTool/jars/junit/hamcrest-core-1.3.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sqlTool/jars/junit/junit-4.13.2.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sqlTool/jars/lombok-1.18.34.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sqlTool/jars/postgresql-42.7.1.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sqlTool/jars/slf4j/slf4j-api-2.0.3.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sqlTool/jars/slf4j/slf4j-nop-2.0.12.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sqlTool/jars/sqlite-jdbc-3.34.0.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sqlTool/sqlTool.iml" beforeDir="false" afterPath="$PROJECT_DIR$/sqlTool/sqlTool.iml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+        <option value="Interface" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 5
+}</component>
+  <component name="ProjectId" id="2jYT6Yde6Zilikx651FNqtQ99X6" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+    <option name="showMembers" value="true" />
+    <option name="showScratchesAndConsoles" value="false" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.Main.executor": "Run",
+    "Docker.database: Compose Deployment.executor": "Run",
+    "Docker.postgres: Compose Deployment.executor": "Run",
+    "Docker.sqlite.db: Compose Deployment.executor": "Run",
+    "Docker.sqlite: Compose Deployment.executor": "Run",
+    "JUnit.ColumnNameTest.executor": "Run",
+    "Maven.sql-tool [clean].executor": "Run",
+    "Maven.sql-tool [package].executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "database.data.extractors.current.export.id": "SQL Inserts",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/home/egor/IdeaProjects/diploma/sqlTool/database/postgres",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.5482759",
+    "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "sqlite"
+    ]
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/sqlTool/jars" />
+      <recent name="$PROJECT_DIR$/sqlTool/database" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/sqlTool" />
+      <recent name="$PROJECT_DIR$/sqlTool/database/postgres" />
+      <recent name="$PROJECT_DIR$/sqlTool/database/sqlite" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Application.Main">
+    <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.client.sqlTool.Main" />
+      <module name="sqlTool" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.client.sqlTool.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ColumnNameTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="sqlTool" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="tests.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="tests" />
+      <option name="MAIN_CLASS_NAME" value="tests.ColumnNameTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="docker-deploy" factoryName="docker-compose.yml" temporary="true">
+      <deployment type="docker-compose.yml">
+        <settings />
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration name="postgres: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="sourceFilePath" value="sqlTool/database/postgres/docker-compose.yml" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration name="sqlite: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="sourceFilePath" value="sqlTool/database/sqlite/docker-compose.yml" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration name="sqlite.db: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="services">
+            <list>
+              <option value="db" />
+            </list>
+          </option>
+          <option name="sourceFilePath" value="sqlTool/database/sqlite/docker-compose.yml" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.Main" />
+        <item itemvalue="JUnit.ColumnNameTest" />
+        <item itemvalue="Docker.postgres: Compose Deployment" />
+        <item itemvalue="Docker.sqlite: Compose Deployment" />
+        <item itemvalue="Docker.sqlite.db: Compose Deployment" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9f38398b9061-39b83d9b5494-intellij.indexing.shared.core-IU-241.15989.150" />
+        <option value="bundled-js-predefined-1d06a55b98c1-91d5c284f522-JavaScript-IU-241.15989.150" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="6a7d0718-5d9a-4fdd-ae2b-b69d10222dee" name="Changes" comment="" />
+      <created>1721562836784</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1721562836784</updated>
+      <workItem from="1721562838896" duration="10387000" />
+      <workItem from="1721573231715" duration="2984000" />
+      <workItem from="1721614191121" duration="609000" />
+      <workItem from="1721818732581" duration="1702000" />
+      <workItem from="1721873751715" duration="7000" />
+      <workItem from="1722855553048" duration="5930000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <condition expression="operand instanceof NullValue" language="JAVA" />
+          <url>file://$PROJECT_DIR$/sqlTool/core/src/com/core/sqlTool/model/expression/FloatNumberValue.java</url>
+          <line>13</line>
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>

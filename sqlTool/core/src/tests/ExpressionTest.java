@@ -7,14 +7,14 @@ import com.client.sqlTool.expression.*;
 import com.client.sqlTool.query.Query;
 import com.core.sqlTool.exception.ComputedTypeException;
 import com.core.sqlTool.model.domain.LazyTable;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static com.client.sqlTool.expression.Operator.*;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ExpressionTest extends TestBase {
 

@@ -2,7 +2,9 @@ package tests;
 
 import com.core.sqlTool.model.command.*;
 import com.core.sqlTool.model.command.aggregation.*;
-import com.core.sqlTool.model.command.join.*;
+import com.core.sqlTool.model.command.join.HashJoinStrategy;
+import com.core.sqlTool.model.command.join.LoopJoinStrategy;
+import com.core.sqlTool.model.command.join.MergeJoinStrategy;
 import com.core.sqlTool.model.domain.Column;
 import com.core.sqlTool.model.expression.BooleanValue;
 import com.core.sqlTool.model.expression.NumberValue;
@@ -11,12 +13,12 @@ import com.core.sqlTool.model.index.BitmapIndex;
 import com.core.sqlTool.model.index.HashIndex;
 import com.core.sqlTool.model.index.TreeIndex;
 import org.apache.commons.lang3.tuple.Pair;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static com.client.sqlTool.expression.Operator.NOT;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CommandEqualityTest {
 

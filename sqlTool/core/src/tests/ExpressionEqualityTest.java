@@ -4,13 +4,13 @@ import com.core.sqlTool.model.command.SelectCommand;
 import com.core.sqlTool.model.command.WhereCommand;
 import com.core.sqlTool.model.domain.Column;
 import com.core.sqlTool.model.expression.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static com.client.sqlTool.expression.Operator.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class ExpressionEqualityTest {
 

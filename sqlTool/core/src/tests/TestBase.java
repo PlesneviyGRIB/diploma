@@ -14,7 +14,7 @@ import com.core.sqlTool.support.WrappedStream;
 import com.core.sqlTool.utils.DatabaseReader;
 import com.core.sqlTool.utils.DtoToModelConverter;
 import org.apache.commons.collections4.ListUtils;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -50,10 +50,10 @@ public class TestBase {
     protected void expectException(Runnable runnable, Class<? extends RuntimeException> exception) {
         try {
             runnable.run();
-            Assert.fail();
+            Assertions.fail();
         } catch (Exception ex) {
             if (!exception.equals(ex.getClass())) {
-                Assert.fail(format("Expected [%s], but found [%s]", exception.getSimpleName(), ex.getClass().getSimpleName()));
+                Assertions.fail(format("Expected [%s], but found [%s]", exception.getSimpleName(), ex.getClass().getSimpleName()));
             }
         }
     }

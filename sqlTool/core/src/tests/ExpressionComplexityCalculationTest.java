@@ -9,12 +9,12 @@ import com.client.sqlTool.query.Query;
 import com.core.sqlTool.model.domain.ExternalHeaderRow;
 import com.core.sqlTool.model.domain.HeaderRow;
 import com.core.sqlTool.model.visitor.ExpressionCalculator;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.sql.Timestamp;
 
 import static com.client.sqlTool.expression.Operator.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ExpressionComplexityCalculationTest extends TestBase {
 
@@ -65,8 +65,8 @@ public class ExpressionComplexityCalculationTest extends TestBase {
 
         var calculatedExpressionResult = domainExpression.accept(new ExpressionCalculator(resolver, HeaderRow.empty(), ExternalHeaderRow.empty()));
 
-        Assert.assertEquals(complexity, calculatedExpressionResult.getComplexity());
-        Assert.assertEquals(domainExpressionResult, calculatedExpressionResult.getValue());
+        assertEquals(complexity, calculatedExpressionResult.getComplexity());
+        assertEquals(domainExpressionResult, calculatedExpressionResult.getValue());
     }
 
 }

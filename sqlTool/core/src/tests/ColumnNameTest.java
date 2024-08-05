@@ -15,7 +15,7 @@ import com.core.sqlTool.model.domain.LazyTable;
 import com.core.sqlTool.model.visitor.ExpressionResultTypeResolver;
 import com.core.sqlTool.utils.DtoToModelConverter;
 import com.core.sqlTool.utils.ModelUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 

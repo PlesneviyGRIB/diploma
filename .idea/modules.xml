@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/diploma.iml" filepath="$PROJECT_DIR$/diploma.iml" />
+      <module fileurl="file://$PROJECT_DIR$/sqlTool/sqlTool.iml" filepath="$PROJECT_DIR$/sqlTool/sqlTool.iml" />
     </modules>
   </component>
 </project>

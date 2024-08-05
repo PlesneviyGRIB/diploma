@@ -6,7 +6,7 @@ import com.core.sqlTool.exception.ComputedTypeException;
 import com.core.sqlTool.exception.IncorrectOperatorUsageException;
 import com.core.sqlTool.model.domain.ExternalHeaderRow;
 import com.core.sqlTool.model.visitor.ExpressionResultTypeResolver;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.sql.Timestamp;
 import java.util.List;
